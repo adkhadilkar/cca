@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body { margin: 0; background: #E9E5DC; font-family: 'Public Sans', sans-serif; }
+a { color: #C15F3C; text-decoration: none; }
+a:hover { color: #A34D2E; }
+</style>
+</helmet>
+<section style="padding:48px 56px">
+  <div style="font-family:'Source Serif 4',serif; font-size:28px; font-weight:600; color:#29261F">Claude Architect Exam Prep — complete flow (direction 1a)</div>
+  <div style="font-size:14px; color:#6B6555; margin:8px 0 36px; max-width:760px">Warm editorial system. Bg <span style="font-family:'IBM Plex Mono',monospace">#FAF7F0</span>, ink <span style="font-family:'IBM Plex Mono',monospace">#29261F</span>, accent <span style="font-family:'IBM Plex Mono',monospace">#C15F3C</span>, cards white / border <span style="font-family:'IBM Plex Mono',monospace">#E5DFCF</span>. Dark: bg <span style="font-family:'IBM Plex Mono',monospace">#211E18</span>, cards <span style="font-family:'IBM Plex Mono',monospace">#2A2620</span>, accent <span style="font-family:'IBM Plex Mono',monospace">#E8956D</span>. Home screen = <a href="Home Variations.dc.html">1a in Home Variations</a>. Two dark examples at the end show the full token mapping.</div>
+  <div style="display:flex; gap:44px; flex-wrap:wrap; align-items:flex-start">
+
+    <div data-screen-label="Onboarding" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">01</b> · Onboarding</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="background:#FAF7F0; min-height:100%; padding:36px 24px 32px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F; display:flex; flex-direction:column">
+          <div style="width:52px; height:52px; border-radius:16px; background:#C15F3C; display:flex; align-items:center; justify-content:center; font-family:'Source Serif 4',serif; font-size:24px; font-weight:700; color:#FAF7F0">A</div>
+          <div style="font-family:'Source Serif 4',serif; font-size:30px; font-weight:600; line-height:1.2; margin-top:20px">Prepare for the Claude Certified Architect exams.</div>
+          <div style="font-size:14px; color:#6B6555; margin-top:8px; line-height:1.5">Lessons, practice questions, flashcards and full mock exams — everything stored on your device, no connection needed.</div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; color:#8A8371; text-transform:uppercase; margin:28px 0 10px">Choose your track</div>
+          <div style="background:#FFFFFF; border:2px solid #C15F3C; border-radius:20px; padding:16px 18px; display:flex; align-items:center; gap:14px">
+            <div style="flex:1">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C">CCAR-F</div>
+              <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; margin-top:2px">Architect — Foundations</div>
+              <div style="font-size:12px; color:#6B6555; margin-top:2px">60 questions · 120 min · 5 domains</div>
+            </div>
+            <div style="width:22px; height:22px; border-radius:50%; background:#C15F3C; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px">✓</div>
+          </div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px; margin-top:10px; display:flex; align-items:center; gap:14px">
+            <div style="flex:1">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A8371">CCAR-P</div>
+              <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; margin-top:2px; color:#4E4A3E">Architect — Professional</div>
+              <div style="font-size:12px; color:#8A8371; margin-top:2px">63 questions · 120 min · advanced scenarios</div>
+            </div>
+            <div style="width:22px; height:22px; border-radius:50%; border:1.5px solid #D6CEB8"></div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:22px">
+            <div style="flex:1; background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A8371; text-transform:uppercase; letter-spacing:0.06em">Exam date</div>
+              <div style="font-size:14px; font-weight:600; margin-top:4px">Aug 8, 2026</div>
+            </div>
+            <div style="flex:1; background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A8371; text-transform:uppercase; letter-spacing:0.06em">Daily goal</div>
+              <div style="font-size:14px; font-weight:600; margin-top:4px">25 min</div>
+            </div>
+          </div>
+          <div style="flex:1"></div>
+          <div style="display:flex; align-items:center; gap:8px; justify-content:center; margin-bottom:14px">
+            <span style="width:8px; height:8px; border-radius:50%; background:#5A8A5E"></span>
+            <span style="font-size:12px; color:#6B6555">100% offline — nothing leaves this device</span>
+          </div>
+          <div style="background:#29261F; color:#F5F1E8; border-radius:16px; padding:16px; text-align:center; font-size:15px; font-weight:600">Start studying</div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Study" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">02</b> · Study — domain list</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="position:relative; background:#FAF7F0; min-height:100%; padding:20px 20px 96px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <div style="font-family:'Source Serif 4',serif; font-size:26px; font-weight:600">Study</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; background:#F0EBDD; border-radius:999px; padding:6px 12px; color:#4E4A3E">CCAR-F ▾</div>
+          </div>
+          <div style="font-size:13px; color:#6B6555; margin-top:4px">31 of 42 lessons complete</div>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-top:18px">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px">
+              <div style="display:flex; justify-content:space-between; align-items:center">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C">D1 · 27% of exam</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6B6555">9/9</div>
+              </div>
+              <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; margin-top:4px">Agentic Architecture</div>
+              <div style="font-size:12.5px; color:#6B6555; margin-top:3px">Agent loops, orchestrator–subagent patterns, delegation</div>
+              <div style="height:5px; background:#F0EBDD; border-radius:3px; margin-top:12px"><div style="width:100%; height:100%; background:#5A8A5E; border-radius:3px"></div></div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px">
+              <div style="display:flex; justify-content:space-between; align-items:center">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C">D2 · 20% of exam</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6B6555">7/11</div>
+              </div>
+              <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; margin-top:4px">Claude Code Workflows</div>
+              <div style="font-size:12.5px; color:#6B6555; margin-top:3px">CLAUDE.md, hooks, skills, headless &amp; CI usage</div>
+              <div style="height:5px; background:#F0EBDD; border-radius:3px; margin-top:12px"><div style="width:64%; height:100%; background:#C15F3C; border-radius:3px"></div></div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px">
+              <div style="display:flex; justify-content:space-between; align-items:center">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C">D3 · 20% of exam</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6B6555">6/8</div>
+              </div>
+              <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; margin-top:4px">Prompt Engineering</div>
+              <div style="font-size:12.5px; color:#6B6555; margin-top:3px">System prompts, XML structure, few-shot, extended thinking</div>
+              <div style="height:5px; background:#F0EBDD; border-radius:3px; margin-top:12px"><div style="width:75%; height:100%; background:#C15F3C; border-radius:3px"></div></div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px">
+              <div style="display:flex; justify-content:space-between; align-items:center">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#B0483A">D4 · 18% of exam</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6B6555">4/8</div>
+              </div>
+              <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; margin-top:4px">Tool Design &amp; MCP <span style="font-size:10px; font-family:'Public Sans',sans-serif; color:#B0483A; font-weight:600; background:#F7E3DC; border-radius:6px; padding:2px 6px; vertical-align:middle">weak</span></div>
+              <div style="font-size:12.5px; color:#6B6555; margin-top:3px">Tool schemas, MCP servers, resources, transports</div>
+              <div style="height:5px; background:#F0EBDD; border-radius:3px; margin-top:12px"><div style="width:41%; height:100%; background:#B0483A; border-radius:3px"></div></div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px">
+              <div style="display:flex; justify-content:space-between; align-items:center">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C">D5 · 15% of exam</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6B6555">5/6</div>
+              </div>
+              <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; margin-top:4px">Context Management</div>
+              <div style="font-size:12.5px; color:#6B6555; margin-top:3px">Context windows, compaction, memory, caching</div>
+              <div style="height:5px; background:#F0EBDD; border-radius:3px; margin-top:12px"><div style="width:83%; height:100%; background:#C15F3C; border-radius:3px"></div></div>
+            </div>
+            <div style="background:#F3EFE4; border:1px dashed #D6CEB8; border-radius:20px; padding:14px 18px; display:flex; align-items:center; gap:12px">
+              <div style="font-size:18px">📋</div>
+              <div style="flex:1">
+                <div style="font-size:14px; font-weight:600">Exam guide</div>
+                <div style="font-size:12px; color:#6B6555">Format, scoring &amp; what to expect on the day</div>
+              </div>
+              <div style="font-size:18px; color:#C15F3C">›</div>
+            </div>
+          </div>
+          <div style="position:absolute; left:0; right:0; bottom:0; background:#FAF7F0; border-top:1px solid #E5DFCF; display:flex; padding:10px 8px 22px">
+            <div style="flex:1; text-align:center; color:#8A8371"><div style="font-size:18px">⌂</div><div style="font-size:10.5px; margin-top:2px">Home</div></div>
+            <div style="flex:1; text-align:center"><div style="font-size:18px">▤</div><div style="font-size:10.5px; font-weight:600; color:#C15F3C; margin-top:2px">Study</div></div>
+            <div style="flex:1; text-align:center; color:#8A8371"><div style="font-size:18px">✎</div><div style="font-size:10.5px; margin-top:2px">Practice</div></div>
+            <div style="flex:1; text-align:center; color:#8A8371"><div style="font-size:18px">◷</div><div style="font-size:10.5px; margin-top:2px">Exam</div></div>
+            <div style="flex:1; text-align:center; color:#8A8371"><div style="font-size:18px">◔</div><div style="font-size:10.5px; margin-top:2px">Progress</div></div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Lesson" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">03</b> · Lesson detail</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="background:#FAF7F0; min-height:100%; padding:16px 20px 24px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+            <div style="font-size:20px">‹</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A8371">D2 · Lesson 7 of 11</div>
+            <div style="font-size:18px; color:#C15F3C">⚑</div>
+          </div>
+          <div style="height:4px; background:#F0EBDD; border-radius:2px; margin-bottom:20px"><div style="width:63%; height:100%; background:#C15F3C; border-radius:2px"></div></div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; color:#C15F3C; text-transform:uppercase">Claude Code Workflows</div>
+          <div style="font-family:'Source Serif 4',serif; font-size:26px; font-weight:600; line-height:1.25; margin-top:6px">Hooks &amp; lifecycle events</div>
+          <div style="font-size:12px; color:#8A8371; margin-top:6px">~6 min read</div>
+          <div style="font-size:14.5px; line-height:1.65; color:#3D392F; margin-top:16px">Hooks are user-defined shell commands that run at fixed points in Claude Code's lifecycle. Unlike instructions in CLAUDE.md — which the model may or may not follow — hooks are <b>deterministic</b>: they always execute.</div>
+          <div style="font-size:14.5px; line-height:1.65; color:#3D392F; margin-top:12px">The two most-tested events are <b>PreToolUse</b>, which fires before a tool call and can block it, and <b>PostToolUse</b>, which fires after the tool completes.</div>
+          <div style="background:#29261F; border-radius:14px; padding:14px 16px; margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:#E8D9C4; overflow:hidden">
+            <div style="color:#8A8371">// .claude/settings.json</div>
+            <div>"hooks": { "PreToolUse": [{</div>
+            <div>&nbsp;&nbsp;"matcher": "Bash",</div>
+            <div>&nbsp;&nbsp;"hooks": [{ "type": "command",</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;"command": "./check.sh" }] }] }</div>
+          </div>
+          <div style="background:#F3E3D3; border-radius:14px; padding:14px 16px; margin-top:16px">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#A34D2E; text-transform:uppercase">Exam key point</div>
+            <div style="font-size:13.5px; line-height:1.55; margin-top:6px; color:#3D392F">A PreToolUse hook exiting with <b>code 2</b> blocks the tool call and feeds stderr back to Claude. Any other non-zero exit shows the error to the user only.</div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:22px">
+            <div style="flex:1; background:#FFFFFF; border:1.5px solid #29261F; border-radius:14px; padding:13px; text-align:center; font-size:13px; font-weight:600">‹ Previous</div>
+            <div style="flex:1; background:#29261F; color:#F5F1E8; border-radius:14px; padding:13px; text-align:center; font-size:13px; font-weight:600">Mark done ›</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Practice" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">04</b> · Practice — answered, with explanation</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="background:#FAF7F0; min-height:100%; padding:16px 20px 24px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+            <div style="font-size:20px">✕</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A8371">Question 6 of 15 · D4</div>
+            <div style="font-size:18px; color:#8A8371">⚑</div>
+          </div>
+          <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; line-height:1.45">A team wants Claude to query their internal ticketing system from multiple surfaces — Claude Code, the desktop app, and a custom agent. What is the recommended integration approach?</div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:16px">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:13px 14px; font-size:13.5px; color:#6B6555">A · Paste API docs into each conversation</div>
+            <div style="background:#EDF3EA; border:1.5px solid #5A8A5E; border-radius:14px; padding:13px 14px; font-size:13.5px; display:flex; justify-content:space-between; align-items:center"><span><b>B</b> · Build one MCP server exposing ticket tools</span><span style="color:#5A8A5E; font-weight:700">✓</span></div>
+            <div style="background:#F9EEEB; border:1.5px solid #B0483A; border-radius:14px; padding:13px 14px; font-size:13.5px; display:flex; justify-content:space-between; align-items:center; color:#6B6555"><span>C · Write a custom tool in each client</span><span style="color:#B0483A; font-weight:700; white-space:nowrap; flex-shrink:0; margin-left:8px">✕ yours</span></div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:13px 14px; font-size:13.5px; color:#6B6555">D · Fine-tune a model on ticket data</div>
+          </div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:16px; margin-top:16px">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#5A8A5E; text-transform:uppercase">Explanation</div>
+            <div style="font-size:13.5px; line-height:1.6; color:#3D392F; margin-top:6px">MCP exists precisely for this: one server, written once, gives every MCP-capable client the same tools. Per-client custom tools (C) duplicate work and drift apart; docs-pasting (A) doesn't execute anything; fine-tuning (D) doesn't grant live data access.</div>
+            <div style="font-size:12px; color:#C15F3C; font-weight:600; margin-top:10px">→ Review: D4 · Lesson 2 “What MCP standardizes”</div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:18px">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:13px 16px; font-size:13px; font-weight:600; color:#6B6555">+ Flashcard</div>
+            <div style="flex:1; background:#29261F; color:#F5F1E8; border-radius:14px; padding:13px; text-align:center; font-size:13px; font-weight:600">Next question ›</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Flashcards" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">05</b> · Flashcards — spaced repetition</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="background:#FAF7F0; min-height:100%; padding:16px 20px 24px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F; display:flex; flex-direction:column">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <div style="font-size:20px">✕</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A8371">18 due · 6 new</div>
+            <div style="font-size:18px; color:#8A8371">⋯</div>
+          </div>
+          <div style="height:4px; background:#F0EBDD; border-radius:2px; margin-top:14px"><div style="width:33%; height:100%; background:#C15F3C; border-radius:2px"></div></div>
+          <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:12px; padding:24px 0">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:24px; padding:28px 24px; box-shadow:0 8px 24px rgba(41,38,31,0.06)">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#8A8371; text-transform:uppercase">D5 · Context Management</div>
+              <div style="font-family:'Source Serif 4',serif; font-size:22px; font-weight:600; line-height:1.35; margin-top:10px">What happens during context compaction in Claude Code?</div>
+              <div style="border-top:1px dashed #E5DFCF; margin:18px 0"></div>
+              <div style="font-size:14.5px; line-height:1.6; color:#3D392F">The conversation is <b>summarized</b> and the summary replaces the full history, freeing context window space while preserving key facts, decisions and open tasks. Triggered automatically near the limit, or manually with <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#F0EBDD; padding:1px 6px; border-radius:5px">/compact</span>.</div>
+            </div>
+            <div style="text-align:center; font-size:12px; color:#8A8371">How well did you know this?</div>
+          </div>
+          <div style="display:flex; gap:8px">
+            <div style="flex:1; background:#F9EEEB; border:1px solid #E5C8BF; border-radius:14px; padding:12px 4px; text-align:center"><div style="font-size:13px; font-weight:700; color:#B0483A">Again</div><div style="font-size:10.5px; color:#8A8371; margin-top:2px">1 min</div></div>
+            <div style="flex:1; background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:12px 4px; text-align:center"><div style="font-size:13px; font-weight:700; color:#A0742C">Hard</div><div style="font-size:10.5px; color:#8A8371; margin-top:2px">2 d</div></div>
+            <div style="flex:1; background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:12px 4px; text-align:center"><div style="font-size:13px; font-weight:700; color:#5A8A5E">Good</div><div style="font-size:10.5px; color:#8A8371; margin-top:2px">4 d</div></div>
+            <div style="flex:1; background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:12px 4px; text-align:center"><div style="font-size:13px; font-weight:700; color:#3E6B8A">Easy</div><div style="font-size:10.5px; color:#8A8371; margin-top:2px">8 d</div></div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Mock exam" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">06</b> · Mock exam — timed</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="background:#FAF7F0; min-height:100%; padding:16px 20px 24px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F; display:flex; flex-direction:column">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A8371">Q 14 / 60</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:500; background:#29261F; color:#F5F1E8; border-radius:999px; padding:6px 14px">01:47:22</div>
+            <div style="font-size:13px; font-weight:600; color:#C15F3C">⚑ Flag</div>
+          </div>
+          <div style="display:flex; gap:3px; margin-top:14px">
+            <div style="flex:14; height:4px; background:#C15F3C; border-radius:2px"></div>
+            <div style="flex:46; height:4px; background:#F0EBDD; border-radius:2px"></div>
+          </div>
+          <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; line-height:1.45; margin-top:22px">An orchestrator agent delegates research to three subagents running in parallel. What is the primary architectural benefit of this pattern over a single agent doing all three tasks sequentially?</div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:18px">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:14px; font-size:13.5px; line-height:1.5">A · Subagents always use cheaper models</div>
+            <div style="background:#F3E3D3; border:1.5px solid #C15F3C; border-radius:14px; padding:14px; font-size:13.5px; line-height:1.5; font-weight:600">B · Each subagent works in an isolated context window, so detail-heavy work doesn't pollute the orchestrator's context</div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:14px; font-size:13.5px; line-height:1.5">C · Subagents cannot make tool-use errors</div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:14px; font-size:13.5px; line-height:1.5">D · It reduces total tokens consumed in every case</div>
+          </div>
+          <div style="flex:1"></div>
+          <div style="display:flex; align-items:center; gap:10px">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:13px 18px; font-size:13px; font-weight:600; color:#6B6555">‹</div>
+            <div style="flex:1; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A8371">2 flagged · 13 answered</div>
+            <div style="background:#29261F; color:#F5F1E8; border-radius:14px; padding:13px 22px; font-size:13px; font-weight:600">Next ›</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Results" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">07</b> · Exam results</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="background:#FAF7F0; min-height:100%; padding:20px 20px 28px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F">
+          <div style="text-align:center; padding-top:8px">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; color:#8A8371; text-transform:uppercase">Mock exam 4 · CCAR-F</div>
+            <div style="font-family:'Source Serif 4',serif; font-size:56px; font-weight:700; color:#5A8A5E; margin-top:10px; line-height:1">738</div>
+            <div style="display:inline-block; background:#EDF3EA; color:#5A8A5E; font-size:13px; font-weight:700; border-radius:999px; padding:6px 16px; margin-top:10px">PASS · target 720</div>
+            <div style="font-size:12.5px; color:#6B6555; margin-top:10px">48 of 60 correct · 96 min used · +26 vs last mock</div>
+          </div>
+          <div style="font-family:'Source Serif 4',serif; font-size:17px; font-weight:600; margin:24px 0 10px">By domain</div>
+          <div style="display:flex; flex-direction:column; gap:10px">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:12px 14px">
+              <div style="display:flex; justify-content:space-between; font-size:13px"><span style="font-weight:600">D1 Agentic Architecture</span><span style="font-family:'IBM Plex Mono',monospace; color:#6B6555">14/16</span></div>
+              <div style="height:4px; background:#F0EBDD; border-radius:2px; margin-top:7px"><div style="width:88%; height:100%; background:#5A8A5E; border-radius:2px"></div></div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:12px 14px">
+              <div style="display:flex; justify-content:space-between; font-size:13px"><span style="font-weight:600">D2 Claude Code Workflows</span><span style="font-family:'IBM Plex Mono',monospace; color:#6B6555">9/12</span></div>
+              <div style="height:4px; background:#F0EBDD; border-radius:2px; margin-top:7px"><div style="width:75%; height:100%; background:#C15F3C; border-radius:2px"></div></div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:12px 14px">
+              <div style="display:flex; justify-content:space-between; font-size:13px"><span style="font-weight:600">D3 Prompt Engineering</span><span style="font-family:'IBM Plex Mono',monospace; color:#6B6555">10/12</span></div>
+              <div style="height:4px; background:#F0EBDD; border-radius:2px; margin-top:7px"><div style="width:83%; height:100%; background:#5A8A5E; border-radius:2px"></div></div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:12px 14px">
+              <div style="display:flex; justify-content:space-between; font-size:13px"><span style="font-weight:600; color:#B0483A">D4 Tool Design &amp; MCP</span><span style="font-family:'IBM Plex Mono',monospace; color:#B0483A">7/11</span></div>
+              <div style="height:4px; background:#F0EBDD; border-radius:2px; margin-top:7px"><div style="width:64%; height:100%; background:#B0483A; border-radius:2px"></div></div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:12px 14px">
+              <div style="display:flex; justify-content:space-between; font-size:13px"><span style="font-weight:600">D5 Context Management</span><span style="font-family:'IBM Plex Mono',monospace; color:#6B6555">8/9</span></div>
+              <div style="height:4px; background:#F0EBDD; border-radius:2px; margin-top:7px"><div style="width:89%; height:100%; background:#5A8A5E; border-radius:2px"></div></div>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:20px">
+            <div style="flex:1; background:#FFFFFF; border:1.5px solid #29261F; border-radius:14px; padding:14px; text-align:center; font-size:13px; font-weight:600">Review 12 missed</div>
+            <div style="flex:1; background:#29261F; color:#F5F1E8; border-radius:14px; padding:14px; text-align:center; font-size:13px; font-weight:600">Done</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Progress" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">08</b> · Progress &amp; history</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="position:relative; background:#FAF7F0; min-height:100%; padding:20px 20px 96px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F">
+          <div style="font-family:'Source Serif 4',serif; font-size:26px; font-weight:600">Progress</div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px; margin-top:16px">
+            <div style="display:flex; justify-content:space-between; align-items:baseline">
+              <div style="font-size:13px; font-weight:700">Mock exam scores</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#5A8A5E">▲ trending up</div>
+            </div>
+            <div style="display:flex; align-items:flex-end; gap:14px; height:110px; margin-top:14px; border-bottom:1px solid #F0EBDD; position:relative">
+              <div style="position:absolute; left:0; right:0; bottom:62px; border-top:1px dashed #D6CEB8"></div>
+              <div style="position:absolute; left:0; bottom:66px; font-family:'IBM Plex Mono',monospace; font-size:9px; color:#8A8371; background:#FFFFFF; padding-right:4px">pass 720</div>
+              <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A8371">612</div><div style="width:100%; height:38px; background:#EFD2BD; border-radius:6px 6px 0 0"></div></div>
+              <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A8371">655</div><div style="width:100%; height:50px; background:#E5B394; border-radius:6px 6px 0 0"></div></div>
+              <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A8371">712</div><div style="width:100%; height:60px; background:#D98E6B; border-radius:6px 6px 0 0"></div></div>
+              <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:700; color:#5A8A5E">738</div><div style="width:100%; height:68px; background:#5A8A5E; border-radius:6px 6px 0 0"></div></div>
+            </div>
+            <div style="display:flex; gap:14px; margin-top:6px; font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:#8A8371"><span style="flex:1; text-align:center">Jun 28</span><span style="flex:1; text-align:center">Jul 4</span><span style="flex:1; text-align:center">Jul 10</span><span style="flex:1; text-align:center">Jul 15</span></div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:12px">
+            <div style="flex:1; background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A8371; text-transform:uppercase; letter-spacing:0.06em">Questions done</div><div style="font-family:'Source Serif 4',serif; font-size:22px; font-weight:600; margin-top:4px">847</div></div>
+            <div style="flex:1; background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A8371; text-transform:uppercase; letter-spacing:0.06em">Accuracy</div><div style="font-family:'Source Serif 4',serif; font-size:22px; font-weight:600; margin-top:4px">76%</div></div>
+            <div style="flex:1; background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px"><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8A8371; text-transform:uppercase; letter-spacing:0.06em">Study time</div><div style="font-family:'Source Serif 4',serif; font-size:22px; font-weight:600; margin-top:4px">21h</div></div>
+          </div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px; margin-top:12px">
+            <div style="display:flex; justify-content:space-between; align-items:baseline">
+              <div style="font-size:13px; font-weight:700">Streak — last 4 weeks</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C">12 days 🔥</div>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(14, 1fr); gap:5px; margin-top:12px">
+              <div style="aspect-ratio:1; border-radius:4px; background:#F0EBDD"></div><div style="aspect-ratio:1; border-radius:4px; background:#EFD2BD"></div><div style="aspect-ratio:1; border-radius:4px; background:#F0EBDD"></div><div style="aspect-ratio:1; border-radius:4px; background:#E5B394"></div><div style="aspect-ratio:1; border-radius:4px; background:#EFD2BD"></div><div style="aspect-ratio:1; border-radius:4px; background:#F0EBDD"></div><div style="aspect-ratio:1; border-radius:4px; background:#D98E6B"></div><div style="aspect-ratio:1; border-radius:4px; background:#EFD2BD"></div><div style="aspect-ratio:1; border-radius:4px; background:#E5B394"></div><div style="aspect-ratio:1; border-radius:4px; background:#F0EBDD"></div><div style="aspect-ratio:1; border-radius:4px; background:#EFD2BD"></div><div style="aspect-ratio:1; border-radius:4px; background:#D98E6B"></div><div style="aspect-ratio:1; border-radius:4px; background:#E5B394"></div><div style="aspect-ratio:1; border-radius:4px; background:#EFD2BD"></div>
+              <div style="aspect-ratio:1; border-radius:4px; background:#D98E6B"></div><div style="aspect-ratio:1; border-radius:4px; background:#C15F3C"></div><div style="aspect-ratio:1; border-radius:4px; background:#D98E6B"></div><div style="aspect-ratio:1; border-radius:4px; background:#C15F3C"></div><div style="aspect-ratio:1; border-radius:4px; background:#C15F3C"></div><div style="aspect-ratio:1; border-radius:4px; background:#D98E6B"></div><div style="aspect-ratio:1; border-radius:4px; background:#C15F3C"></div><div style="aspect-ratio:1; border-radius:4px; background:#C15F3C"></div><div style="aspect-ratio:1; border-radius:4px; background:#D98E6B"></div><div style="aspect-ratio:1; border-radius:4px; background:#C15F3C"></div><div style="aspect-ratio:1; border-radius:4px; background:#C15F3C"></div><div style="aspect-ratio:1; border-radius:4px; background:#C15F3C"></div><div style="aspect-ratio:1; border-radius:4px; background:#D98E6B"></div><div style="aspect-ratio:1; border-radius:4px; background:#C15F3C"></div>
+            </div>
+          </div>
+          <div style="position:absolute; left:0; right:0; bottom:0; background:#FAF7F0; border-top:1px solid #E5DFCF; display:flex; padding:10px 8px 22px">
+            <div style="flex:1; text-align:center; color:#8A8371"><div style="font-size:18px">⌂</div><div style="font-size:10.5px; margin-top:2px">Home</div></div>
+            <div style="flex:1; text-align:center; color:#8A8371"><div style="font-size:18px">▤</div><div style="font-size:10.5px; margin-top:2px">Study</div></div>
+            <div style="flex:1; text-align:center; color:#8A8371"><div style="font-size:18px">✎</div><div style="font-size:10.5px; margin-top:2px">Practice</div></div>
+            <div style="flex:1; text-align:center; color:#8A8371"><div style="font-size:18px">◷</div><div style="font-size:10.5px; margin-top:2px">Exam</div></div>
+            <div style="flex:1; text-align:center"><div style="font-size:18px">◔</div><div style="font-size:10.5px; font-weight:600; color:#C15F3C; margin-top:2px">Progress</div></div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Exam guide" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">09</b> · Exam guide — what to expect</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="background:#FAF7F0; min-height:100%; padding:16px 20px 28px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px"><div style="font-size:20px">‹</div><div style="font-family:'Source Serif 4',serif; font-size:20px; font-weight:600">Exam guide</div></div>
+          <div style="background:#29261F; border-radius:20px; padding:18px; color:#F5F1E8">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; color:#A8A190; text-transform:uppercase">CCAR-F · Foundations</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px">
+              <div><div style="font-family:'Source Serif 4',serif; font-size:22px; font-weight:600">60</div><div style="font-size:11.5px; color:#A8A190">questions</div></div>
+              <div><div style="font-family:'Source Serif 4',serif; font-size:22px; font-weight:600">120 min</div><div style="font-size:11.5px; color:#A8A190">time limit</div></div>
+              <div><div style="font-family:'Source Serif 4',serif; font-size:22px; font-weight:600">720</div><div style="font-size:11.5px; color:#A8A190">passing (scaled 100–1000)</div></div>
+              <div><div style="font-family:'Source Serif 4',serif; font-size:22px; font-weight:600">MCQ</div><div style="font-size:11.5px; color:#A8A190">single &amp; multi-select</div></div>
+            </div>
+          </div>
+          <div style="font-family:'Source Serif 4',serif; font-size:17px; font-weight:600; margin:20px 0 10px">Domain weighting</div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px; display:flex; flex-direction:column; gap:10px">
+            <div style="display:flex; align-items:center; gap:10px; font-size:13px"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C; width:22px">D1</span><span style="flex:1; font-weight:600">Agentic Architecture</span><span style="font-family:'IBM Plex Mono',monospace; color:#6B6555">27%</span></div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:13px"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C; width:22px">D2</span><span style="flex:1; font-weight:600">Claude Code Workflows</span><span style="font-family:'IBM Plex Mono',monospace; color:#6B6555">20%</span></div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:13px"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C; width:22px">D3</span><span style="flex:1; font-weight:600">Prompt Engineering</span><span style="font-family:'IBM Plex Mono',monospace; color:#6B6555">20%</span></div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:13px"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C; width:22px">D4</span><span style="flex:1; font-weight:600">Tool Design &amp; MCP</span><span style="font-family:'IBM Plex Mono',monospace; color:#6B6555">18%</span></div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:13px"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C; width:22px">D5</span><span style="flex:1; font-weight:600">Context Management</span><span style="font-family:'IBM Plex Mono',monospace; color:#6B6555">15%</span></div>
+          </div>
+          <div style="font-family:'Source Serif 4',serif; font-size:17px; font-weight:600; margin:20px 0 10px">On the day</div>
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:13px 14px; font-size:13px; line-height:1.5; display:flex; gap:10px"><span>🖥</span><span>Online proctored or test center. Camera and screen monitored throughout.</span></div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:13px 14px; font-size:13px; line-height:1.5; display:flex; gap:10px"><span>🚫</span><span>Closed book — no docs, notes, second monitor or AI assistants.</span></div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:13px 14px; font-size:13px; line-height:1.5; display:flex; gap:10px"><span>⚑</span><span>You can flag questions and return to them before submitting.</span></div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:14px; padding:13px 14px; font-size:13px; line-height:1.5; display:flex; gap:10px"><span>📄</span><span>Result is a scaled score; the pass decision arrives with a domain-level breakdown.</span></div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Glossary" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">10</b> · Glossary</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="background:#FAF7F0; min-height:100%; padding:16px 20px 28px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px"><div style="font-size:20px">‹</div><div style="font-family:'Source Serif 4',serif; font-size:20px; font-weight:600">Glossary</div></div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:999px; padding:12px 18px; font-size:13.5px; color:#8A8371; display:flex; gap:10px; align-items:center"><span>🔍</span><span>Search 84 terms…</span></div>
+          <div style="display:flex; gap:6px; margin-top:12px; flex-wrap:wrap">
+            <span style="background:#29261F; color:#F5F1E8; font-size:11.5px; font-weight:600; border-radius:999px; padding:6px 12px">All</span>
+            <span style="background:#F0EBDD; color:#4E4A3E; font-size:11.5px; font-weight:600; border-radius:999px; padding:6px 12px">Agents</span>
+            <span style="background:#F0EBDD; color:#4E4A3E; font-size:11.5px; font-weight:600; border-radius:999px; padding:6px 12px">MCP</span>
+            <span style="background:#F0EBDD; color:#4E4A3E; font-size:11.5px; font-weight:600; border-radius:999px; padding:6px 12px">Claude Code</span>
+            <span style="background:#F0EBDD; color:#4E4A3E; font-size:11.5px; font-weight:600; border-radius:999px; padding:6px 12px">API</span>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C; margin:16px 0 8px">C</div>
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px 16px">
+              <div style="font-size:14px; font-weight:700">CLAUDE.md</div>
+              <div style="font-size:12.5px; line-height:1.55; color:#6B6555; margin-top:3px">Project memory file loaded into every Claude Code session — conventions, commands and context the agent should always know.</div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px 16px">
+              <div style="font-size:14px; font-weight:700">Compaction</div>
+              <div style="font-size:12.5px; line-height:1.55; color:#6B6555; margin-top:3px">Summarizing conversation history to reclaim context window space while preserving key decisions and open tasks.</div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px 16px">
+              <div style="font-size:14px; font-weight:700">Context window</div>
+              <div style="font-size:12.5px; line-height:1.55; color:#6B6555; margin-top:3px">The maximum tokens a model can attend to in one request — system prompt, conversation, tool results and output combined.</div>
+            </div>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C; margin:16px 0 8px">H</div>
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px 16px">
+              <div style="display:flex; justify-content:space-between"><div style="font-size:14px; font-weight:700">Hook</div><div style="color:#C15F3C">⚑</div></div>
+              <div style="font-size:12.5px; line-height:1.55; color:#6B6555; margin-top:3px">User-defined shell command executed deterministically at a lifecycle event such as PreToolUse or PostToolUse.</div>
+            </div>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C15F3C; margin:16px 0 8px">M</div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:16px; padding:14px 16px">
+            <div style="font-size:14px; font-weight:700">MCP (Model Context Protocol)</div>
+            <div style="font-size:12.5px; line-height:1.55; color:#6B6555; margin-top:3px">Open standard that lets any compatible client connect to servers exposing tools, resources and prompts.</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Settings" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">11</b> · Settings</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" hint-size="393px,780px">
+        <div style="background:#FAF7F0; min-height:100%; padding:16px 20px 28px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#29261F">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px"><div style="font-size:20px">‹</div><div style="font-family:'Source Serif 4',serif; font-size:20px; font-weight:600">Settings</div></div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#8A8371; text-transform:uppercase; margin-bottom:8px">Appearance</div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; padding:16px 18px">
+            <div style="font-size:14px; font-weight:600; margin-bottom:10px">Theme</div>
+            <div style="display:flex; background:#F0EBDD; border-radius:12px; padding:4px">
+              <div style="flex:1; text-align:center; background:#FFFFFF; border-radius:9px; padding:8px 0; font-size:12.5px; font-weight:600; box-shadow:0 1px 2px rgba(41,38,31,0.08)">Light</div>
+              <div style="flex:1; text-align:center; padding:8px 0; font-size:12.5px; color:#8A8371">Dark</div>
+              <div style="flex:1; text-align:center; padding:8px 0; font-size:12.5px; color:#8A8371">System</div>
+            </div>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#8A8371; text-transform:uppercase; margin:18px 0 8px">Study</div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; overflow:hidden">
+            <div style="padding:15px 18px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #F0EBDD"><span style="font-size:14px; font-weight:600">Exam date</span><span style="font-size:13px; color:#C15F3C; font-weight:600">Aug 8, 2026</span></div>
+            <div style="padding:15px 18px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #F0EBDD"><span style="font-size:14px; font-weight:600">Daily goal</span><span style="font-size:13px; color:#C15F3C; font-weight:600">25 min</span></div>
+            <div style="padding:15px 18px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #F0EBDD"><span style="font-size:14px; font-weight:600">Daily reminder</span><div style="width:44px; height:26px; border-radius:999px; background:#C15F3C; position:relative"><div style="position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; background:#fff"></div></div></div>
+            <div style="padding:15px 18px; display:flex; justify-content:space-between; align-items:center"><span style="font-size:14px; font-weight:600">New cards per day</span><span style="font-size:13px; color:#C15F3C; font-weight:600">10</span></div>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#8A8371; text-transform:uppercase; margin:18px 0 8px">Data</div>
+          <div style="background:#FFFFFF; border:1px solid #E5DFCF; border-radius:20px; overflow:hidden">
+            <div style="padding:15px 18px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #F0EBDD"><span style="font-size:14px; font-weight:600">Export progress</span><span style="color:#8A8371">›</span></div>
+            <div style="padding:15px 18px; display:flex; justify-content:space-between; align-items:center"><span style="font-size:14px; font-weight:600; color:#B0483A">Reset all progress</span><span style="color:#8A8371">›</span></div>
+          </div>
+          <div style="background:#F3EFE4; border-radius:16px; padding:14px 16px; margin-top:18px; display:flex; gap:10px; align-items:center">
+            <span style="width:8px; height:8px; border-radius:50%; background:#5A8A5E; flex-shrink:0"></span>
+            <span style="font-size:12.5px; color:#6B6555; line-height:1.5">All content and progress are stored on this device. The app never connects to the internet.</span>
+          </div>
+          <div style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#B8B2A0; margin-top:18px">Architect Prep v1.0 · content pack 2026.07</div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Lesson dark" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">12</b> · Dark theme — lesson (token mapping)</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" dark="{{ true }}" hint-size="393px,780px">
+        <div style="background:#211E18; min-height:100%; padding:16px 20px 24px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#F0EBDD">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+            <div style="font-size:20px">‹</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A8371">D2 · Lesson 7 of 11</div>
+            <div style="font-size:18px; color:#E8956D">⚑</div>
+          </div>
+          <div style="height:4px; background:#2E2A22; border-radius:2px; margin-bottom:20px"><div style="width:63%; height:100%; background:#D97757; border-radius:2px"></div></div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; color:#E8956D; text-transform:uppercase">Claude Code Workflows</div>
+          <div style="font-family:'Source Serif 4',serif; font-size:26px; font-weight:600; line-height:1.25; margin-top:6px">Hooks &amp; lifecycle events</div>
+          <div style="font-size:12px; color:#8A8371; margin-top:6px">~6 min read</div>
+          <div style="font-size:14.5px; line-height:1.65; color:#CFC8B8; margin-top:16px">Hooks are user-defined shell commands that run at fixed points in Claude Code's lifecycle. Unlike instructions in CLAUDE.md — which the model may or may not follow — hooks are <b style="color:#F0EBDD">deterministic</b>: they always execute.</div>
+          <div style="font-size:14.5px; line-height:1.65; color:#CFC8B8; margin-top:12px">The two most-tested events are <b style="color:#F0EBDD">PreToolUse</b>, which fires before a tool call and can block it, and <b style="color:#F0EBDD">PostToolUse</b>, which fires after the tool completes.</div>
+          <div style="background:#171511; border:1px solid #2E2A22; border-radius:14px; padding:14px 16px; margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:#E8D9C4">
+            <div style="color:#8A8371">// .claude/settings.json</div>
+            <div>"hooks": { "PreToolUse": [{</div>
+            <div>&nbsp;&nbsp;"matcher": "Bash",</div>
+            <div>&nbsp;&nbsp;"hooks": [{ "type": "command",</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;"command": "./check.sh" }] }] }</div>
+          </div>
+          <div style="background:#3A2A1F; border:1px solid #4A3527; border-radius:14px; padding:14px 16px; margin-top:16px">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em; color:#E8956D; text-transform:uppercase">Exam key point</div>
+            <div style="font-size:13.5px; line-height:1.55; margin-top:6px; color:#CFC8B8">A PreToolUse hook exiting with <b style="color:#F0EBDD">code 2</b> blocks the tool call and feeds stderr back to Claude. Any other non-zero exit shows the error to the user only.</div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:22px">
+            <div style="flex:1; background:transparent; border:1.5px solid #4E4A3E; border-radius:14px; padding:13px; text-align:center; font-size:13px; font-weight:600">‹ Previous</div>
+            <div style="flex:1; background:#F0EBDD; color:#29261F; border-radius:14px; padding:13px; text-align:center; font-size:13px; font-weight:600">Mark done ›</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Mock exam dark" style="display:flex; flex-direction:column; gap:10px">
+      <div style="font-size:13px; color:#6B6555"><b style="color:#29261F">13</b> · Dark theme — mock exam</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" dark="{{ true }}" hint-size="393px,780px">
+        <div style="background:#211E18; min-height:100%; padding:16px 20px 24px; box-sizing:border-box; font-family:'Public Sans',sans-serif; color:#F0EBDD; display:flex; flex-direction:column">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A8371">Q 14 / 60</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:500; background:#F0EBDD; color:#29261F; border-radius:999px; padding:6px 14px">01:47:22</div>
+            <div style="font-size:13px; font-weight:600; color:#E8956D">⚑ Flag</div>
+          </div>
+          <div style="display:flex; gap:3px; margin-top:14px">
+            <div style="flex:14; height:4px; background:#D97757; border-radius:2px"></div>
+            <div style="flex:46; height:4px; background:#2E2A22; border-radius:2px"></div>
+          </div>
+          <div style="font-family:'Source Serif 4',serif; font-size:18px; font-weight:600; line-height:1.45; margin-top:22px">An orchestrator agent delegates research to three subagents running in parallel. What is the primary architectural benefit of this pattern over a single agent doing all three tasks sequentially?</div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:18px">
+            <div style="background:#2A2620; border:1px solid #3A352B; border-radius:14px; padding:14px; font-size:13.5px; line-height:1.5; color:#CFC8B8">A · Subagents always use cheaper models</div>
+            <div style="background:#3A2A1F; border:1.5px solid #D97757; border-radius:14px; padding:14px; font-size:13.5px; line-height:1.5; font-weight:600">B · Each subagent works in an isolated context window, so detail-heavy work doesn't pollute the orchestrator's context</div>
+            <div style="background:#2A2620; border:1px solid #3A352B; border-radius:14px; padding:14px; font-size:13.5px; line-height:1.5; color:#CFC8B8">C · Subagents cannot make tool-use errors</div>
+            <div style="background:#2A2620; border:1px solid #3A352B; border-radius:14px; padding:14px; font-size:13.5px; line-height:1.5; color:#CFC8B8">D · It reduces total tokens consumed in every case</div>
+          </div>
+          <div style="flex:1"></div>
+          <div style="display:flex; align-items:center; gap:10px">
+            <div style="background:#2A2620; border:1px solid #3A352B; border-radius:14px; padding:13px 18px; font-size:13px; font-weight:600; color:#CFC8B8">‹</div>
+            <div style="flex:1; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A8371">2 flagged · 13 answered</div>
+            <div style="background:#F0EBDD; color:#29261F; border-radius:14px; padding:13px 22px; font-size:13px; font-weight:600">Next ›</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+</body>
+</html>
