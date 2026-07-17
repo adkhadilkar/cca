@@ -1,8 +1,11 @@
-# Android app — M1 (Study + Reference)
+# Android app — M0–M4 done
 
-Status: **M1 done** from `docs/DEVELOPMENT_DESIGN.md` §13. Built, installed,
-and verified end-to-end on an Android emulator (API 35, `etf_test` AVD) —
-`gradlew` is now committed, so `./gradlew :app:assembleDebug` /
+Status: **M0–M4 done** from `docs/DEVELOPMENT_DESIGN.md` §13 — every core
+screen (Home, Study, Practice, Flashcards, Mock Exam, Results, Progress,
+Onboarding, Settings) is built on real Room/DataStore data, not placeholders.
+Built, installed, and verified end-to-end on an Android emulator (API 35,
+`etf_test` AVD) across multiple fresh-install and resume-after-kill passes —
+`gradlew` is committed, so `./gradlew :app:assembleDebug` /
 `:app:installDebug` work directly, no Android Studio required.
 
 ## What's implemented
@@ -39,14 +42,46 @@ and verified end-to-end on an Android emulator (API 35, `etf_test` AVD) —
   list. Guide content is read directly from `guide.json` in assets (no Room
   table — matches the design doc's screen table, which marks 09 as
   content-pack-static).
+- **Practice** (`ui/practice/`, screen 04): domain picker with running
+  accuracy → question session against the real bank, immediate
+  correct/incorrect highlighting, explanation + sourceRef reveal. Every
+  attempt persists to a new `QuestionAttempt` table.
+- **Flashcards** (`ui/flashcards/`, screen 05): deck generated from the
+  question bank (stem = front, correct choice + explanation = back) — no
+  separate flashcard content exists in the pack. Due queue mixes
+  graded-but-due cards with capped new cards. `SpacedRepetitionScheduler`
+  (`domain/`) is an SM-2 variant with fixed first-step intervals matching
+  the design (Again 1min/Hard 2d/Good 4d/Easy 8d), pure function, no
+  Android deps.
+- **Mock exam** (`ui/exam/`, screens 06–07): wall-clock countdown timer that
+  survives backgrounding, flagging, autosave on every answer so an
+  in-progress attempt survives process death ("Resume exam in progress"),
+  submit confirmation, scoring (`MockExamScoring`, scaled to
+  `track.scoreScale`), per-domain breakdown, missed-question review.
+- **Progress** (`ui/progress/`, screen 08): readiness ring (Canvas conic
+  arc, blended from mock scores/lesson completion/flashcard mastery per
+  §9.4), mock score bar chart, stats tiles, weak-domain list, 28-day streak
+  heatmap. `StreakTracker` (`domain/`) nudges today's streak counter on
+  every qualifying action (lesson done, practice/flashcard answer, mock
+  submit) — the app doesn't instrument real foreground session time, so
+  this is coarser than true time tracking but drives the calendar
+  correctly.
+- **Onboarding** (`ui/onboarding/`, screen 01) and **Settings**
+  (`ui/settings/`, screen 11): `UserPrefsRepository` is the first real use
+  of the DataStore Preferences dependency that sat unused since M0. Theme
+  (light/dark/system, applied live), exam date, daily goal, daily card
+  limit, export progress (JSON via the system share sheet), reset progress
+  (confirmation dialog, content stays), redo onboarding. `MainActivity`
+  gates the whole app on `UserPrefs.onboarded` before showing the bottom-nav
+  shell.
 
 ## What's NOT implemented yet
 
-Practice (M2), Flashcards (M2), Mock exam (M3), Results (M3), Progress
-dashboard (M4), Onboarding (M4), Settings (M4), the content-pipeline signed
-pack updater (M5), and hardening/a11y/tests (M6) are all still
-`PlaceholderScreen`s or unbuilt. See `docs/DEVELOPMENT_DESIGN.md` §13 for
-the full milestone list.
+The content-pipeline signed pack updater (M5 — build-time tooling for
+content maintainers, separate from the app itself) and formal
+hardening/a11y audit/automated test suite/beta release (M6) haven't been
+started. Everything else in `docs/DEVELOPMENT_DESIGN.md` §13's milestone
+list is done.
 
 ## Known gaps carried over from the content pack
 
