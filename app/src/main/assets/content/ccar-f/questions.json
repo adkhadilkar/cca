@@ -1,0 +1,408 @@
+{
+  "questions": [
+    {
+      "id": "q-d1-001",
+      "domainId": "d1",
+      "type": "single",
+      "difficulty": "easy",
+      "stem": "A team wants Claude to always run: classify the incoming ticket, then route it to one of three fixed follow-up prompts based on the category. The set of steps is known in advance and never changes. What is this an example of?",
+      "choices": [
+        {"id": "a", "text": "An autonomous agent"},
+        {"id": "b", "text": "The routing workflow pattern"},
+        {"id": "c", "text": "Orchestrator-workers"},
+        {"id": "d", "text": "Evaluator-optimizer"}
+      ],
+      "correct": ["b"],
+      "explanation": "Routing classifies an input and directs it to one of several specialized, predefined follow-up prompts. Because the steps and destinations are fixed in advance, this is a workflow, not an autonomous agent — the LLM isn't deciding its own process.",
+      "sourceRef": "D1 Lesson 2 — The five workflow patterns"
+    },
+    {
+      "id": "q-d1-002",
+      "domainId": "d1",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "A code-migration task needs to touch an unknown set of files discovered only by exploring the repository first. Which pattern best fits?",
+      "choices": [
+        {"id": "a", "text": "Parallelization (sectioning)"},
+        {"id": "b", "text": "Prompt chaining"},
+        {"id": "c", "text": "Orchestrator-workers"},
+        {"id": "d", "text": "Routing"}
+      ],
+      "correct": ["c"],
+      "explanation": "Orchestrator-workers is for tasks where the subtasks can't be predefined — a central LLM dynamically decides what work is needed and delegates it. Parallelization requires the subtasks to be known ahead of time; here the set of files to touch is discovered at runtime.",
+      "sourceRef": "D1 Lesson 2 — The five workflow patterns"
+    },
+    {
+      "id": "q-d1-003",
+      "domainId": "d1",
+      "type": "multi",
+      "difficulty": "medium",
+      "stem": "Which of the following are true about running multiple subagents under a coordinator in Anthropic's Managed Agents? (Select all that apply)",
+      "choices": [
+        {"id": "a", "text": "Each subagent runs in its own context-isolated session thread"},
+        {"id": "b", "text": "Tools and MCP servers are automatically shared across all agents in the roster"},
+        {"id": "c", "text": "The coordinator can delegate to a maximum of one level of agents"},
+        {"id": "d", "text": "A session supports at most 25 concurrent threads"}
+      ],
+      "correct": ["a", "c", "d"],
+      "explanation": "Each agent gets its own isolated thread and configuration (model, prompt, tools, MCP servers) — tools and context are NOT shared automatically, only the sandbox filesystem and session-level vault credentials are. Delegation depth is capped at one level, and a session allows at most 25 concurrent threads.",
+      "sourceRef": "D1 Lesson 3 — Multiagent orchestration"
+    },
+    {
+      "id": "q-d1-004",
+      "domainId": "d1",
+      "type": "single",
+      "difficulty": "easy",
+      "stem": "According to Anthropic's guidance on building effective agents, what should you try FIRST before reaching for a multi-step workflow or an autonomous agent?",
+      "choices": [
+        {"id": "a", "text": "A single, well-optimized LLM call"},
+        {"id": "b", "text": "An orchestrator-workers system"},
+        {"id": "c", "text": "A multiagent coordinator with at least 3 subagents"},
+        {"id": "d", "text": "Evaluator-optimizer with two models"}
+      ],
+      "correct": ["a"],
+      "explanation": "The guidance is to find the simplest solution possible, and only increase complexity when a simpler solution falls short. A single well-prompted LLM call is the starting point; workflows and agents add cost, latency, and unpredictability and should be justified by the task.",
+      "sourceRef": "D1 Lesson 1 — Workflows vs. agents vs. the augmented LLM"
+    },
+    {
+      "id": "q-d1-005",
+      "domainId": "d1",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "A tool call inside an agent loop fails (e.g. the file doesn't exist). What is the recommended way to handle this so the agent can recover?",
+      "choices": [
+        {"id": "a", "text": "Silently drop the tool call and continue with the next step"},
+        {"id": "b", "text": "Terminate the agent loop immediately to avoid compounding errors"},
+        {"id": "c", "text": "Return a tool_result block with is_error true and a useful message, so Claude can adapt"},
+        {"id": "d", "text": "Retry the exact same tool call up to 10 times before giving up"}
+      ],
+      "correct": ["c"],
+      "explanation": "Errors should be surfaced back to the model as structured tool results (is_error: true) with enough information for Claude to adapt or retry sensibly, rather than crashing the loop or hiding the failure.",
+      "sourceRef": "D1 Lesson 4 — Reliability: error handling, guardrails, and human oversight"
+    },
+    {
+      "id": "q-d1-006",
+      "domainId": "d1",
+      "type": "single",
+      "difficulty": "hard",
+      "stem": "A team runs the same summarization prompt three times and picks the best of three outputs by majority agreement. Which workflow pattern is this?",
+      "choices": [
+        {"id": "a", "text": "Parallelization — voting"},
+        {"id": "b", "text": "Parallelization — sectioning"},
+        {"id": "c", "text": "Evaluator-optimizer"},
+        {"id": "d", "text": "Prompt chaining"}
+      ],
+      "correct": ["a"],
+      "explanation": "Voting runs the same task multiple times to get diverse outputs, then aggregates them (e.g. by majority) — distinct from sectioning, which splits a task into independent parts run in parallel.",
+      "sourceRef": "D1 Lesson 2 — The five workflow patterns"
+    },
+
+    {
+      "id": "q-d2-001",
+      "domainId": "d2",
+      "type": "single",
+      "difficulty": "easy",
+      "stem": "You need Claude Code to ALWAYS run the test suite after every file edit, with no exceptions, even if the model 'forgets.' What should you use?",
+      "choices": [
+        {"id": "a", "text": "Add an instruction to CLAUDE.md asking Claude to run tests after edits"},
+        {"id": "b", "text": "A PostToolUse hook matching Edit/Write that runs the test command"},
+        {"id": "c", "text": "A slash command the user has to remember to invoke"},
+        {"id": "d", "text": "A more detailed system prompt"}
+      ],
+      "correct": ["b"],
+      "explanation": "Hooks are deterministic shell commands that always fire at a lifecycle event — unlike CLAUDE.md instructions, which the model may or may not follow. A PostToolUse hook guarantees the test command runs after every matching edit.",
+      "sourceRef": "D2 Lesson 2 — Hooks and lifecycle events"
+    },
+    {
+      "id": "q-d2-002",
+      "domainId": "d2",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "A project's CLAUDE.md and a developer's personal ~/.claude/CLAUDE.md both define a coding convention, and they conflict. Which wins?",
+      "choices": [
+        {"id": "a", "text": "User memory always overrides project memory"},
+        {"id": "b", "text": "The most specific (narrowest-scope) memory file wins"},
+        {"id": "c", "text": "They are merged alphabetically"},
+        {"id": "d", "text": "Enterprise policy always wins regardless of scope"}
+      ],
+      "correct": ["b"],
+      "explanation": "Claude Code's memory hierarchy combines all applicable layers, with the most specific scope taking precedence on conflicts. Project memory is more specific than user (cross-project) memory, so it wins for that project.",
+      "sourceRef": "D2 Lesson 1 — CLAUDE.md and the memory hierarchy"
+    },
+    {
+      "id": "q-d2-003",
+      "domainId": "d2",
+      "type": "multi",
+      "difficulty": "medium",
+      "stem": "Which of the following correctly describe Claude Code's extension mechanisms? (Select all that apply)",
+      "choices": [
+        {"id": "a", "text": "A subagent runs with its own separate context window"},
+        {"id": "b", "text": "A slash command is a reusable prompt template invoked with /name"},
+        {"id": "c", "text": "An Agent Skill is defined by a SKILL.md file and loads on demand"},
+        {"id": "d", "text": "Hooks and CLAUDE.md instructions provide the exact same guarantee of execution"}
+      ],
+      "correct": ["a", "b", "c"],
+      "explanation": "Subagents isolate context, slash commands are invocable prompt templates, and Skills package instructions/resources behind a SKILL.md loaded on demand. Hooks and CLAUDE.md are NOT equivalent — hooks are deterministic; CLAUDE.md is advisory.",
+      "sourceRef": "D2 Lesson 3 — Subagents, slash commands, and Skills"
+    },
+    {
+      "id": "q-d2-004",
+      "domainId": "d2",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "You want to run Claude Code as part of a CI pipeline and parse its result programmatically. What is the correct approach?",
+      "choices": [
+        {"id": "a", "text": "Run claude interactively and copy the transcript"},
+        {"id": "b", "text": "Use headless (print) mode with claude -p and --output-format json"},
+        {"id": "c", "text": "Use a slash command inside an interactive session"},
+        {"id": "d", "text": "There is no way to run Claude Code non-interactively"}
+      ],
+      "correct": ["b"],
+      "explanation": "Headless/print mode (claude -p \"...\") runs Claude Code non-interactively for scripts and CI, and --output-format json (or stream-json) gives machine-readable output suitable for pipeline parsing.",
+      "sourceRef": "D2 Lesson 4 — Headless mode, permissions, and CI"
+    },
+    {
+      "id": "q-d2-005",
+      "domainId": "d2",
+      "type": "single",
+      "difficulty": "hard",
+      "stem": "A PreToolUse hook exits with a non-zero 'blocking' exit code. What happens?",
+      "choices": [
+        {"id": "a", "text": "The tool call proceeds anyway; hooks can't block tools"},
+        {"id": "b", "text": "The tool call is stopped and the reason is fed back to Claude"},
+        {"id": "c", "text": "Claude Code crashes and the session ends"},
+        {"id": "d", "text": "The hook is retried automatically up to 3 times"}
+      ],
+      "correct": ["b"],
+      "explanation": "A PreToolUse hook's exit code controls flow: a blocking non-zero exit stops the tool call and surfaces the reason back to Claude, which is how hooks enforce policy (e.g. blocking edits to protected paths).",
+      "sourceRef": "D2 Lesson 2 — Hooks and lifecycle events"
+    },
+
+    {
+      "id": "q-d3-001",
+      "domainId": "d3",
+      "type": "single",
+      "difficulty": "easy",
+      "stem": "A prompt produces inconsistent formatting across runs. Which single change is generally the most reliable first fix?",
+      "choices": [
+        {"id": "a", "text": "Add 3–5 well-chosen input→output examples (multishot prompting)"},
+        {"id": "b", "text": "Increase max_tokens"},
+        {"id": "c", "text": "Switch to a larger model"},
+        {"id": "d", "text": "Add more adjectives describing the desired tone"}
+      ],
+      "correct": ["a"],
+      "explanation": "Multishot (few-shot) prompting — showing several concrete examples of the desired input/output — is one of the most reliable ways to shape consistent format and edge-case handling, often more effective than additional prose instructions.",
+      "sourceRef": "D3 Lesson 1 — Clear-and-direct prompting, roles, and examples"
+    },
+    {
+      "id": "q-d3-002",
+      "domainId": "d3",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "What is the key difference between chain-of-thought prompting and extended thinking?",
+      "choices": [
+        {"id": "a", "text": "They are two names for the exact same thing"},
+        {"id": "b", "text": "Chain-of-thought is a prompting technique requesting visible reasoning; extended thinking is a model feature with a configurable, separately billed thinking token budget"},
+        {"id": "c", "text": "Extended thinking only works with prefilling"},
+        {"id": "d", "text": "Chain-of-thought is only available in Claude Code, not the API"}
+      ],
+      "correct": ["b"],
+      "explanation": "Chain-of-thought is something you prompt for (e.g. 'think step by step'). Extended thinking is a distinct model capability that produces internal reasoning tokens up to a configured budget, billed as output tokens — the two should not be conflated.",
+      "sourceRef": "D3 Lesson 2 — Chain-of-thought, XML tags, and prefilling"
+    },
+    {
+      "id": "q-d3-003",
+      "domainId": "d3",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "You must guarantee that Claude's response is always valid JSON matching an exact schema, with zero chance of a downstream parser failing. What should you use?",
+      "choices": [
+        {"id": "a", "text": "Ask nicely for JSON in the system prompt"},
+        {"id": "b", "text": "Prefill the response with '{'"},
+        {"id": "c", "text": "Structured outputs / strict tool use with constrained decoding against your schema"},
+        {"id": "d", "text": "Add an XML tag around the expected output"}
+      ],
+      "correct": ["c"],
+      "explanation": "Structured outputs and strict tool use use constrained decoding to guarantee the response conforms to a supplied JSON Schema. Prompting or prefilling improve the odds but do not guarantee valid, schema-conformant output the way constrained decoding does.",
+      "sourceRef": "D3 Lesson 3 — Guaranteeing machine-readable output"
+    },
+    {
+      "id": "q-d3-004",
+      "domainId": "d3",
+      "type": "single",
+      "difficulty": "easy",
+      "stem": "What is the primary purpose of wrapping reference material in XML tags like <document>...</document> in a prompt?",
+      "choices": [
+        {"id": "a", "text": "It reduces token usage"},
+        {"id": "b", "text": "It helps Claude distinguish instructions from data/examples, and makes output easier to parse"},
+        {"id": "c", "text": "It is required syntax for the Messages API"},
+        {"id": "d", "text": "It enables extended thinking"}
+      ],
+      "correct": ["b"],
+      "explanation": "XML tags delimit different parts of a prompt so the model can tell instructions apart from reference data or examples, reducing confusion and making structured responses easier to parse downstream.",
+      "sourceRef": "D3 Lesson 2 — Chain-of-thought, XML tags, and prefilling"
+    },
+
+    {
+      "id": "q-d4-001",
+      "domainId": "d4",
+      "type": "single",
+      "difficulty": "easy",
+      "stem": "Claude returns a response with stop_reason: \"tool_use\" for a tool you defined yourself (not web_search or code_execution). What must your application do next?",
+      "choices": [
+        {"id": "a", "text": "Nothing — Anthropic executes the tool automatically"},
+        {"id": "b", "text": "Execute the tool yourself and send back a tool_result block referencing the tool_use_id"},
+        {"id": "c", "text": "Restart the conversation from scratch"},
+        {"id": "d", "text": "Wait for the user to manually approve before any further action is possible"}
+      ],
+      "correct": ["b"],
+      "explanation": "User-defined tools are client tools: your application must execute the requested function and return the output in a tool_result block referencing the original tool_use_id so Claude can continue.",
+      "sourceRef": "D4 Lesson 1 — How tool use works"
+    },
+    {
+      "id": "q-d4-002",
+      "domainId": "d4",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "According to Anthropic's tool-design guidance, what is the single most important factor in getting Claude to use a custom tool correctly?",
+      "choices": [
+        {"id": "a", "text": "Keeping the tool name as short as possible"},
+        {"id": "b", "text": "Writing an extremely detailed description explaining what the tool does, when to use it, and its caveats"},
+        {"id": "c", "text": "Always setting tool_choice to a specific tool"},
+        {"id": "d", "text": "Minimizing the number of parameters to one"}
+      ],
+      "correct": ["b"],
+      "explanation": "Anthropic's guidance calls detailed descriptions 'by far the most important factor in tool performance,' recommending at least 3–4 sentences covering what the tool does, when to use it, what it returns, and any caveats.",
+      "sourceRef": "D4 Lesson 2 — Designing effective tools"
+    },
+    {
+      "id": "q-d4-003",
+      "domainId": "d4",
+      "type": "multi",
+      "difficulty": "medium",
+      "stem": "Which statements about the Model Context Protocol (MCP) are correct? (Select all that apply)",
+      "choices": [
+        {"id": "a", "text": "An MCP host runs one or more MCP clients, each with a 1:1 connection to an MCP server"},
+        {"id": "b", "text": "MCP servers can expose tools, resources, and prompts"},
+        {"id": "c", "text": "Local stdio MCP servers can be connected to directly by the Messages API MCP connector"},
+        {"id": "d", "text": "Remote MCP servers typically use Streamable HTTP (with SSE) as their transport"}
+      ],
+      "correct": ["a", "b", "d"],
+      "explanation": "MCP's architecture is host → client(s) → server, one client per server. Servers expose tools, resources, and prompts. The MCP connector requires servers to be publicly reachable over HTTP (Streamable HTTP/SSE) — local stdio servers cannot be connected to directly by the API connector.",
+      "sourceRef": "D4 Lesson 3 — The Model Context Protocol (MCP)"
+    },
+    {
+      "id": "q-d4-004",
+      "domainId": "d4",
+      "type": "single",
+      "difficulty": "hard",
+      "stem": "You need Claude to call at most one tool per turn, never in parallel, because your executor isn't safe for concurrent calls. What should you set?",
+      "choices": [
+        {"id": "a", "text": "tool_choice: {type: \"none\"}"},
+        {"id": "b", "text": "tool_choice: {type: \"auto\", disable_parallel_tool_use: true}"},
+        {"id": "c", "text": "Remove all but one tool from the tools array"},
+        {"id": "d", "text": "input_schema: {\"type\": \"object\", \"maxProperties\": 1}"}
+      ],
+      "correct": ["b"],
+      "explanation": "disable_parallel_tool_use forces Claude to call at most one tool at a time, which is the correct lever when your tool executor cannot safely handle concurrent tool calls — while still letting Claude choose whether and which tool to call via tool_choice: auto.",
+      "sourceRef": "D4 Lesson 2 — Designing effective tools"
+    },
+
+    {
+      "id": "q-d5-001",
+      "domainId": "d5",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "Where should you place the cache_control breakpoint in a request that includes a large, unchanging system prompt and tool definitions, followed by a conversation history that grows every turn?",
+      "choices": [
+        {"id": "a", "text": "On the very last message block, so the whole growing history is cached"},
+        {"id": "b", "text": "After the stable system prompt/tool definitions and before the frequently-changing tail"},
+        {"id": "c", "text": "It does not matter where the breakpoint is placed"},
+        {"id": "d", "text": "On the system prompt only, never on messages"}
+      ],
+      "correct": ["b"],
+      "explanation": "Caching only helps when the cached prefix is stable across requests. Placing the breakpoint after the large stable content (system + tools) and before content that changes every turn ensures cache hits; caching the changing tail wastes writes and never gets reused.",
+      "sourceRef": "D5 Lesson 2 — Prompt caching"
+    },
+    {
+      "id": "q-d5-002",
+      "domainId": "d5",
+      "type": "single",
+      "difficulty": "easy",
+      "stem": "What is the default TTL (time to live) for a prompt cache entry, and does it refresh on use?",
+      "choices": [
+        {"id": "a", "text": "1 hour, no refresh on use"},
+        {"id": "b", "text": "5 minutes, refreshed for free each time the cached content is used"},
+        {"id": "c", "text": "24 hours, refreshed for free each time the cached content is used"},
+        {"id": "d", "text": "There is no default; you must always specify a TTL"}
+      ],
+      "correct": ["b"],
+      "explanation": "The default cache lifetime is 5 minutes, and it is refreshed at no additional cost each time the cached content is used. A 1-hour TTL is available at additional cost for longer-lived caching needs.",
+      "sourceRef": "D5 Lesson 2 — Prompt caching"
+    },
+    {
+      "id": "q-d5-003",
+      "domainId": "d5",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "An agentic workflow makes heavy use of tools and accumulates many large tool results (like file contents) that are no longer needed once Claude has processed them. Which context-management feature directly targets this?",
+      "choices": [
+        {"id": "a", "text": "Prompt caching"},
+        {"id": "b", "text": "The clear_tool_uses_20250919 context editing strategy"},
+        {"id": "c", "text": "Batch processing"},
+        {"id": "d", "text": "Extended thinking"}
+      ],
+      "correct": ["b"],
+      "explanation": "clear_tool_uses_20250919 clears the oldest tool results (and optionally the tool inputs) once a threshold is passed, replacing them with placeholders — purpose-built for tool-heavy agents accumulating stale results like file contents.",
+      "sourceRef": "D5 Lesson 3 — Compaction, context editing, and memory"
+    },
+    {
+      "id": "q-d5-004",
+      "domainId": "d5",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "A long-running agent session is approaching the context window limit and you want the API to automatically summarize older turns and continue, without you writing client-side summarization code. What should you enable?",
+      "choices": [
+        {"id": "a", "text": "Prompt caching"},
+        {"id": "b", "text": "Server-side compaction"},
+        {"id": "c", "text": "The memory tool"},
+        {"id": "d", "text": "Batch processing"}
+      ],
+      "correct": ["b"],
+      "explanation": "Server-side compaction automatically summarizes older context into a compaction block when a configured token threshold is reached, and the API drops content before that block on subsequent requests — the recommended default for long-running conversations.",
+      "sourceRef": "D5 Lesson 3 — Compaction, context editing, and memory"
+    },
+    {
+      "id": "q-d5-005",
+      "domainId": "d5",
+      "type": "single",
+      "difficulty": "easy",
+      "stem": "A company needs to classify 80,000 support tickets overnight and latency is not a concern. Which approach minimizes cost?",
+      "choices": [
+        {"id": "a", "text": "The Message Batches API"},
+        {"id": "b", "text": "Streaming responses"},
+        {"id": "c", "text": "A 1-hour prompt cache TTL"},
+        {"id": "d", "text": "Extended thinking with a large budget"}
+      ],
+      "correct": ["a"],
+      "explanation": "The Message Batches API processes large volumes asynchronously at 50% lower cost, fits well within its 100,000-request/256MB batch limit, and is ideal when results aren't needed immediately — exactly this scenario.",
+      "sourceRef": "D5 Lesson 4 — Cost and latency levers: batch and streaming"
+    },
+    {
+      "id": "q-d5-006",
+      "domainId": "d5",
+      "type": "single",
+      "difficulty": "hard",
+      "stem": "Does streaming a response reduce the total token cost of a request compared to a non-streaming call with identical content?",
+      "choices": [
+        {"id": "a", "text": "Yes, streaming always cuts token costs by roughly half"},
+        {"id": "b", "text": "No — streaming improves perceived latency by returning tokens as generated, but does not change total tokens or cost"},
+        {"id": "c", "text": "Yes, but only for batch requests"},
+        {"id": "d", "text": "No, streaming actually increases cost"}
+      ],
+      "correct": ["b"],
+      "explanation": "Streaming is a latency/UX improvement — it delivers tokens as they're generated so users see output sooner — but it does not itself change how many tokens are processed or billed.",
+      "sourceRef": "D5 Lesson 4 — Cost and latency levers: batch and streaming"
+    }
+  ]
+}

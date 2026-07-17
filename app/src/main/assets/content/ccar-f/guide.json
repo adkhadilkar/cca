@@ -1,0 +1,32 @@
+{
+  "examCode": "CCAR-F",
+  "title": "What to expect on the Claude Certified Architect — Foundations exam",
+  "format": {
+    "questions": 60,
+    "timeLimitMin": 120,
+    "passScore": 720,
+    "scoreScale": 1000,
+    "delivery": "Proctored (online via Pearson VUE OnVUE, or at a test center)",
+    "openBook": false,
+    "aiAssistanceAllowed": false,
+    "questionTypes": ["Multiple choice (single answer)", "Multiple response (select all that apply)", "Scenario-based"]
+  },
+  "domainWeights": [
+    {"code": "D1", "title": "Agentic Architecture & Orchestration", "weightPct": 27},
+    {"code": "D2", "title": "Claude Code Configuration & Workflows", "weightPct": 20},
+    {"code": "D3", "title": "Prompt Engineering & Structured Output", "weightPct": 20},
+    {"code": "D4", "title": "Tool Design & MCP Integration", "weightPct": 18},
+    {"code": "D5", "title": "Context Management", "weightPct": 15}
+  ],
+  "preparation": [
+    "Anthropic Academy hosts free courses that map to the exam domains (Claude API, MCP, Claude Code). Work through them alongside this app.",
+    "The exam tests design judgment, not memorization: expect scenarios where you must choose the simplest architecture that meets the requirement.",
+    "Practice reasoning about trade-offs — cost vs. latency, workflow vs. agent, caching vs. compaction — rather than recalling exact parameter names."
+  ],
+  "proctoringNotes": [
+    "Closed-book: no notes, no second screen, no AI assistants during the exam.",
+    "For online proctoring you need a webcam, a quiet private room, and a government ID.",
+    "Arrive/check in early; system checks (camera, microphone, network) can take several minutes."
+  ],
+  "disclaimer": "Unofficial preparation material. Not affiliated with, authored by, or endorsed by Anthropic. Exam format, domain weights, question counts, and the passing score are set by Anthropic and may change — always confirm current details on Anthropic's official certification pages before your exam."
+}
