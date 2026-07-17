@@ -65,7 +65,7 @@ fun FlashcardsScreen(viewModel: FlashcardsViewModel, onExit: () -> Unit) {
 
         val fraction = s.index.toFloat() / s.totalInSession
         Box(
-            modifier = Modifier.fillMaxWidth().height(4.dp).padding(top = 14.dp)
+            modifier = Modifier.fillMaxWidth().padding(top = 14.dp).height(4.dp)
                 .background(colors.neutralLight, RoundedCornerShape(2.dp))
         ) {
             Box(modifier = Modifier.fillMaxWidth(fraction.coerceIn(0f, 1f)).height(4.dp).background(colors.accent, RoundedCornerShape(2.dp)))

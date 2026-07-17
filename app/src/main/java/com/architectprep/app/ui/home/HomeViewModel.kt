@@ -54,7 +54,7 @@ private val SHORT_LABELS = mapOf(
     "D2" to "MCP",
     "D3" to "Code",
     "D4" to "Prompt",
-    "D5" to "Context"
+    "D5" to "Ctx"
 )
 
 class HomeViewModel(

@@ -3,6 +3,7 @@ package com.architectprep.app.ui.study
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,20 +13,32 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.architectprep.app.data.content.LessonBlockDto
 import com.architectprep.app.ui.theme.LocalAppColors
@@ -76,8 +89,8 @@ fun LessonDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(4.dp)
                         .padding(top = 16.dp, bottom = 20.dp)
+                        .height(4.dp)
                         .background(colors.neutralLight, RoundedCornerShape(2.dp))
                 ) {
                     Box(
@@ -113,25 +126,28 @@ fun LessonDetailScreen(
             items(s.body) { block -> LessonBlockView(block) }
 
             item {
+                // Design screen 03: exactly two buttons side by side. "Mark done"
+                // also advances (arrow affordance); once done it turns into a
+                // plain forward control.
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 22.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    if (s.prevLessonId != null) {
-                        SecondaryButton(text = "‹ Previous", modifier = Modifier.weight(1f)) {
-                            onNavigateToLesson(s.prevLessonId)
-                        }
-                    }
-                    PrimaryButton(
-                        text = if (s.done) "Marked done ✓" else "Mark done ›",
+                    SecondaryButton(
+                        text = "‹ Previous",
+                        enabled = s.prevLessonId != null,
                         modifier = Modifier.weight(1f)
-                    ) { viewModel.toggleDone() }
-                }
-                if (s.nextLessonId != null) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
-                        SecondaryButton(text = "Next ›", modifier = Modifier.weight(1f)) {
-                            onNavigateToLesson(s.nextLessonId)
-                        }
+                    ) { s.prevLessonId?.let(onNavigateToLesson) }
+                    PrimaryButton(
+                        text = when {
+                            !s.done -> "Mark done ›"
+                            s.nextLessonId != null -> "Next ›"
+                            else -> "Finish ›"
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        if (!s.done) viewModel.markDone()
+                        if (s.nextLessonId != null) onNavigateToLesson(s.nextLessonId) else if (s.done) onBack()
                     }
                 }
             }
@@ -155,12 +171,12 @@ private fun LessonBlockView(block: LessonBlockDto) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
-                .background(colors.textPrimary, RoundedCornerShape(14.dp))
+                .background(colors.codeBackground, RoundedCornerShape(14.dp))
                 .padding(16.dp)
         ) {
             Text(
                 text = block.value,
-                color = colors.accentLight,
+                color = colors.codeText,
                 fontFamily = MonoFontFamily,
                 fontSize = 12.sp,
                 lineHeight = 19.sp
@@ -171,12 +187,12 @@ private fun LessonBlockView(block: LessonBlockDto) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
-                .background(colors.accentLight.copy(alpha = 0.35f), RoundedCornerShape(14.dp))
+                .background(colors.calloutBackground, RoundedCornerShape(14.dp))
                 .padding(16.dp)
         ) {
             Text(
                 text = (block.variant ?: "callout").replace("-", " ").uppercase(),
-                color = colors.accentMuted,
+                color = colors.calloutLabel,
                 fontFamily = MonoFontFamily,
                 fontSize = 10.sp
             )
@@ -189,25 +205,91 @@ private fun LessonBlockView(block: LessonBlockDto) {
             )
         }
 
-        "image" -> Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
-            AsyncImage(
-                model = "file:///android_asset/content/${block.path}",
-                contentDescription = block.value,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(colors.surface, RoundedCornerShape(14.dp))
-                    .padding(8.dp)
-            )
-            Text(
-                text = block.value,
-                color = colors.textTertiary,
-                fontSize = 11.5.sp,
-                modifier = Modifier.padding(top = 6.dp)
-            )
+        "image" -> {
+            var showFullscreen by remember(block.path) { mutableStateOf(false) }
+            Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+                AsyncImage(
+                    model = "file:///android_asset/content/${block.path}",
+                    contentDescription = block.value,
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White, RoundedCornerShape(14.dp))
+                        .border(1.dp, colors.border, RoundedCornerShape(14.dp))
+                        .clickable { showFullscreen = true }
+                        .padding(8.dp)
+                )
+                Text(
+                    text = "${block.value}  ·  Tap to zoom 🔍",
+                    color = colors.textTertiary,
+                    fontSize = 11.5.sp,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
+            if (showFullscreen) {
+                ZoomableImageDialog(
+                    path = block.path.orEmpty(),
+                    caption = block.value,
+                    onDismiss = { showFullscreen = false }
+                )
+            }
         }
 
         else -> Unit
+    }
+}
+
+/** Full-screen image viewer with pinch-zoom and pan. White canvas — the bundled diagrams are dark-on-transparent. */
+@Composable
+private fun ZoomableImageDialog(path: String, caption: String, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        var scale by remember { mutableFloatStateOf(1f) }
+        var offset by remember { mutableStateOf(Offset.Zero) }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        scale = (scale * zoom).coerceIn(1f, 6f)
+                        offset = if (scale > 1f) offset + pan else Offset.Zero
+                    }
+                }
+        ) {
+            AsyncImage(
+                model = "file:///android_asset/content/$path",
+                contentDescription = caption,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        translationX = offset.x
+                        translationY = offset.y
+                    }
+            )
+            Text(
+                text = caption,
+                color = Color(0xFF6B6555),
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(20.dp)
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .size(40.dp)
+                    .background(Color(0xFFF0EBDD), CircleShape)
+                    .clickable(onClick = onDismiss),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "✕", color = Color(0xFF29261F), fontSize = 16.sp)
+            }
+        }
     }
 }
 
@@ -226,16 +308,17 @@ private fun PrimaryButton(text: String, modifier: Modifier = Modifier, onClick: 
 }
 
 @Composable
-private fun SecondaryButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun SecondaryButton(text: String, enabled: Boolean = true, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val colors = LocalAppColors.current
+    val contentColor = if (enabled) colors.textPrimary else colors.textTertiary
     Box(
         modifier = modifier
             .background(colors.surface, RoundedCornerShape(14.dp))
-            .border(1.5.dp, colors.textPrimary, RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
+            .border(1.5.dp, if (enabled) colors.textPrimary else colors.border, RoundedCornerShape(14.dp))
+            .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 13.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = text, color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+        Text(text = text, color = contentColor, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
     }
 }

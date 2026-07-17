@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.architectprep.app.ui.theme.LocalAppColors
@@ -130,13 +131,15 @@ private fun DomainProgressCard(row: DomainProgressRow, onClick: () -> Unit) {
             text = row.summary,
             color = colors.textSecondary,
             fontSize = 12.5.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(top = 3.dp)
         )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(5.dp)
                 .padding(top = 12.dp)
+                .height(5.dp)
                 .background(colors.neutralLight, RoundedCornerShape(3.dp))
         ) {
             Box(

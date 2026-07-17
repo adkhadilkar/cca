@@ -70,20 +70,18 @@ class LessonDetailViewModel(
         }
     }
 
-    fun toggleDone() {
+    fun markDone() {
         viewModelScope.launch {
             val current = _uiState.value ?: return@launch
-            val newStatus = if (current.done) "in_progress" else "done"
+            if (current.done) return@launch
             db.lessonProgressDao().upsert(
                 LessonProgressEntity(
                     lessonId = current.lessonId,
-                    status = newStatus,
+                    status = "done",
                     lastViewedAt = System.currentTimeMillis()
                 )
             )
-            if (newStatus == "done") {
-                StreakTracker.recordActivity(db, prefs.prefs.first().dailyGoalMinutes)
-            }
+            StreakTracker.recordActivity(db, prefs.prefs.first().dailyGoalMinutes)
         }
     }
 

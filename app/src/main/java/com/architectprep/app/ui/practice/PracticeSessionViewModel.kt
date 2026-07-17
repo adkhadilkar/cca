@@ -30,6 +30,7 @@ data class PracticeQuestion(
 )
 
 data class PracticeSessionUiState(
+    val domainId: String,
     val domainCode: String,
     val domainTitle: String,
     val index: Int,
@@ -38,7 +39,8 @@ data class PracticeSessionUiState(
     val selectedChoiceId: String?,
     val revealed: Boolean,
     val sessionComplete: Boolean,
-    val sessionCorrect: Int
+    val sessionCorrect: Int,
+    val flashcardAdded: Boolean
 )
 
 class PracticeSessionViewModel(
@@ -74,8 +76,11 @@ class PracticeSessionViewModel(
         return PracticeQuestion(e.id, e.domainId, e.stem, choices, correct, e.explanation, e.sourceRef)
     }
 
+    private val addedToDeck = mutableSetOf<String>()
+
     private fun emit(domainCode: String, domainTitle: String) {
         _uiState.value = PracticeSessionUiState(
+            domainId = domainId,
             domainCode = domainCode,
             domainTitle = domainTitle,
             index = index,
@@ -84,8 +89,32 @@ class PracticeSessionViewModel(
             selectedChoiceId = selectedChoiceId,
             revealed = revealed,
             sessionComplete = index >= questions.size,
-            sessionCorrect = sessionCorrect
+            sessionCorrect = sessionCorrect,
+            flashcardAdded = questions.getOrNull(index)?.id in addedToDeck
         )
+    }
+
+    /** Puts the current question at the front of the flashcard queue (due now). */
+    fun addToFlashcards() {
+        val q = questions.getOrNull(index) ?: return
+        if (q.id in addedToDeck) return
+        addedToDeck.add(q.id)
+        viewModelScope.launch {
+            val existing = db.flashcardStateDao().get(q.id)
+            db.flashcardStateDao().upsert(
+                existing?.copy(dueAt = System.currentTimeMillis())
+                    ?: com.architectprep.app.data.db.entity.FlashcardStateEntity(
+                        cardId = q.id,
+                        ease = 2.5,
+                        intervalDays = 0.0,
+                        dueAt = System.currentTimeMillis(),
+                        reps = 0,
+                        lapses = 0,
+                        lastGrade = null
+                    )
+            )
+        }
+        _uiState.value = _uiState.value?.copy(flashcardAdded = true)
     }
 
     fun selectChoice(choiceId: String) {

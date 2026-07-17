@@ -28,7 +28,13 @@ data class AppColors(
     val heroTrack: Color,
     // 5-step tint ramp for the Home screen's segmented per-domain progress bar
     // (design/Home Variations.dc.html #1a / #1c), darkest/most-saturated first.
-    val domainRamp: List<Color>
+    val domainRamp: List<Color>,
+    // Lesson-body blocks (design screens 03/12): code blocks keep a dark chip in
+    // both themes; callouts flip between light peach and deep brown.
+    val codeBackground: Color,
+    val codeText: Color,
+    val calloutBackground: Color,
+    val calloutLabel: Color
 )
 
 val LightAppColors = AppColors(
@@ -46,7 +52,11 @@ val LightAppColors = AppColors(
     heroBackground = Color(0xFF29261F),
     heroBorder = Color.Transparent,
     heroTrack = Color(0xFF453F33),
-    domainRamp = listOf(Color(0xFFC15F3C), Color(0xFFD98E6B), Color(0xFFE5B394), Color(0xFFEFD2BD), Color(0xFFF3E3D3))
+    domainRamp = listOf(Color(0xFFC15F3C), Color(0xFFD98E6B), Color(0xFFE5B394), Color(0xFFEFD2BD), Color(0xFFF3E3D3)),
+    codeBackground = Color(0xFF29261F),
+    codeText = Color(0xFFE8D9C4),
+    calloutBackground = Color(0xFFF3E3D3),
+    calloutLabel = Color(0xFFA34D2E)
 )
 
 val DarkAppColors = AppColors(
@@ -64,7 +74,11 @@ val DarkAppColors = AppColors(
     heroBackground = Color(0xFF2E2A22),
     heroBorder = Color(0xFF453F33),
     heroTrack = Color(0xFF453F33),
-    domainRamp = listOf(Color(0xFFD97757), Color(0xFFB06246), Color(0xFF8A4E38), Color(0xFF663B2B), Color(0xFF4A2E23))
+    domainRamp = listOf(Color(0xFFD97757), Color(0xFFB06246), Color(0xFF8A4E38), Color(0xFF663B2B), Color(0xFF4A2E23)),
+    codeBackground = Color(0xFF171511),
+    codeText = Color(0xFFE8D9C4),
+    calloutBackground = Color(0xFF3A2A1F),
+    calloutLabel = Color(0xFFE8956D)
 )
 
 val LocalAppColors = staticCompositionLocalOf { LightAppColors }

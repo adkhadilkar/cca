@@ -3,6 +3,7 @@ package com.architectprep.app.ui.progress
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -36,7 +38,7 @@ import com.architectprep.app.ui.theme.MonoFontFamily
 import com.architectprep.app.ui.theme.SerifFontFamily
 
 @Composable
-fun ProgressScreen(viewModel: ProgressViewModel) {
+fun ProgressScreen(viewModel: ProgressViewModel, onOpenSettings: () -> Unit) {
     val state by viewModel.uiState.collectAsState()
     val colors = LocalAppColors.current
 
@@ -52,7 +54,23 @@ fun ProgressScreen(viewModel: ProgressViewModel) {
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
-                Text(text = "Progress", color = colors.textPrimary, fontFamily = SerifFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 26.sp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Progress", color = colors.textPrimary, fontFamily = SerifFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 26.sp)
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(colors.surface, CircleShape)
+                            .border(1.dp, colors.border, CircleShape)
+                            .clickable(onClick = onOpenSettings),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "⚙", fontSize = 22.sp, color = colors.textPrimary)
+                    }
+                }
             }
             item { ReadinessCard(s.readinessPct) }
             if (s.mockScores.isNotEmpty()) {
@@ -164,8 +182,8 @@ private fun MockScoreChart(scores: List<MockScorePoint>, passScore: Int) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height((point.score.coerceIn(0, maxScore) / maxScore.toFloat() * 90).dp)
                             .padding(top = 4.dp)
+                            .height((point.score.coerceIn(0, maxScore) / maxScore.toFloat() * 90).dp)
                             .background(if (point.passed) colors.success else colors.accentLight, RoundedCornerShape(6.dp, 6.dp, 0.dp, 0.dp))
                     )
                 }
