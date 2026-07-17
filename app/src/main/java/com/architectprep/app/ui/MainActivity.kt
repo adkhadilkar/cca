@@ -31,6 +31,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.architectprep.app.PrepApplication
+import com.architectprep.app.ui.exam.ExamHomeScreen
+import com.architectprep.app.ui.exam.ExamHomeViewModel
+import com.architectprep.app.ui.exam.ExamSessionScreen
+import com.architectprep.app.ui.exam.ExamSessionViewModel
+import com.architectprep.app.ui.exam.ResultsScreen
+import com.architectprep.app.ui.exam.ResultsViewModel
 import com.architectprep.app.ui.flashcards.FlashcardsScreen
 import com.architectprep.app.ui.flashcards.FlashcardsViewModel
 import com.architectprep.app.ui.home.HomeScreen
@@ -184,7 +190,44 @@ private fun AppScaffold(app: PrepApplication) {
                 val vm: FlashcardsViewModel = viewModel(factory = FlashcardsViewModel.Factory(app))
                 FlashcardsScreen(viewModel = vm, onExit = { navController.popBackStack() })
             }
-            composable(Tab.Exam.route) { PlaceholderScreen("Mock exam — timed, 60Q (M3)") }
+            composable(Tab.Exam.route) {
+                val vm: ExamHomeViewModel = viewModel(factory = ExamHomeViewModel.Factory(app))
+                ExamHomeScreen(
+                    viewModel = vm,
+                    onStart = { attemptId -> navController.navigate("exam/session/$attemptId") },
+                    onResume = { attemptId -> navController.navigate("exam/session/$attemptId") },
+                    onViewResults = { attemptId -> navController.navigate("exam/results/$attemptId") }
+                )
+            }
+            composable(
+                route = "exam/session/{attemptId}",
+                arguments = listOf(navArgument("attemptId") { type = NavType.StringType })
+            ) { backStack ->
+                val attemptId = backStack.arguments?.getString("attemptId") ?: return@composable
+                val vm: ExamSessionViewModel = viewModel(
+                    key = "exam-$attemptId",
+                    factory = ExamSessionViewModel.Factory(app, attemptId)
+                )
+                ExamSessionScreen(
+                    viewModel = vm,
+                    onSubmitted = {
+                        navController.navigate("exam/results/$attemptId") {
+                            popUpTo("exam/session/$attemptId") { inclusive = true }
+                        }
+                    }
+                )
+            }
+            composable(
+                route = "exam/results/{attemptId}",
+                arguments = listOf(navArgument("attemptId") { type = NavType.StringType })
+            ) { backStack ->
+                val attemptId = backStack.arguments?.getString("attemptId") ?: return@composable
+                val vm: ResultsViewModel = viewModel(
+                    key = "results-$attemptId",
+                    factory = ResultsViewModel.Factory(app, attemptId)
+                )
+                ResultsScreen(viewModel = vm, onDone = { navController.popBackStack(Tab.Exam.route, inclusive = false) })
+            }
             composable(Tab.Progress.route) { PlaceholderScreen("Progress — score history, streak (M4)") }
         }
     }
