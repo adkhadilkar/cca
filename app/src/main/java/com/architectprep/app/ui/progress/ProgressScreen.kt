@@ -208,7 +208,7 @@ private fun StreakCard(streakDays: Int, days: List<StreakCell>) {
             Text(text = "$streakDays days" + if (streakDays > 0) " 🔥" else "", color = colors.accent, fontFamily = MonoFontFamily, fontSize = 11.sp)
         }
         LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
+            columns = GridCells.Fixed(14),
             modifier = Modifier.fillMaxWidth().height(90.dp).padding(top = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(5.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)

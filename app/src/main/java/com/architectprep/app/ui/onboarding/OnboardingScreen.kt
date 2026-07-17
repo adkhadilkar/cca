@@ -28,11 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.architectprep.app.domain.ExamDate
 import com.architectprep.app.ui.theme.LocalAppColors
 import com.architectprep.app.ui.theme.MonoFontFamily
 import com.architectprep.app.ui.theme.SerifFontFamily
-import java.time.Instant
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -119,7 +118,7 @@ fun OnboardingScreen(viewModel: OnboardingViewModel, onDone: () -> Unit) {
                 Text(text = "EXAM DATE", color = colors.textTertiary, fontFamily = MonoFontFamily, fontSize = 10.sp)
                 Text(
                     text = examDateMillis?.let {
-                        Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate().format(DateTimeFormatter.ofPattern("MMM d, yyyy"))
+                        ExamDate.toLocalDate(it).format(DateTimeFormatter.ofPattern("MMM d, yyyy"))
                     } ?: "Not set",
                     color = colors.textPrimary,
                     fontWeight = FontWeight.SemiBold,

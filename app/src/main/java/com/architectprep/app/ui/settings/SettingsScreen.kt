@@ -36,12 +36,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.architectprep.app.data.prefs.ThemePref
+import com.architectprep.app.domain.ExamDate
 import com.architectprep.app.ui.theme.LocalAppColors
 import com.architectprep.app.ui.theme.MonoFontFamily
 import com.architectprep.app.ui.theme.SerifFontFamily
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -84,7 +83,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit, onRedoOnboa
                 SectionLabel("Study")
                 SettingsCard(padding = 0.dp) {
                     SettingsRow("Exam date", p.examDateMillis?.let {
-                        Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate().format(DateTimeFormatter.ofPattern("MMM d, yyyy"))
+                        ExamDate.toLocalDate(it).format(DateTimeFormatter.ofPattern("MMM d, yyyy"))
                     } ?: "Not set", onClick = { showDatePicker = true })
                     SettingsRow("Daily goal", "${p.dailyGoalMinutes} min", onClick = { viewModel.setDailyGoalMinutes(cycleGoal(p.dailyGoalMinutes)) })
                     SettingsRow("New cards per day", "${p.dailyCardLimit}", onClick = { viewModel.setDailyCardLimit(cycleCardLimit(p.dailyCardLimit)) }, last = true)

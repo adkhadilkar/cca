@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.architectprep.app.PrepApplication
 import com.architectprep.app.data.db.AppDatabase
+import com.architectprep.app.domain.ReadinessCalculator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.math.roundToInt
 
 data class MockScorePoint(val label: String, val score: Int, val passed: Boolean)
 data class WeakDomain(val code: String, val title: String, val accuracyPct: Int)
@@ -78,20 +78,10 @@ class ProgressViewModel(private val db: AppDatabase) : ViewModel() {
             if (pct < 60) WeakDomain(d.code, d.title, pct) else null
         }.sortedBy { it.accuracyPct }
 
-        val totalLessons = domains.sumOf { db.lessonDao().observeByDomain(it.id).first().size }
-        val doneLessons = db.lessonProgressDao().observeDoneLessonIds().first().size
-        val lessonCompletion = if (totalLessons == 0) 0.0 else doneLessons.toDouble() / totalLessons
-
-        val avgMockScore = if (attempts.isEmpty()) 0.0 else attempts.map { it.score ?: 0 }.average() / track.scoreScale
-
-        val totalQuestions = domains.sumOf { db.questionDao().getByDomain(it.id).size }
-        val gradedCards = db.flashcardStateDao().getAll().count { it.reps > 0 }
-        val flashcardMastery = if (totalQuestions == 0) 0.0 else gradedCards.toDouble() / totalQuestions
-
-        val readiness = (0.5 * avgMockScore + 0.3 * lessonCompletion + 0.2 * flashcardMastery) * 100
+        val readinessPct = ReadinessCalculator.computePercent(db, trackCode)
 
         _uiState.value = ProgressUiState(
-            readinessPct = readiness.roundToInt().coerceIn(0, 100),
+            readinessPct = readinessPct,
             mockScores = mockScores,
             passScore = track.passScore,
             questionsDone = questionsDone,

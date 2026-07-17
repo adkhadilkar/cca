@@ -4,21 +4,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -70,12 +68,12 @@ import com.architectprep.app.ui.study.LessonListViewModel
 import com.architectprep.app.ui.theme.ArchitectPrepTheme
 import com.architectprep.app.ui.theme.LocalAppColors
 
-private enum class Tab(val route: String, val label: String) {
-    Home("home", "Home"),
-    Study("study", "Study"),
-    Practice("practice", "Practice"),
-    Exam("exam", "Exam"),
-    Progress("progress", "Progress")
+private enum class Tab(val route: String, val label: String, val glyph: String) {
+    Home("home", "Home", "⌂"),
+    Study("study", "Study", "▤"),
+    Practice("practice", "Practice", "✎"),
+    Exam("exam", "Exam", "◷"),
+    Progress("progress", "Progress", "◔")
 }
 
 class MainActivity : ComponentActivity() {
@@ -120,20 +118,34 @@ private fun AppScaffold(app: PrepApplication) {
             // tab bar highlights by prefix rather than an exact route match.
             val currentRoute = backStackEntry?.destination?.route
 
-            NavigationBar(containerColor = colors.surface) {
-                Tab.entries.forEach { tab ->
-                    NavigationBarItem(
-                        selected = currentRoute != null && (currentRoute == tab.route || currentRoute.startsWith("${tab.route}/")),
-                        onClick = {
-                            navController.navigate(tab.route) {
-                                popUpTo(Tab.Home.route) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(iconFor(tab), contentDescription = tab.label) },
-                        label = { Text(tab.label) }
-                    )
+            Box(modifier = Modifier.fillMaxWidth().background(colors.border).padding(top = 1.dp)) {
+                NavigationBar(containerColor = colors.background, tonalElevation = 0.dp) {
+                    Tab.entries.forEach { tab ->
+                        val selected = currentRoute != null && (currentRoute == tab.route || currentRoute.startsWith("${tab.route}/"))
+                        val tint = if (selected) colors.accent else colors.textTertiary
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = {
+                                navController.navigate(tab.route) {
+                                    popUpTo(Tab.Home.route) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            icon = { Text(text = tab.glyph, fontSize = 18.sp, color = tint) },
+                            label = {
+                                Text(
+                                    text = tab.label,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                                    color = tint
+                                )
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                indicatorColor = androidx.compose.ui.graphics.Color.Transparent
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -145,7 +157,17 @@ private fun AppScaffold(app: PrepApplication) {
         ) {
             composable(Tab.Home.route) {
                 val vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory(app))
-                HomeScreen(vm)
+                HomeScreen(
+                    viewModel = vm,
+                    onOpenStudy = {
+                        navController.navigate(Tab.Study.route) {
+                            popUpTo(Tab.Home.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onContinueLesson = { lessonId -> navController.navigate("study/lesson/$lessonId") }
+                )
             }
             composable(Tab.Study.route) {
                 val vm: DomainListViewModel = viewModel(factory = DomainListViewModel.Factory(app))
@@ -261,14 +283,18 @@ private fun AppScaffold(app: PrepApplication) {
                 val vm: ProgressViewModel = viewModel(factory = ProgressViewModel.Factory(app))
                 Box(modifier = Modifier.fillMaxSize()) {
                     ProgressScreen(vm)
-                    Text(
-                        text = "⚙",
-                        fontSize = 20.sp,
+                    Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(20.dp, 22.dp)
-                            .clickable { navController.navigate("settings") }
-                    )
+                            .padding(16.dp, 18.dp)
+                            .size(44.dp)
+                            .background(colors.surface, androidx.compose.foundation.shape.CircleShape)
+                            .border(1.dp, colors.border, androidx.compose.foundation.shape.CircleShape)
+                            .clickable { navController.navigate("settings") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "⚙", fontSize = 22.sp, color = colors.textPrimary)
+                    }
                 }
             }
             composable("settings") {
@@ -281,12 +307,4 @@ private fun AppScaffold(app: PrepApplication) {
             }
         }
     }
-}
-
-private fun iconFor(tab: Tab) = when (tab) {
-    Tab.Home -> Icons.Filled.Home
-    Tab.Study -> Icons.Filled.Edit
-    Tab.Practice -> Icons.Filled.CheckCircle
-    Tab.Exam -> Icons.Filled.DateRange
-    Tab.Progress -> Icons.Filled.Star
 }
