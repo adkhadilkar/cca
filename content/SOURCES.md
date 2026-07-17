@@ -1,110 +1,107 @@
-# Content Sources — CCAR-F Knowledge Base v2
+# Content Sources — CCAR-F Knowledge Base v3
 
 This log records every source consulted to author `packs/ccar-f/*.json`, per
 the sourcing/legal guidance in `docs/DEVELOPMENT_DESIGN.md` §8. All lesson
-text, questions, and glossary definitions in the pack are **originally
-written**, informed by these sources — not copied from them.
+text, questions, and glossary definitions are **originally written**,
+informed by these sources — with one explicit exception noted below (the 12
+official sample questions, which are reproduced with attribution because
+Anthropic published them for exactly this purpose).
 
-## v2 update (2026-07-17): D2 verification gap closed
+## v3 (2026-07-17): rebuilt against the official Exam Guide
 
-v1 shipped with ~27% of the exam blueprint (all of D2, plus D1 Lesson 2)
-authored from trained knowledge rather than a fresh fetch, because
-`code.claude.com` and `www.anthropic.com` were unreachable from the authoring
-session's network policy (403 Forbidden). The user ran a crawler
-(`fetch_docs.py`, stdlib-only Python) from their own machine, seeded from
-`https://code.claude.com/docs/llms.txt`, which pulled **168 markdown pages**
-plus **44 images** from `code.claude.com/docs/en/*`, and one fetch of the
-Anthropic engineering blog post, and uploaded the result as a zip.
+The user supplied three official PDFs, published by Anthropic:
 
-Findings:
+1. **Claude Certified Architect – Foundations: Exam Guide** (Version 0.2,
+   Last Updated June 30 2026) — the authoritative source for domain names,
+   order, and weights; the full task-statement blueprint (29 statements
+   across 5 domains); exam mechanics (60 questions, 120 min, single-answer
+   4-choice format, 4-of-6 scenario bank, $125 fee, 100–1,000 scaled score,
+   720 pass, 12-month validity); 12 official sample questions with
+   explanations; in-scope and out-of-scope topic lists; and preparation
+   exercises.
+2. **Anthropic Certification Exam Policy** (updated June 25, 2026) —
+   confidentiality of Exam Content, prohibited misconduct (explicitly
+   including "using AI products or services to assist you during the
+   Exam"), ID verification, and a 14-calendar-day appeal window.
+3. **Certification Terms and Conditions** — governs Program participation,
+   12-month certification term/renewal, and IP ownership of Exam content.
 
-- **D1 Lesson 2** (five workflow patterns) was re-verified against a fresh
-  fetch of `https://www.anthropic.com/engineering/building-effective-agents`
-  and found **accurate as originally authored** — no changes made.
-- **D2 required substantial correction.** Specific errors found and fixed
-  (see `manifest.json`'s changelog for the full list):
-  - The memory hierarchy does **not** have a "most specific wins" override
-    rule — CLAUDE.md files at every scope are **concatenated** into context,
-    not overridden. This was a factual error in v1, not just an omission.
-  - **Auto memory** (Claude's own self-written notes, distinct from
-    CLAUDE.md) was missing entirely — added as a first-class D2 topic.
-  - **Hook exit codes**: v1 said "any non-zero exit blocks a PreToolUse
-    hook." Actual behavior: only exit code **2** blocks; exit 1 and other
-    codes are non-blocking errors. Corrected in the lesson and in the
-    affected practice question (`q-d2-005`).
-  - **Custom slash commands have been merged into Skills** — v1 described
-    them as two separate mechanisms; they're now the same system.
-  - **Routines** (Anthropic-managed scheduled/event-driven automation) is a
-    real, current feature that v1 didn't cover at all — added as a new
-    lesson, question, and glossary term.
+This supersedes the exam-format facts in v1/v2, which were sourced from web
+search summaries of Pearson VUE's page and were **wrong in several
+particulars**: the domain order/names were different (the official D2 is
+"Tool Design & MCP Integration," not "Claude Code"; official D3 is "Claude
+Code Configuration & Workflows," not "Prompt Engineering"), and the response
+format is **single-answer only** — v1/v2 included multi-select questions
+that don't reflect the real exam format at all.
 
-Every D2 doc page used is listed in the table below alongside the D1/D3/D4/D5
-pages from v1.
+### What changed, concretely
 
-## Official Anthropic documentation
+- **Domains reordered and renamed** to match the official outline exactly
+  (see `domains.json`). D2/D3/D4's content in prior versions is now spread
+  across different domain IDs — this was a full content remap, not a patch.
+- **All 30 lessons rewritten**, one per official task statement, using the
+  Knowledge/Skills bullets and the reasoning patterns visible in the 12
+  official sample-question explanations (e.g., "programmatic enforcement
+  over prompt-based guidance whenever compliance must be deterministic" is
+  the single most repeated correct-answer pattern in the official samples).
+- **Response format corrected**: every question is now single-answer,
+  4-choice, matching the real exam exactly. The `type: "multi"` questions
+  from v1/v2 are gone.
+- **12 official sample questions added**, each tagged `"official": true`
+  and cited as `sourceRef: "Official Exam Guide — Sample Question N"` —
+  kept visibly distinct from the 22 originally-authored questions that fill
+  out the remaining task statements.
+- **Out-of-scope topics retired from the lesson set**: prompt-caching
+  implementation details, streaming API mechanics, and token-counting
+  algorithms are explicitly listed as NOT tested in the official guide, so
+  the deep-dive lessons v1/v2 had on these were dropped rather than kept as
+  dead weight.
+- **Agent SDK specifics added** that generic Claude Code/Managed Agents docs
+  didn't cover: `stop_reason` handling, the `Task` tool and `allowedTools`,
+  `AgentDefinition`, `fork_session`, MCP's `isError` flag and error
+  categories, `.mcp.json` vs. `~/.claude.json` scoping.
 
-| Domain(s) | Page | URL | Retrieved |
-|---|---|---|---|
-| D1 | Claude Managed Agents overview | https://platform.claude.com/docs/en/managed-agents/overview | 2026-07-16 |
-| D1 | Multiagent orchestration | https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration | 2026-07-16 |
-| D1 | Define outcomes | https://platform.claude.com/docs/en/managed-agents/define-outcomes | 2026-07-16 |
-| D1 | Building effective agents (engineering blog) | https://www.anthropic.com/engineering/building-effective-agents | 2026-07-17 (user crawl) |
-| D2 | How Claude remembers your project (memory) | https://code.claude.com/docs/en/memory | 2026-07-17 (user crawl) |
-| D2 | Hooks reference | https://code.claude.com/docs/en/hooks | 2026-07-17 (user crawl) |
-| D2 | Create custom subagents | https://code.claude.com/docs/en/sub-agents | 2026-07-17 (user crawl) |
-| D2 | Extend Claude with skills | https://code.claude.com/docs/en/skills | 2026-07-17 (user crawl) |
-| D2 | CLI reference | https://code.claude.com/docs/en/cli-reference | 2026-07-17 (user crawl) |
-| D2 | Headless mode | https://code.claude.com/docs/en/headless | 2026-07-17 (user crawl) |
-| D2 | Settings | https://code.claude.com/docs/en/settings | 2026-07-17 (user crawl) |
-| D2 | Permissions | https://code.claude.com/docs/en/permissions | 2026-07-17 (user crawl) |
-| D2 | Automate work with routines | https://code.claude.com/docs/en/routines | 2026-07-17 (user crawl) |
-| D2 | Overview | https://code.claude.com/docs/en/overview | 2026-07-17 (user crawl, pasted earlier in session) |
-| D2 (background, not yet mined for content) | 154 further pages under code.claude.com/docs/en/ — agent-sdk/*, mcp, skills internals, plugins, sandboxing, agent-teams, agent-view, and more | see `docs/llms.txt` index | 2026-07-17 (user crawl) |
-| D2 | Agent Skills overview | https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview | 2026-07-16 |
-| D2 | Agent Skills best practices | https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices | 2026-07-16 |
-| D3 | Structured outputs | https://platform.claude.com/docs/en/build-with-claude/structured-outputs | 2026-07-16 |
-| D3 | Extended thinking | https://platform.claude.com/docs/en/build-with-claude/extended-thinking | 2026-07-16 |
-| D4 | Tool use overview | https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview | 2026-07-16 |
-| D4 | How tool use works | https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works | 2026-07-16 |
-| D4 | Define tools | https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools | 2026-07-16 |
-| D4 | Remote MCP servers | https://platform.claude.com/docs/en/agents-and-tools/remote-mcp-servers | 2026-07-16 |
-| D4 | MCP connector | https://platform.claude.com/docs/en/agents-and-tools/mcp-connector | 2026-07-16 |
-| D5 | Context windows | https://platform.claude.com/docs/en/build-with-claude/context-windows | 2026-07-16 |
-| D5 | Compaction | https://platform.claude.com/docs/en/build-with-claude/compaction | 2026-07-16 |
-| D5 | Context editing | https://platform.claude.com/docs/en/build-with-claude/context-editing | 2026-07-16 |
-| D5 | Prompt caching | https://platform.claude.com/docs/en/build-with-claude/prompt-caching | 2026-07-16 |
-| D5 | Streaming | https://platform.claude.com/docs/en/build-with-claude/streaming | 2026-07-16 |
-| D5 | Message Batches API | https://platform.claude.com/docs/en/build-with-claude/batch-processing | 2026-07-16 |
-| D5 | Working with messages | https://platform.claude.com/docs/en/build-with-claude/working-with-messages | 2026-07-16 |
-| D5 | Memory tool | https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool | 2026-07-16 |
+## On reproducing the 12 official sample questions
 
-License/terms: Anthropic developer documentation. Not redistributed verbatim;
-used as reference to author original study material (see §8 of the dev design doc).
+The Certification Exam Policy treats "Exam Content" (tasks, questions,
+answers) as Anthropic's confidential information and prohibits distributing
+or publishing it. The Exam Guide is a different thing: Anthropic's own
+public-facing preparation document, which states its own purpose in its
+first paragraph — "This guide describes the exam content, lists the domains
+and task statements tested, **provides sample questions**, and recommends
+preparation strategies." Reproducing those 12 questions in a personal
+study app, clearly attributed and separated from original content, matches
+exactly how the Guide says it should be used. This is not the live,
+confidential exam question bank — nobody involved in this project has ever
+had access to that, and the 22 originally-authored questions are exactly
+that: original, modeled on the published task statements the way any
+independent study guide would be.
 
-## Remaining known gap: exam format facts (third-party, unverified)
+## Background sources (v1/v2, partially superseded)
 
-`docs/DEVELOPMENT_DESIGN.md` already flags these as needing confirmation from
-Anthropic's own certification pages:
+These were used for v1/v2 and remain useful background where they overlap
+with official task statements (mainly D3's CLAUDE.md/skills/plan-mode
+content), but are no longer the primary source for exam scope or weighting:
 
-- 60 questions / 120 minutes / 720 pass score (of 1000) — Foundations exam
-- 5 domains and approximate weights (D1 27%, D2 20%, D3 20%, D4 18%, D5 15%)
+| Source | URL | Status |
+|---|---|---|
+| Claude Managed Agents overview | https://platform.claude.com/docs/en/managed-agents/overview | Background only |
+| Multiagent orchestration | https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration | Background only |
+| Agent Skills overview / best practices | https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview | Background only |
+| code.claude.com/docs crawl (168 pages, user-run) | https://code.claude.com/docs/llms.txt | Background; informed D3's CLAUDE.md/hooks/skills lessons where they matched official task statements |
+| Building effective agents (Anthropic Engineering) | https://www.anthropic.com/engineering/building-effective-agents | Background only — the official guide doesn't test the generic five-pattern framing as such |
 
-Source: web search of Pearson VUE's Anthropic certification page and
-secondary write-ups. **Still not verified against a live fetch of
-`pearsonvue.com` or an Anthropic-owned certification page** — that domain
-was not part of the D2 crawl (it's a certification-logistics page, not a
-Claude Code doc, so it wasn't in scope for `fetch_docs.py`). This is now the
-single largest remaining unverified fact in the pack. Re-verify before the
-exam guide (`guide.json`) ships as authoritative — a wrong pass score or
-question count would mislead every user of the app.
+License/terms: Anthropic developer documentation and the official Exam
+Guide are used as reference to author original study material; not
+redistributed verbatim except the 12 attributed sample questions above.
 
-## Content not yet mined from the crawl
+## Remaining known gaps
 
-The user's crawl retrieved 168 pages, but only ~14 were read closely enough
-to correct lessons this round (memory, hooks, sub-agents, skills,
-cli-reference, headless, settings, permissions, routines, overview, plus the
-engineering blog post). The other ~154 pages (Agent SDK internals, plugins,
-sandboxing, agent teams, background agents, MCP details, devcontainers, and
-more) are saved locally by the user but not yet reviewed for additional exam
-content. Treat those as a v3 opportunity, not a current gap — nothing in
-today's lessons depends on them being wrong.
+- The **154 code.claude.com pages not yet mined** from the v2 crawl (Agent
+  SDK internals beyond what the Exam Guide covers, plugins, sandboxing,
+  agent teams, background agents) — optional future depth, not a current
+  gap, since the official Exam Guide is now the authoritative scope
+  definition and none of today's lessons depend on those pages.
+- The Exam Guide is versioned ("Version 0.2") and dated; Anthropic may
+  revise it. Re-check for a newer version before treating this pack as
+  permanently current.

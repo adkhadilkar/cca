@@ -33,12 +33,14 @@ repetition, mock exam timer/scoring, settings, content-pack updater).
 
 ## Known gaps carried over from the content pack
 
-As of content pack v2, D1 and D2 are both verified against official docs
-(see `content/SOURCES.md`). The one remaining gap is the exam format itself
-(question count/time limit/pass score/domain weights in `guide.json` and
-`domains.json`) — still sourced from web-search summaries, not a direct
-fetch of Anthropic's certification pages. This doesn't block building or
-running the app, only the correctness of what it teaches.
+As of content pack v3, the entire pack — domains, exam mechanics, all 30
+lessons, and 12 of the 34 practice questions — is rebuilt directly from
+Anthropic's own official Exam Guide, Certification Exam Policy, and
+Certification Terms and Conditions (user-supplied PDFs). See
+`content/SOURCES.md` for full provenance. The one remaining gap: the Exam
+Guide is versioned ("Version 0.2") and may be revised by Anthropic — check
+for a newer version periodically. This doesn't block building or running
+the app, only the long-term currency of what it teaches.
 
 ## Building locally
 

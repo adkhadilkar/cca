@@ -5,28 +5,97 @@
     "questions": 60,
     "timeLimitMin": 120,
     "passScore": 720,
-    "scoreScale": 1000,
-    "delivery": "Proctored (online via Pearson VUE OnVUE, or at a test center)",
+    "scoreScale": "100–1,000 (scaled score; equates difficulty across exam forms)",
+    "examFeeUSD": 125,
+    "delivery": "Online proctored, or at a test center",
     "openBook": false,
     "aiAssistanceAllowed": false,
-    "questionTypes": ["Multiple choice (single answer)", "Multiple response (select all that apply)", "Scenario-based"]
+    "questionTypes": ["Multiple choice — exactly one correct answer and three incorrect (plausible) options per question"],
+    "structure": "4 scenarios are presented, drawn at random from a bank of 6 possible scenarios. Each scenario frames a cluster of questions in a realistic production context.",
+    "resultReporting": "Pass or fail only (no per-domain score breakdown reported to candidates)",
+    "validityPeriod": "12 months from the date the credential is awarded; must be renewed before expiration or the certification must be re-earned from scratch"
   },
   "domainWeights": [
     {"code": "D1", "title": "Agentic Architecture & Orchestration", "weightPct": 27},
-    {"code": "D2", "title": "Claude Code Configuration & Workflows", "weightPct": 20},
-    {"code": "D3", "title": "Prompt Engineering & Structured Output", "weightPct": 20},
-    {"code": "D4", "title": "Tool Design & MCP Integration", "weightPct": 18},
-    {"code": "D5", "title": "Context Management", "weightPct": 15}
+    {"code": "D2", "title": "Tool Design & MCP Integration", "weightPct": 18},
+    {"code": "D3", "title": "Claude Code Configuration & Workflows", "weightPct": 20},
+    {"code": "D4", "title": "Prompt Engineering & Structured Output", "weightPct": 20},
+    {"code": "D5", "title": "Context Management & Reliability", "weightPct": 15}
+  ],
+  "scenarioBank": [
+    {
+      "id": "s1",
+      "title": "Customer Support Resolution Agent",
+      "summary": "An agent (Claude Agent SDK) handles high-ambiguity requests — returns, billing disputes, account issues — via custom MCP tools (get_customer, lookup_order, process_refund, escalate_to_human). Target: 80%+ first-contact resolution while knowing when to escalate.",
+      "primaryDomains": ["D1", "D2", "D5"]
+    },
+    {
+      "id": "s2",
+      "title": "Code Generation with Claude Code",
+      "summary": "A team uses Claude Code for generation, refactoring, debugging, and docs, integrated into their workflow with custom slash commands, CLAUDE.md, and a working sense of plan mode vs. direct execution.",
+      "primaryDomains": ["D3", "D5"]
+    },
+    {
+      "id": "s3",
+      "title": "Multi-Agent Research System",
+      "summary": "A coordinator delegates to specialized subagents — web search, document analysis, synthesis, report generation — to research topics and produce comprehensive, cited reports.",
+      "primaryDomains": ["D1", "D2", "D5"]
+    },
+    {
+      "id": "s4",
+      "title": "Developer Productivity with Claude",
+      "summary": "An Agent SDK agent helps engineers explore unfamiliar codebases and legacy systems, generate boilerplate, and automate repetitive tasks, using built-in tools (Read, Write, Bash, Grep, Glob) plus MCP servers.",
+      "primaryDomains": ["D2", "D3", "D1"]
+    },
+    {
+      "id": "s5",
+      "title": "Claude Code for Continuous Integration",
+      "summary": "Claude Code runs automated code review, test generation, and PR feedback inside a CI/CD pipeline; prompts must give actionable feedback while minimizing false positives.",
+      "primaryDomains": ["D3", "D4"]
+    },
+    {
+      "id": "s6",
+      "title": "Structured Data Extraction",
+      "summary": "A system extracts information from unstructured documents, validates output against JSON schemas, handles edge cases gracefully, and integrates with downstream systems at high accuracy.",
+      "primaryDomains": ["D4", "D5"]
+    }
+  ],
+  "outOfScope": [
+    "Fine-tuning Claude models or training custom models",
+    "Claude API authentication, billing, or account management",
+    "Deep implementation details of specific programming languages/frameworks beyond tool/schema config",
+    "Deploying or hosting MCP servers (infra, networking, container orchestration)",
+    "Claude's internal architecture, training process, or model weights",
+    "Constitutional AI, RLHF, or safety training methodologies",
+    "Embedding models or vector database implementation details",
+    "Computer use (browser/desktop automation) and vision/image analysis capabilities",
+    "Streaming API implementation or server-sent events",
+    "Rate limiting, quotas, or API pricing calculations",
+    "OAuth, API key rotation, or authentication protocol details",
+    "Specific cloud provider configurations (AWS, GCP, Azure)",
+    "Performance benchmarking or model comparison metrics",
+    "Prompt caching implementation details (beyond knowing it exists)",
+    "Token counting algorithms or tokenization specifics"
   ],
   "preparation": [
-    "Anthropic Academy hosts free courses that map to the exam domains (Claude API, MCP, Claude Code). Work through them alongside this app.",
-    "The exam tests design judgment, not memorization: expect scenarios where you must choose the simplest architecture that meets the requirement.",
-    "Practice reasoning about trade-offs — cost vs. latency, workflow vs. agent, caching vs. compaction — rather than recalling exact parameter names."
+    "This exam tests judgment about production tradeoffs, not trivia — every official sample question rewards the response that fixes the actual root cause with proportionate effort, not the most sophisticated-sounding option.",
+    "A recurring pattern across official sample answers: when compliance must be guaranteed (identity verification before a refund, a required tool call order), the correct answer is programmatic enforcement (hooks, prerequisite gates) — never a prompt instruction alone, however detailed.",
+    "Another recurring pattern: fix the cheapest, most targeted thing first. Vague tool descriptions get fixed by writing better descriptions, not by adding a routing layer or consolidating tools. Narrow task decomposition gets fixed by widening the decomposition, not by patching downstream agents.",
+    "Complete the four hands-on exercises in the official Exam Guide (multi-tool agent with escalation logic; Claude Code team workflow configuration; structured extraction pipeline; multi-agent research pipeline with error propagation) — they map directly onto the five domains."
   ],
   "proctoringNotes": [
-    "Closed-book: no notes, no second screen, no AI assistants during the exam.",
-    "For online proctoring you need a webcam, a quiet private room, and a government ID.",
-    "Arrive/check in early; system checks (camera, microphone, network) can take several minutes."
+    "Closed-book, no AI assistance of any kind during the exam — the Exam Policy explicitly lists 'using AI products or services to assist you during the Exam' as prohibited misconduct.",
+    "For online proctoring: a webcam, a quiet private room, no unauthorized items (extra monitors, notes, other electronic devices), and no unscheduled breaks unless pre-approved.",
+    "Bring a valid, unexpired government-issued ID matching your exam registration name exactly.",
+    "Exam Content (questions, answers, tasks) is Anthropic's confidential information — do not copy, record, publish, or share it during or after the exam.",
+    "If you believe a scoring or eligibility decision was made in error, you have 14 calendar days from notice to file an appeal through the certification platform."
   ],
-  "disclaimer": "Unofficial preparation material. Not affiliated with, authored by, or endorsed by Anthropic. Exam format, domain weights, question counts, and the passing score are set by Anthropic and may change — always confirm current details on Anthropic's official certification pages before your exam."
+  "policySummary": {
+    "examFeeUSD": 125,
+    "certificationValidity": "12 months from the award date; renew before expiration or the credential must be re-earned",
+    "misconductConsequences": "Anthropic may suspend/permanently prohibit future exams, require a retake, invalidate results, or revoke the certification — at its sole discretion and without refunding fees.",
+    "confidentiality": "Exam tasks, questions, answers, and related content are Anthropic's Confidential Information. Do not distribute, copy, publish, record, or post them.",
+    "appealWindow": "14 calendar days from the decision notice"
+  },
+  "disclaimer": "Unofficial preparation material. Not affiliated with, authored by, or endorsed by Anthropic. This app is built from Anthropic's own publicly released Exam Guide, Certification Terms and Conditions, and Certification Exam Policy (each user-supplied and dated June/June 30 2026) — but Anthropic may update these documents, and this app may lag. Always confirm current exam format, domains, and policies on Anthropic's official certification pages before your exam, and never use this app or any AI assistance during the actual proctored exam."
 }

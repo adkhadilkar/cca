@@ -4,57 +4,89 @@
       "id": "d1-l1",
       "domainId": "d1",
       "orderIndex": 1,
-      "title": "Workflows vs. agents vs. the augmented LLM",
+      "title": "Task 1.1 — Agentic loops for autonomous task execution",
       "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "The foundation of agentic design is a single distinction. **Workflows** are systems where LLMs and tools are orchestrated through predefined code paths — you decide the steps in advance. **Agents** are systems where the LLM dynamically directs its own process and tool usage, deciding at runtime what to do next and when it is done."},
-        {"type": "text", "value": "Both are built on the **augmented LLM**: a model enhanced with retrieval (fetching relevant information), tools (calling functions), and memory (persisting state). The augmented LLM is the primitive; workflows and agents are ways of composing it."},
-        {"type": "callout", "variant": "exam-key", "value": "The exam rewards choosing the SIMPLEST thing that works. Reach for a single well-prompted LLM call first, then a workflow, and only then an autonomous agent. Agents trade higher cost, latency, and unpredictability for flexibility — use them only when the task genuinely requires dynamic decision-making over an unknown number of steps."},
-        {"type": "text", "value": "Use a **workflow** when the task decomposes into fixed, predictable steps (e.g. classify → route → respond). Use an **agent** when the path can't be hardcoded — the number and order of steps depends on inputs discovered along the way, such as an autonomous coding task that explores a repo before editing."},
-        {"type": "text", "value": "A **conversational system** simply exchanges turns with a user and may call tools, but does not pursue a goal autonomously across many steps. Knowing which of the three a scenario describes is often the whole question."}
+        {"type": "text", "value": "An agentic loop is: send a request to Claude, inspect `stop_reason`, act accordingly, repeat. `stop_reason: \"tool_use\"` means Claude wants to call a tool — execute it and return the result for the next iteration. `stop_reason: \"end_turn\"` means Claude is done — present the response and stop the loop."},
+        {"type": "text", "value": "Tool results get appended to conversation history so the model can reason about what to do next with full context of what happened. This is what makes the loop 'agentic': Claude decides which tool to call next based on accumulated context, not a hardcoded sequence."},
+        {"type": "code", "language": "text", "value": "loop:\n  response = send(messages)\n  if response.stop_reason == \"tool_use\":\n      result = execute(response.tool_use)\n      messages.append(tool_result: result)\n      continue\n  elif response.stop_reason == \"end_turn\":\n      return response  # done"},
+        {"type": "callout", "variant": "exam-key", "value": "Known anti-patterns to recognize and avoid: parsing the assistant's natural-language TEXT to decide whether to keep looping (fragile — use stop_reason instead); using an arbitrary iteration cap as the PRIMARY stopping mechanism (a safety backstop is fine, but it isn't how the loop is supposed to terminate); and checking for the presence of assistant text as a 'done' signal (Claude can produce text alongside a tool_use block)."}
       ]
     },
     {
       "id": "d1-l2",
       "domainId": "d1",
       "orderIndex": 2,
-      "title": "The five workflow patterns",
-      "estMinutes": 10,
+      "title": "Task 1.2 — Coordinator-subagent orchestration patterns",
+      "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "Anthropic's 'Building effective agents' guidance names five composable workflow patterns. Recognize each by its shape."},
-        {"type": "text", "value": "**1. Prompt chaining** — decompose a task into a fixed sequence of steps, each LLM call processing the previous output. Add programmatic 'gate' checks between steps. Use when a task cleanly splits into ordered subtasks (e.g. write an outline, then write the doc). Trades latency for accuracy."},
-        {"type": "text", "value": "**2. Routing** — classify an input, then direct it to a specialized follow-up prompt or model. Use when inputs fall into distinct categories better handled separately (e.g. refund vs. technical-support tickets), or to send easy queries to a cheaper model and hard ones to a stronger one."},
-        {"type": "text", "value": "**3. Parallelization** — run subtasks simultaneously. Two variants: **sectioning** splits a task into independent parts run in parallel (e.g. one call answers, another screens for policy violations); **voting** runs the same task several times to get diverse outputs and aggregates them (e.g. multiple code-review passes)."},
-        {"type": "text", "value": "**4. Orchestrator-workers** — a central LLM dynamically breaks a task into subtasks, delegates them to worker LLMs, and synthesizes the results. Unlike parallelization, the subtasks are NOT known up front — the orchestrator decides them at runtime. Good for coding changes that touch an unpredictable set of files."},
-        {"type": "text", "value": "**5. Evaluator-optimizer** — one LLM generates a response while another evaluates it and gives feedback in a loop, iterating until the evaluator is satisfied. Use when you have clear evaluation criteria and iterative refinement measurably helps (e.g. literary translation, complex search)."},
-        {"type": "callout", "variant": "exam-key", "value": "Orchestrator-workers vs. parallelization is a classic distinction: parallelization runs a FIXED, predefined set of subtasks; the orchestrator DECIDES the subtasks dynamically. If the scenario says 'the number of subtasks isn't known in advance,' it's orchestrator-workers."}
+        {"type": "text", "value": "The tested pattern is hub-and-spoke: a coordinator agent manages ALL inter-subagent communication, error handling, and information routing. Subagents don't talk to each other directly — everything flows through the coordinator, which gives you observability, consistent error handling, and controlled information flow."},
+        {"type": "text", "value": "Subagents run with ISOLATED context — they do not automatically inherit the coordinator's conversation history. The coordinator decides which subagents to invoke based on query complexity, decomposes the task, delegates, and aggregates results."},
+        {"type": "text", "value": "A named failure mode: overly NARROW task decomposition by the coordinator, leading to incomplete coverage of a broad topic (e.g., decomposing 'creative industries' into only visual-arts subtasks and silently missing music, writing, and film — the subagents did their assigned jobs correctly; the problem was what they were assigned)."},
+        {"type": "callout", "variant": "exam-key", "value": "Good coordinator design: dynamically select which subagents to invoke rather than always routing through the full pipeline; partition scope across subagents to minimize duplication; run iterative refinement loops where the coordinator evaluates synthesis output for gaps and re-delegates with targeted follow-up queries until coverage is sufficient."}
       ]
     },
     {
       "id": "d1-l3",
       "domainId": "d1",
       "orderIndex": 3,
-      "title": "Multiagent orchestration: coordinators and subagents",
-      "estMinutes": 9,
+      "title": "Task 1.3 — Subagent invocation, context passing, and spawning",
+      "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "A **coordinator** (orchestrator) agent delegates work to a roster of **subagents**, each with its own model, system prompt, tools, and context. Delegating to context-isolated subagents improves output quality (each stays focused) and can cut wall-clock time by running work in parallel."},
-        {"type": "text", "value": "Three delegation patterns work well: **parallelization** (fan out independent subtasks and synthesize), **specialization** (route to a domain-focused agent — a security agent, a docs agent — instead of one agent loaded with every capability), and **escalation** (consult a more capable model for the hard subset of subtasks)."},
-        {"type": "code", "language": "text", "value": "Coordinator (Opus)\n ├── Researcher (Haiku)  ← own tools + MCP servers, isolated context\n ├── Reviewer  (Opus)\n └── Test-writer(Sonnet)\nEach subagent runs in its own context-isolated thread; the coordinator synthesizes results."},
-        {"type": "text", "value": "In Anthropic's Managed Agents, each agent runs in its own **session thread** (isolated event stream and history). Tools, MCP servers, and context are NOT shared between agents; the shared sandbox filesystem and session-level vault credentials are. A coordinator can delegate only ONE level deep, list at most 20 unique agents in its roster, and a session supports at most 25 concurrent threads."},
-        {"type": "callout", "variant": "exam-key", "value": "Don't reach for multiagent by default. It multiplies token cost and coordination overhead. Use it when work spans multiple surfaces or when several well-scoped subtasks each benefit from isolated context and specialized configuration."}
+        {"type": "text", "value": "In the Claude Agent SDK, the **Task tool** is the mechanism for spawning subagents. The coordinator's `allowedTools` must explicitly include `\"Task\"` or it cannot invoke subagents at all."},
+        {"type": "text", "value": "Subagent context must be EXPLICITLY provided in the prompt — subagents do not automatically inherit parent context, and they don't share memory between separate invocations. When passing findings from one agent to another (e.g., web search results into a synthesis subagent), include the complete findings directly in the subagent's prompt, and use structured formats that separate content from metadata (source URLs, document names, page numbers) to preserve attribution."},
+        {"type": "text", "value": "`AgentDefinition` configuration covers each subagent type's description, system prompt, and tool restrictions. **Fork-based session management** lets you explore divergent approaches from a shared analysis baseline — start from one point, branch into multiple parallel explorations."},
+        {"type": "callout", "variant": "exam-key", "value": "Spawn PARALLEL subagents by emitting multiple Task tool calls in a SINGLE coordinator response, not across separate turns — that's what actually gets them running concurrently. Also: design coordinator prompts around research goals and quality criteria rather than step-by-step procedural instructions, so subagents can adapt."}
       ]
     },
     {
       "id": "d1-l4",
       "domainId": "d1",
       "orderIndex": 4,
-      "title": "Reliability: error handling, guardrails, and human oversight",
+      "title": "Task 1.4 — Enforcement and handoff patterns in multi-step workflows",
+      "estMinutes": 8,
+      "body": [
+        {"type": "text", "value": "There are two ways to enforce a required order of operations: programmatic enforcement (hooks, prerequisite gates) and prompt-based guidance (asking nicely in the system prompt). Prompt instructions alone have a NON-ZERO failure rate — the model will occasionally skip a step even when told not to."},
+        {"type": "text", "value": "When deterministic compliance is required — identity verification before a financial operation is the canonical example — you need a programmatic prerequisite that blocks the downstream tool call until the prerequisite has actually completed (e.g., block `process_refund` until `get_customer` has returned a verified customer ID)."},
+        {"type": "text", "value": "For mid-process human escalation, use a structured handoff protocol: customer details, root-cause analysis, and recommended action — enough for a human agent with no access to the conversation transcript to pick up immediately."},
+        {"type": "callout", "variant": "exam-key", "value": "This is the single most repeated pattern in official sample answers: whenever a scenario describes a reliability problem caused by the model occasionally skipping a required step, the fix is a PROGRAMMATIC prerequisite gate — not a better-worded prompt, not few-shot examples showing the correct order. Enhancing the prompt is a plausible-sounding WRONG answer whenever the stakes are financial or safety-critical."}
+      ]
+    },
+    {
+      "id": "d1-l5",
+      "domainId": "d1",
+      "orderIndex": 5,
+      "title": "Task 1.5 — Agent SDK hooks for interception and normalization",
       "estMinutes": 7,
       "body": [
-        {"type": "text", "value": "Autonomous agents accrue error over many steps, so reliability is a design concern, not an afterthought. Give the agent a way to recover: return tool errors as structured `tool_result` blocks with `is_error: true` and a useful message so the model can retry or adapt, rather than throwing and killing the loop."},
-        {"type": "text", "value": "Bound the loop. Set a maximum number of iterations or a token/time budget so a confused agent can't run forever. Define a clear stopping condition — the agent should know what 'done' looks like."},
-        {"type": "text", "value": "Add checkpoints for consequential actions. Human-in-the-loop approval before irreversible or costly operations (sending email, deleting data, spending money) is a standard guardrail. In agent harnesses this shows up as tool-permission confirmations."},
-        {"type": "callout", "variant": "exam-key", "value": "Keep the agent's action space small and its tools well-documented and tested in a sandbox before granting real-world access. Most agent failures trace back to poorly described tools or an over-broad action space, not to the model 'being wrong.'"}
+        {"type": "text", "value": "Two applied hook patterns are tested. **PostToolUse** hooks intercept a tool's RESULT and transform it before the model processes it — e.g., normalizing heterogeneous data formats (Unix timestamps, ISO 8601, numeric status codes) coming back from different MCP tools into one consistent shape."},
+        {"type": "text", "value": "Tool call interception hooks intercept an OUTGOING tool call before it executes, to enforce a compliance rule — e.g., blocking a refund tool call above a $500 threshold and redirecting to human escalation instead of letting the model decide case by case."},
+        {"type": "callout", "variant": "exam-key", "value": "Same principle as Task 1.4: choose hooks over prompt-based enforcement whenever a business rule needs a GUARANTEE, not a probabilistic best effort. A hook that blocks a call is deterministic; a system-prompt instruction saying 'never approve refunds over $500' is not."}
+      ]
+    },
+    {
+      "id": "d1-l6",
+      "domainId": "d1",
+      "orderIndex": 6,
+      "title": "Task 1.6 — Task decomposition strategies",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "Choose between two decomposition strategies based on predictability. **Prompt chaining** — a fixed sequential pipeline — fits predictable, multi-aspect work: analyze each file individually, then run a separate cross-file integration pass. **Dynamic adaptive decomposition** fits open-ended investigation where subtasks are generated based on what's discovered at each step."},
+        {"type": "text", "value": "For large code reviews, split into per-file local analysis passes plus a separate cross-file integration pass — a single pass over many files at once causes attention dilution (inconsistent depth, missed bugs, contradictory findings across files that should be treated identically)."},
+        {"type": "text", "value": "For open-ended tasks (e.g., 'add comprehensive tests to a legacy codebase'), first map structure and identify high-impact areas, then build a prioritized plan that adapts as dependencies are discovered — don't try to fully specify the plan up front."},
+        {"type": "callout", "variant": "exam-key", "value": "Prompt chaining = fixed, known steps in advance. Dynamic decomposition = steps discovered as you go. If a scenario says the number of relevant files/subtasks 'depends on what's found,' that's dynamic decomposition, not prompt chaining — a subtly different distinction from D1's coordinator-vs-parallelization framing but the same underlying idea."}
+      ]
+    },
+    {
+      "id": "d1-l7",
+      "domainId": "d1",
+      "orderIndex": 7,
+      "title": "Task 1.7 — Session state, resumption, and forking",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "`--resume <session-name>` continues a specific named prior conversation. `fork_session` creates an INDEPENDENT branch from a shared analysis baseline so you can explore divergent approaches (e.g., comparing two refactoring strategies from the same starting codebase analysis) without the branches interfering with each other."},
+        {"type": "text", "value": "When resuming a session after code has changed since the last run, explicitly tell the agent what files changed — don't assume it will re-discover this, and don't require full re-exploration when a targeted note would do."},
+        {"type": "callout", "variant": "exam-key", "value": "Starting a NEW session with a structured summary is often more reliable than resuming a stale one — if prior tool results are stale (files have since changed), a fresh session with an injected summary avoids the model reasoning from outdated information. Resume when prior context is still mostly valid; start fresh with a summary when it isn't."}
       ]
     },
 
@@ -62,67 +94,64 @@
       "id": "d2-l1",
       "domainId": "d2",
       "orderIndex": 1,
-      "title": "CLAUDE.md and auto memory",
-      "estMinutes": 9,
+      "title": "Task 2.1 — Effective tool interfaces with clear descriptions",
+      "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "Claude Code has TWO complementary memory systems, both loaded at the start of every session. **CLAUDE.md files** are instructions YOU write (coding standards, architecture, workflows). **Auto memory** is notes CLAUDE writes itself — build commands, debugging insights, and preferences it discovers from your corrections — with zero authoring effort from you."},
-        {"type": "text", "value": "CLAUDE.md files can live at several scopes, listed here from broadest to most specific: **managed policy** (org-wide, IT-deployed), **user** (`~/.claude/CLAUDE.md`, all your projects), **project** (`./CLAUDE.md` or `./.claude/CLAUDE.md`, shared via git), and **local** (`./CLAUDE.local.md`, personal and gitignored — NOT deprecated, still fully supported)."},
-        {"type": "callout", "variant": "exam-key", "value": "Common misconception: memory scopes do NOT override each other. All discovered files are CONCATENATED into context, ordered broadest-to-most-specific so project-level instructions are read last (closest to the conversation). If two files genuinely conflict, Claude may pick one arbitrarily — there's no 'most specific wins' resolution rule."},
-        {"type": "text", "value": "Files can pull in others with `@path/to/file` imports (max depth 4 hops). For large projects, `.claude/rules/` lets you split instructions into topic files, optionally scoped to specific paths via YAML frontmatter (`paths: [\"src/api/**/*.ts\"]`) so a rule only loads into context when Claude touches matching files — this saves context compared to one giant CLAUDE.md."},
-        {"type": "text", "value": "**Auto memory** lives at `~/.claude/projects/<project>/memory/`, machine-local and shared across worktrees of the same repo. `MEMORY.md` is the index — only its first 200 lines / 25KB load at session start; deeper topic files load on demand when Claude reads them. Auto memory is on by default; toggle it in `/memory` or via `autoMemoryEnabled` in settings."},
-        {"type": "text", "value": "Both systems are delivered as context (a user message after the system prompt), not enforced configuration — Claude tries to follow them but compliance isn't guaranteed. When something MUST happen every time regardless of what the model decides, use a hook instead (next lesson)."}
+        {"type": "text", "value": "Tool descriptions are the PRIMARY mechanism an LLM uses to select which tool to call. Minimal descriptions ('Retrieves customer information' / 'Retrieves order details') lead to unreliable selection between similar tools — the model genuinely lacks the information to differentiate them."},
+        {"type": "text", "value": "A good description includes input formats, example queries, edge cases, and explicit boundaries explaining when to use this tool versus a similar alternative. Ambiguous or overlapping descriptions (e.g., `analyze_content` vs `analyze_document`, near-identical wording) cause misrouting even when the tools do genuinely different things."},
+        {"type": "text", "value": "System prompt wording can also bias tool selection — keyword-sensitive instructions can create unintended associations that override a well-written tool description, so review the system prompt too, not just the tool schema, when diagnosing a selection problem."},
+        {"type": "callout", "variant": "exam-key", "value": "When production logs show poor tool selection with minimal tool descriptions, the correct FIRST step is almost always expanding the descriptions — a low-effort, high-leverage fix. Building a routing layer, adding many few-shot examples, or consolidating tools are all valid ideas in principle but are over-engineered as a FIRST response when the root cause is simply inadequate descriptions."}
       ]
     },
     {
       "id": "d2-l2",
       "domainId": "d2",
       "orderIndex": 2,
-      "title": "Hooks and lifecycle events",
-      "estMinutes": 9,
+      "title": "Task 2.2 — Structured error responses for MCP tools",
+      "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "Hooks are user-defined commands that run at fixed points in Claude Code's lifecycle. Unlike CLAUDE.md/auto memory, hooks are enforced regardless of what Claude decides — configure them in settings files (e.g. `.claude/settings.json`)."},
-        {"type": "text", "value": "There are far more hook events than the handful people usually name: session events (**SessionStart**, **Setup**, **SessionEnd**), prompt events (**UserPromptSubmit**, **UserPromptExpansion**), tool events (**PreToolUse**, **PermissionRequest**, **PostToolUse**, **PostToolUseFailure**, **PostToolBatch**, **PermissionDenied**), agent-loop events (**Stop**, **StopFailure**, **SubagentStart**, **SubagentStop**, **TaskCreated**, **TaskCompleted**), and context events (**PreCompact**, **PostCompact**). Each event's data determines whether it CAN block an action at all — e.g. `PostToolUse` fires after the tool already ran, so it can only show Claude an error, not prevent the call."},
-        {"type": "code", "language": "json", "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [{\n      \"matcher\": \"Edit|Write\",\n      \"hooks\": [{\"type\": \"command\", \"command\": \"prettier --write $CLAUDE_FILE_PATHS\"}]\n    }]\n  }\n}"},
-        {"type": "callout", "variant": "exam-key", "value": "Exit-code semantics are precise and a favorite exam trap: exit 0 = success (stdout may carry JSON). Exit 2 SPECIFICALLY = blocking error (stderr is fed back as the reason; for PreToolUse this blocks the tool call). Any OTHER non-zero exit — including exit 1 — is a NON-blocking error: it's surfaced in the transcript but execution continues. 'Use exit 1 to block' is a wrong-answer distractor."},
-        {"type": "text", "value": "Which events can even block varies: PreToolUse, PermissionRequest, UserPromptSubmit, Stop, SubagentStop, and PreCompact can all block via exit 2. Events like Notification, SessionStart, and PostToolUse cannot block anything — they only inform (Claude, or just the user)."}
+        {"type": "text", "value": "MCP tools communicate failure back to the agent via the `isError` flag. But a uniform response like 'Operation failed' prevents the agent from making an appropriate recovery decision — it can't tell a timeout from a validation error from a policy violation."},
+        {"type": "text", "value": "Distinguish four error categories: **transient** (timeout, service unavailable — worth retrying), **validation** (invalid input — retry only helps if the input itself gets fixed), **business** (a policy violation — not retryable, needs a different action entirely), and **permission** errors. Return structured metadata: `errorCategory`, an `isRetryable` boolean, and a human-readable description, plus a `retriable: false` flag with a customer-friendly explanation for business-rule violations."},
+        {"type": "text", "value": "Also distinguish ACCESS FAILURES (a real error, needing a retry decision) from VALID EMPTY RESULTS (a successful query that legitimately found nothing) — conflating the two either wastes retries on a query that will never return anything, or silently treats a real failure as 'no results.'"},
+        {"type": "callout", "variant": "exam-key", "value": "In a subagent, implement LOCAL error recovery for transient failures first; only propagate to the coordinator errors the subagent genuinely can't resolve on its own — and when you do propagate, include what was attempted and any partial results, not just a bare failure signal."}
       ]
     },
     {
       "id": "d2-l3",
       "domainId": "d2",
       "orderIndex": 3,
-      "title": "Subagents and Skills (commands are now part of Skills)",
-      "estMinutes": 9,
+      "title": "Task 2.3 — Distributing tools across agents and tool_choice",
+      "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "**Subagents** are specialized assistants with their own context window, system prompt, tools, and permissions, defined as a markdown file with YAML frontmatter in `.claude/agents/` (project) or `~/.claude/agents/` (user). Only `name` and `description` are required; optional fields include `tools`, `model`, `permissionMode`, `mcpServers`, `maxTurns`, and `memory` (gives a subagent its OWN persistent auto memory scope). Delegate to a subagent when a side task would flood your main conversation with logs or file contents you won't reference again."},
-        {"type": "text", "value": "**Skills** package instructions (and optional scripts/resources) behind a `SKILL.md` file, loaded on demand rather than kept in context permanently — the mechanism is called progressive disclosure. Create a skill when you keep pasting the same multi-step procedure into chat, or when a CLAUDE.md entry has grown from a fact into a whole procedure."},
-        {"type": "callout", "variant": "exam-key", "value": "Important correction to a common assumption: slash commands and Skills are now the SAME mechanism, not two separate ones. A file at `.claude/commands/deploy.md` and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and behave the same way — Claude Code merged custom commands into Skills. Old `commands/` files still work; Skills just add optional frontmatter (who can invoke it, supporting files, subagent execution)."},
-        {"type": "text", "value": "Skills follow the open Agent Skills standard, so they aren't Claude Code-specific — the same skill format works across tools that adopt it. Claude invokes a skill automatically when it judges it relevant, or a user invokes one explicitly with `/skill-name`."}
+        {"type": "text", "value": "Giving one agent too many tools (18 instead of 4–5) degrades tool-selection reliability by increasing decision complexity. Agents with tools OUTSIDE their specialization tend to misuse them — a synthesis agent that also has web-search access will sometimes search instead of synthesizing."},
+        {"type": "text", "value": "Scope tool access per role: give each agent only what its role needs, with a small number of deliberately-scoped cross-role tools for high-frequency needs (e.g., a narrow `verify_fact` tool for a synthesis agent, while complex verification still routes through the coordinator to the full research agent)."},
+        {"type": "text", "value": "`tool_choice` has three modes: `\"auto\"` (model decides whether/which tool to call), `\"any\"` (must call SOME tool, model picks which — guarantees a tool call instead of conversational text), and forced selection `{\"type\": \"tool\", \"name\": \"...\"}` (must call this specific tool)."},
+        {"type": "callout", "variant": "exam-key", "value": "Use forced tool_choice to guarantee a specific tool runs FIRST (e.g., `extract_metadata` before enrichment steps), then let subsequent steps happen in follow-up turns. Use `\"any\"` when several extraction schemas exist and you don't know the document type in advance but need SOME structured tool call, not free text."}
       ]
     },
     {
       "id": "d2-l4",
       "domainId": "d2",
       "orderIndex": 4,
-      "title": "Headless mode, permissions, and CI",
-      "estMinutes": 7,
+      "title": "Task 2.4 — Integrating MCP servers into Claude Code and agent workflows",
+      "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "Headless (print) mode runs Claude Code non-interactively for scripts and CI: `claude -p \"<prompt>\"`. Add `--output-format json` (or `stream-json`) to get machine-readable results you can parse in a pipeline. This confirmed detail hasn't changed: it's the standard way to invoke Claude Code from a script."},
-        {"type": "text", "value": "Permissions govern what Claude may do without asking, via permission modes (`default`, `acceptEdits`, `plan`, `bypassPermissions`, and more) plus explicit allow/deny rules on specific tools and command patterns. In CI you typically pre-authorize a narrow allowlist (e.g. `--allowedTools \"Read,Edit,Bash\"`) so runs don't hang waiting for confirmation."},
-        {"type": "code", "language": "bash", "value": "# Non-interactive review in CI, JSON output\nclaude -p \"Review the diff on this branch and list correctness bugs\" \\\n  --output-format json > review.json"},
-        {"type": "callout", "variant": "exam-key", "value": "Headless mode + a tight permission allowlist + hooks is the standard recipe for automation (PR review bots, scheduled agents). Never grant broad auto-approval in an environment that can reach production."}
+        {"type": "text", "value": "MCP servers are scoped at two levels: **project-level** (`.mcp.json`) for shared team tooling, checked into version control, versus **user-level** (`~/.claude.json`) for personal or experimental servers. `.mcp.json` supports environment-variable expansion (e.g., `${GITHUB_TOKEN}`) so credentials never get committed to the repo."},
+        {"type": "text", "value": "Tools from ALL configured MCP servers are discovered at connection time and available simultaneously — there's no per-turn filtering by default, which is exactly why Task 2.3's scoped-access discipline matters."},
+        {"type": "text", "value": "**MCP resources** expose content catalogs (issue summaries, documentation hierarchies, database schemas) so the agent has visibility into what data exists WITHOUT needing exploratory tool calls to find out."},
+        {"type": "callout", "variant": "exam-key", "value": "Two practical judgment calls that come up: (1) enhance an MCP tool's description in detail so the agent doesn't fall back to a weaker built-in tool (like Grep) when the MCP tool is actually more capable; (2) for standard integrations (e.g., Jira), prefer an existing community MCP server over building a custom one — reserve custom servers for genuinely team-specific workflows."}
       ]
     },
     {
       "id": "d2-l5",
       "domainId": "d2",
       "orderIndex": 5,
-      "title": "Automating with Routines",
+      "title": "Task 2.5 — Selecting built-in tools effectively",
       "estMinutes": 6,
       "body": [
-        {"type": "text", "value": "A Routine is a saved Claude Code configuration — a prompt, one or more repositories, and a set of connectors — packaged once and run automatically on Anthropic-managed cloud infrastructure, so it keeps working even when your machine is off."},
-        {"type": "text", "value": "A Routine can combine multiple trigger types: **Scheduled** (cron-like recurring cadence, or a one-time future run), **API** (an HTTP POST to a per-routine endpoint with a bearer token), and **GitHub** (reacting to repo events like a new pull request). A single routine isn't limited to one trigger — a PR-review routine could run nightly AND react to every new PR."},
-        {"type": "callout", "variant": "exam-key", "value": "Routines vs. headless CI (previous lesson): headless mode (`claude -p`) is YOU invoking Claude Code from your own script/pipeline. A Routine is Claude Code invoking ITSELF on a schedule or event, on Anthropic's infrastructure, with no pipeline of yours required. Reach for a Routine when there's no existing CI/cron system to hook into, or when you want it to survive your laptop being off."}
+        {"type": "text", "value": "**Grep** searches file CONTENTS for patterns — function names, error messages, import statements. **Glob** matches file PATHS by name/extension pattern (e.g., `**/*.test.tsx`). Confusing the two is a common exam distractor: 'find all files containing X' is Grep; 'find all files named like X' is Glob."},
+        {"type": "text", "value": "**Read**/**Write** operate on whole files. **Edit** makes targeted modifications by matching unique anchor text — when Edit fails because the anchor text isn't unique in the file, fall back to Read + Write for a reliable full-file replacement instead of fighting with Edit."},
+        {"type": "callout", "variant": "exam-key", "value": "Build codebase understanding INCREMENTALLY: start with Grep to find entry points, then Read to follow imports and trace flow — rather than reading every file upfront. To trace a function's usage across wrapper modules, first identify all its exported names, then Grep for each name across the codebase."}
       ]
     },
 
@@ -130,40 +159,76 @@
       "id": "d3-l1",
       "domainId": "d3",
       "orderIndex": 1,
-      "title": "Clear-and-direct prompting, roles, and examples",
+      "title": "Task 3.1 — CLAUDE.md hierarchy, scoping, and modular organization",
       "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "The highest-leverage prompting technique is being explicit. Tell Claude exactly what you want, the audience, the format, and what to avoid. Ambiguity is the main cause of disappointing output — if a smart colleague would need to ask a clarifying question, the prompt is underspecified."},
-        {"type": "text", "value": "Use the **system prompt** to set role and durable behavior ('You are a senior tax accountant…'); use the `messages` for the task itself. A well-chosen role sharpens tone and domain accuracy."},
-        {"type": "text", "value": "**Multishot (few-shot)** prompting — including 3–5 well-chosen examples of input→desired output — is one of the most reliable ways to shape format and edge-case handling. Examples often beat lengthy prose instructions for consistency."},
-        {"type": "callout", "variant": "exam-key", "value": "Order of impact for most tasks: be clear and direct → give examples → let Claude think (chain-of-thought) → use XML structure → assign a role → prefill. Know this rough hierarchy; questions often ask for the FIRST/most effective technique to try."}
+        {"type": "text", "value": "Three scope levels: **user-level** (`~/.claude/CLAUDE.md`) — applies only to that one user and is NOT shared with teammates via version control; **project-level** (`.claude/CLAUDE.md` or root `CLAUDE.md`) — shared with the team; and **directory-level** (a CLAUDE.md in a subdirectory) for scoped context."},
+        {"type": "text", "value": "The `@import` syntax references external files to keep CLAUDE.md modular — e.g., a monorepo can import only the standards files relevant to each package rather than one giant file everyone loads in full. `.claude/rules/` is the alternative to a monolithic CLAUDE.md: split instructions into topic-specific files (`testing.md`, `api-conventions.md`, `deployment.md`)."},
+        {"type": "text", "value": "Run `/memory` to verify which memory files actually loaded into a session — this is the standard diagnostic when instructions aren't being followed and you suspect a scoping problem."},
+        {"type": "callout", "variant": "exam-key", "value": "Classic diagnostic scenario: a new team member isn't receiving instructions everyone else has. Root cause is almost always that the instructions live in USER-level configuration (personal, not version-controlled) rather than PROJECT-level — the fix is moving them to project scope, not re-explaining the instructions to the new hire."}
       ]
     },
     {
       "id": "d3-l2",
       "domainId": "d3",
       "orderIndex": 2,
-      "title": "Chain-of-thought, XML tags, and prefilling",
-      "estMinutes": 8,
+      "title": "Task 3.2 — Custom slash commands and skills",
+      "estMinutes": 9,
       "body": [
-        {"type": "text", "value": "**Chain-of-thought**: asking Claude to reason step by step before answering improves accuracy on math, logic, and multi-constraint tasks. You can prompt it explicitly ('think step by step') or give a structure to think inside (e.g. a `<thinking>` section). The trade-off is more output tokens and latency."},
-        {"type": "text", "value": "**Extended thinking** is a model capability where Claude produces internal reasoning (thinking) tokens before its answer, with a configurable budget that is a subset of `max_tokens` and billed as output. Use it for genuinely hard reasoning; it is distinct from simply prompting for step-by-step text."},
-        {"type": "text", "value": "**XML tags** delimit parts of a prompt so Claude can tell instructions from data from examples — e.g. wrap a document in `<document>…</document>` and the question in `<question>…</question>`. This reduces the chance Claude confuses reference material for commands and makes outputs easier to parse."},
-        {"type": "text", "value": "**Prefilling** puts the first tokens of the assistant turn into Claude's mouth. Prefill `{` to push toward JSON, or a bracket/heading to enforce a format. Prefilling steers structure cheaply but is a weaker guarantee than structured outputs."},
-        {"type": "callout", "variant": "exam-key", "value": "Chain-of-thought and extended thinking are not the same: CoT is a prompting technique (visible reasoning text you request); extended thinking is a model feature with a token budget. Don't conflate them."}
+        {"type": "text", "value": "Project-scoped commands live in `.claude/commands/` (shared via version control — everyone who clones/pulls the repo gets them automatically). User-scoped commands live in `~/.claude/commands/` (personal, not shared)."},
+        {"type": "text", "value": "Skills live in `.claude/skills/` with a `SKILL.md` file, and support frontmatter options: `context: fork` runs the skill in an ISOLATED sub-agent context so its (often verbose) output doesn't pollute the main conversation; `allowed-tools` restricts which tools the skill may use during execution (e.g., limit to file-write operations to prevent destructive actions); `argument-hint` prompts the developer for required parameters when they invoke the skill without arguments."},
+        {"type": "text", "value": "Personal skill customization: create a variant in `~/.claude/skills/` under a different name so your personal tweak doesn't affect teammates using the shared project version."},
+        {"type": "callout", "variant": "exam-key", "value": "Choose between skills and CLAUDE.md by loading pattern: Skills are ON-DEMAND (invoked when needed, task-specific workflows); CLAUDE.md is ALWAYS-LOADED (universal standards every session needs). A configuration-file mechanism like '.claude/config.json with a commands array' does not exist — a distractor to watch for."}
       ]
     },
     {
       "id": "d3-l3",
       "domainId": "d3",
       "orderIndex": 3,
-      "title": "Guaranteeing machine-readable output",
+      "title": "Task 3.3 — Path-specific rules for conditional convention loading",
+      "estMinutes": 6,
+      "body": [
+        {"type": "text", "value": "`.claude/rules/` files can carry YAML frontmatter with a `paths` field of glob patterns — the rule then loads into context ONLY when Claude is working with a matching file, instead of being loaded into every session unconditionally. This directly reduces irrelevant context and token usage."},
+        {"type": "text", "value": "Glob-pattern path rules beat directory-level CLAUDE.md files whenever a convention applies to files SCATTERED across many directories rather than confined to one directory tree — the canonical example is test files (`Button.test.tsx` sitting right next to `Button.tsx`) that need the same conventions no matter where they live."},
+        {"type": "callout", "variant": "exam-key", "value": "If a scenario describes conventions that must apply 'regardless of location' or 'wherever these files happen to live,' the answer is a `.claude/rules/` file with a `paths` glob (e.g., `paths: [\"**/*.test.tsx\"]`) — not per-directory CLAUDE.md files (directory-bound, doesn't generalize) and not relying on Claude to infer which section of one big CLAUDE.md applies (unreliable inference vs. explicit matching)."}
+      ]
+    },
+    {
+      "id": "d3-l4",
+      "domainId": "d3",
+      "orderIndex": 4,
+      "title": "Task 3.4 — Plan mode vs. direct execution",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "**Plan mode** fits complex tasks: large-scale changes, multiple genuinely valid approaches, architectural decisions, multi-file modifications. It enables safe codebase exploration and design BEFORE committing to changes, preventing costly rework when dependencies surface late."},
+        {"type": "text", "value": "**Direct execution** fits simple, well-scoped changes with a clear path — a single-file bug fix with a clear stack trace, adding one validation check to one function."},
+        {"type": "text", "value": "The **Explore subagent** isolates verbose discovery output (searching, reading many files) and returns a summary, preserving the main conversation's context during multi-phase investigation."},
+        {"type": "callout", "variant": "exam-key", "value": "'Start in direct execution and switch to plan mode only if complexity emerges' is a wrong answer whenever the scenario ALREADY states the task is architecturally complex (e.g., a monolith-to-microservices restructuring) — the complexity is known up front, not something that might emerge later, so plan mode is correct from the start. It's also fine to combine both: plan mode for investigation, then direct execution for the implementation it produced."}
+      ]
+    },
+    {
+      "id": "d3-l5",
+      "domainId": "d3",
+      "orderIndex": 5,
+      "title": "Task 3.5 — Iterative refinement for progressive improvement",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "When prose descriptions get interpreted inconsistently, 2–3 concrete input/output examples communicate the expected transformation more reliably than more prose. Test-driven iteration — write the test suite first, then iterate by sharing test FAILURES — gives Claude a concrete target rather than a vague notion of 'correct.'"},
+        {"type": "text", "value": "The **interview pattern**: have Claude ask clarifying questions before implementing, to surface considerations you might not have anticipated (cache invalidation strategy, failure modes) — useful in unfamiliar domains where you don't yet know what you don't know."},
+        {"type": "callout", "variant": "exam-key", "value": "When multiple issues interact (fixing one changes how another should be fixed), address them together in a single detailed message. When issues are independent, fix them sequentially instead — bundling independent issues just adds noise, and splitting interacting ones causes the model to fix each in isolation without seeing how they affect each other."}
+      ]
+    },
+    {
+      "id": "d3-l6",
+      "domainId": "d3",
+      "orderIndex": 6,
+      "title": "Task 3.6 — Integrating Claude Code into CI/CD pipelines",
       "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "When downstream code parses Claude's output, prompting for JSON is not enough — the model can still emit malformed or extra text. **Structured outputs** solve this with constrained decoding, guaranteeing the response conforms to a schema."},
-        {"type": "text", "value": "Two complementary features: **strict tool use** (`strict: true`) guarantees tool names and inputs validate against your `input_schema`; and an output format (`output_config.format`) constrains Claude's final text response to a JSON Schema you supply. Both remove a class of parsing bugs."},
-        {"type": "code", "language": "text", "value": "Weakest → strongest guarantee of structure:\n  prompt for JSON  <  prefill '{'  <  strict tool use / output schema (constrained decoding)"},
-        {"type": "callout", "variant": "exam-key", "value": "If a scenario requires OUTPUT THAT NEVER BREAKS THE PARSER, the answer is structured outputs / strict tool use, not 'ask nicely for JSON' or prefilling. Prefilling improves the odds; constrained decoding guarantees the shape."}
+        {"type": "text", "value": "The `-p` (or `--print`) flag runs Claude Code non-interactively — required in automated pipelines, since without it a script hangs waiting for interactive input that will never come. `--output-format json` plus `--json-schema` enforces machine-parseable structured output for CI (e.g., findings you can post as inline PR comments programmatically)."},
+        {"type": "text", "value": "CLAUDE.md is how you give CI-invoked Claude Code project context: testing standards, fixture conventions, review criteria — the same file mechanism as interactive use, just consumed headlessly."},
+        {"type": "text", "value": "**Session context isolation** matters for code review specifically: the SAME session that generated the code retains reasoning context from that generation, making it less likely to question its own decisions. An INDEPENDENT review instance — without that prior reasoning context — catches more subtle issues."},
+        {"type": "callout", "variant": "exam-key", "value": "A pipeline hanging with 'waiting for interactive input' in the logs is always solved by adding `-p`/`--print` — not by redirecting stdin, not by inventing a nonexistent `CLAUDE_HEADLESS` env var or `--batch` flag. Also: when re-running reviews after new commits, include prior review findings in context and instruct Claude to report only NEW or still-unaddressed issues, to avoid duplicate comments."}
       ]
     },
 
@@ -171,42 +236,73 @@
       "id": "d4-l1",
       "domainId": "d4",
       "orderIndex": 1,
-      "title": "How tool use works",
-      "estMinutes": 8,
+      "title": "Task 4.1 — Explicit criteria to reduce false positives",
+      "estMinutes": 7,
       "body": [
-        {"type": "text", "value": "Tool use lets Claude call functions you define. The round trip: you send `messages` plus a list of tools (each with a `name`, `description`, and `input_schema`). If Claude decides to use one, it stops with `stop_reason: \"tool_use\"` and returns one or more `tool_use` blocks naming the tool and its arguments."},
-        {"type": "text", "value": "Your application executes the tool, then sends a follow-up request appending a `tool_result` block (referencing the `tool_use_id`) with the output. Claude reads the result and produces its final answer — or calls another tool. Tool errors are returned as a `tool_result` with `is_error: true` so Claude can recover."},
-        {"type": "code", "language": "text", "value": "1. Request: messages + tools\n2. Response: stop_reason=tool_use, tool_use{ id, name, input }\n3. You run the function\n4. Request: append tool_result{ tool_use_id, content }\n5. Response: final answer (or another tool_use)"},
-        {"type": "text", "value": "**Client tools** run in YOUR application (user-defined tools, plus Anthropic-schema tools like `bash` and `text_editor`). **Server tools** (like `web_search`, `web_fetch`, `code_execution`) run on Anthropic's infrastructure — you get results directly without executing anything."},
-        {"type": "callout", "variant": "exam-key", "value": "Client tool → Claude asks, YOU execute, YOU return a tool_result. Server tool → Anthropic executes, results come back inline. Mixing them: if a server tool is called in the same parallel group as a client tool, handling changes — watch the stop reason."}
+        {"type": "text", "value": "Explicit, checkable criteria beat vague instructions: 'flag comments only when claimed behavior contradicts actual code behavior' works; 'check that comments are accurate' doesn't, because it leaves the judgment call underspecified. Vague qualifiers like 'be conservative' or 'only report high-confidence findings' don't actually improve precision — they just shift where the ambiguity lives."},
+        {"type": "text", "value": "False positive rate matters beyond the immediate noise: a high false-positive rate in ONE category undermines developer trust in ALL categories, including the accurate ones."},
+        {"type": "callout", "variant": "exam-key", "value": "Write specific criteria that define which issues to REPORT (bugs, security) versus SKIP (minor style, local patterns already used elsewhere in the codebase) — rather than trying to filter by the model's self-reported confidence, which (per Domain 1/5 patterns) is generally unreliable. Defining explicit severity criteria with concrete code examples for each level is the reliable path to consistent classification."}
       ]
     },
     {
       "id": "d4-l2",
       "domainId": "d4",
       "orderIndex": 2,
-      "title": "Designing effective tools",
-      "estMinutes": 9,
+      "title": "Task 4.2 — Few-shot prompting for output consistency",
+      "estMinutes": 7,
       "body": [
-        {"type": "text", "value": "A tool is defined by three things: a `name` matching `^[a-zA-Z0-9_-]{1,64}$`, a plaintext `description`, and a JSON Schema `input_schema` for its parameters. Optionally, `input_examples` provide schema-validated example inputs for complex tools."},
-        {"type": "text", "value": "The single biggest driver of tool performance is the **description**. Explain what the tool does, when to use it, what it returns, and any caveats or limits. Aim for at least 3–4 sentences — more for complex tools. Poor tool use is far more often a description problem than a model problem."},
-        {"type": "text", "value": "Design the schema for clarity: descriptive parameter names, enums for constrained values, required vs. optional marked correctly, and per-field descriptions. Use meaningful namespacing in tool names when tools span services (`github_list_prs`, `slack_send_message`) so selection stays unambiguous as the library grows."},
-        {"type": "text", "value": "Control invocation with `tool_choice`: `auto` (Claude decides), `any` (must use some tool), `tool` (force a specific one), or `none`. Set `disable_parallel_tool_use: true` to force one tool call at a time when order matters or your executor isn't safe for concurrency."},
-        {"type": "callout", "variant": "exam-key", "value": "When tool use misbehaves, improve the DESCRIPTION and schema before blaming the prompt or model. 'Give extremely detailed descriptions' is the official #1 recommendation."}
+        {"type": "text", "value": "Few-shot examples are the most effective technique when detailed instructions alone still produce inconsistent, non-actionable output. They're especially valuable for demonstrating AMBIGUOUS-case handling — showing the reasoning for why one action was chosen over a plausible alternative lets the model generalize that judgment to novel, unseen patterns, rather than only matching pre-specified cases."},
+        {"type": "text", "value": "For extraction tasks, few-shot examples reduce hallucination by demonstrating correct handling of varied document structures (inline citations vs. bibliographies, narrative vs. tabular data) — this is what fixes empty/null extraction on documents whose format differs from what the model has implicitly assumed."},
+        {"type": "callout", "variant": "exam-key", "value": "2–4 TARGETED examples for genuinely ambiguous scenarios beats a large generic set. Show format (location, issue, severity, fix) for consistency, and include examples DISTINGUISHING acceptable patterns from genuine issues — not just examples of issues — so the model learns the boundary, not just the positive class."}
       ]
     },
     {
       "id": "d4-l3",
       "domainId": "d4",
       "orderIndex": 3,
-      "title": "The Model Context Protocol (MCP)",
-      "estMinutes": 9,
+      "title": "Task 4.3 — Enforcing structured output with tool_use and JSON schemas",
+      "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "MCP is an open standard for connecting AI applications to external tools, data, and prompts — 'a USB-C port for AI.' It standardizes how a model discovers and calls capabilities so the same server works across many hosts."},
-        {"type": "text", "value": "Architecture: an **MCP host** (the AI app, e.g. Claude Code or the Claude API) runs one or more **MCP clients**, each maintaining a 1:1 connection to an **MCP server**. Servers expose three primitives: **tools** (functions the model can call), **resources** (data/context the app can read), and **prompts** (reusable templates)."},
-        {"type": "text", "value": "Transports: **stdio** for local servers (the host launches the server as a subprocess) and **Streamable HTTP** (with SSE) for remote servers. Remote servers must be publicly reachable over HTTP; local stdio servers can't be connected to directly by the API connector."},
-        {"type": "text", "value": "The **MCP connector** lets the Messages API talk to remote MCP servers without you running a separate MCP client. You pass an `mcp_servers` array (URL + auth), it supports OAuth bearer tokens, and you can allowlist/denylist individual tools via `tool_configuration`. It currently requires a beta header."},
-        {"type": "callout", "variant": "exam-key", "value": "Memorize the primitives (tools, resources, prompts) and the host→client→server relationship (one client per server, 1:1). 'Local = stdio, remote = Streamable HTTP/SSE' is a common distractor to get right."}
+        {"type": "text", "value": "`tool_use` with a JSON schema is the most reliable way to GUARANTEE schema-compliant structured output — it eliminates JSON syntax errors entirely, unlike asking the model to 'return valid JSON' in prose."},
+        {"type": "text", "value": "Crucial limitation: strict schemas eliminate SYNTAX errors but do NOT prevent SEMANTIC errors — line items that don't sum to the stated total, a value placed in the wrong field. Schema compliance is a floor, not a correctness guarantee."},
+        {"type": "text", "value": "Design fields as optional/nullable when the source document may genuinely not contain that information — a required field the model can't fill will get FABRICATED to satisfy the schema, which is worse than a null. Use enum values like `\"unclear\"` for ambiguous cases and an `\"other\"` + free-text-detail pattern for categories you can't fully enumerate in advance."},
+        {"type": "callout", "variant": "exam-key", "value": "`tool_choice: \"any\"` guarantees SOME structured tool call when multiple extraction schemas exist and the document type is unknown up front. Forced selection (`{\"type\": \"tool\", \"name\": \"extract_metadata\"}`) guarantees a SPECIFIC tool runs first, e.g. before enrichment steps that depend on its output."}
+      ]
+    },
+    {
+      "id": "d4-l4",
+      "domainId": "d4",
+      "orderIndex": 4,
+      "title": "Task 4.4 — Validation, retry, and feedback loops for extraction quality",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "On a validation failure, retry by appending the SPECIFIC validation error to the prompt (not a generic 'try again') — this gives the model something concrete to correct. Include the original document, the failed extraction, and the specific error in the follow-up request."},
+        {"type": "text", "value": "Retries have a hard limit: they're effective for format/structural mismatches (fixable) but USELESS when the required information is simply absent from the source document — no amount of retrying recovers information that was never there. Recognizing which failure mode you're looking at determines whether to retry or to route elsewhere (e.g., to human review, or to skip the field as legitimately unavailable)."},
+        {"type": "callout", "variant": "exam-key", "value": "Feedback-loop design tip worth remembering: add a `detected_pattern` field to structured findings so you can later analyze WHICH code constructs trigger a given finding — this turns 'developers keep dismissing this finding' into a systematic, fixable pattern rather than an anecdote."}
+      ]
+    },
+    {
+      "id": "d4-l5",
+      "domainId": "d4",
+      "orderIndex": 5,
+      "title": "Task 4.5 — Efficient batch processing strategies",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "The Message Batches API: 50% cost savings, up to a 24-hour processing window, and NO guaranteed latency SLA. It does NOT support multi-turn tool calling within a single request — you can't execute a tool mid-request and get the result back inside that same batched call."},
+        {"type": "text", "value": "Match the API to the workflow's latency tolerance: synchronous API for blocking workflows (a pre-merge check developers are waiting on); batch API for non-blocking, latency-tolerant workloads (overnight reports, weekly audits, nightly test generation). `custom_id` fields correlate each batch request with its response, including for resubmitting only the failed subset after a partial failure."},
+        {"type": "callout", "variant": "exam-key", "value": "'50% cheaper' is not sufficient justification to batch a BLOCKING workflow — a pre-merge check that developers wait on cannot tolerate a non-guaranteed, up-to-24-hour SLA, no matter the savings. Split mixed proposals: batch what's genuinely latency-tolerant, keep synchronous calls for what isn't. Also refine prompts on a small sample BEFORE submitting a large batch, since a batch failure often means re-submitting many documents at once."}
+      ]
+    },
+    {
+      "id": "d4-l6",
+      "domainId": "d4",
+      "orderIndex": 6,
+      "title": "Task 4.6 — Multi-instance and multi-pass review architectures",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "Self-review has a structural limitation: a model that just generated code retains its own reasoning context in the same session, making it LESS likely to question its own decisions — this holds even with explicit self-review instructions or extended thinking. An INDEPENDENT review instance, without that prior reasoning context, catches more subtle issues."},
+        {"type": "text", "value": "For large multi-file changes, split review into per-file LOCAL passes (for local issues) plus a separate cross-file INTEGRATION pass (for data-flow issues spanning files) — a single combined pass over many files causes attention dilution: inconsistent depth, missed bugs, and contradictory findings on identical patterns in different files."},
+        {"type": "callout", "variant": "exam-key", "value": "A higher-tier model with a larger context window does NOT fix attention-dilution inconsistency — that's a quality-of-attention problem, not a capacity problem. Splitting into focused passes is the fix. Requiring 2-of-3 independent runs to agree before flagging an issue can actually SUPPRESS real bugs that are only caught intermittently — it's not a free reliability upgrade."}
       ]
     },
 
@@ -214,50 +310,75 @@
       "id": "d5-l1",
       "domainId": "d5",
       "orderIndex": 1,
-      "title": "The context window and what counts",
-      "estMinutes": 7,
+      "title": "Task 5.1 — Preserving critical information across long interactions",
+      "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "The context window is the total tokens a model can consider at once. EVERYTHING counts toward it: the system prompt, every message (including tool results, images, and documents), your tool definitions, and the output Claude generates — including extended-thinking tokens."},
-        {"type": "text", "value": "Sizes vary by model. Current large models (e.g. Claude Opus 4.8/4.7/4.6, Sonnet 5, Fable 5, Mythos 5) offer a 1M-token context window; older models such as Sonnet 4.5 have 200K. Each response's `usage` field reports exactly what the request consumed; use the token-counting API to estimate before sending."},
-        {"type": "callout", "variant": "exam-key", "value": "Longer context is not free quality. As conversations grow, response quality can degrade and cost/latency rise — which is why compaction and context editing exist. 'Just use the 1M window' is usually the wrong answer for a long-running agent; curate context instead."}
+        {"type": "text", "value": "Progressive summarization risk: condensing numerical values, percentages, dates, and customer-stated expectations into a vague summary loses exactly the details that matter most. The **lost-in-the-middle effect**: models reliably process the BEGINNING and END of long inputs but may under-weight findings buried in the middle."},
+        {"type": "text", "value": "Tool results accumulate in context disproportionately to their relevance — an order lookup might return 40+ fields when only 5 matter for the task at hand, silently eating context budget turn after turn."},
+        {"type": "text", "value": "The fix: extract transactional facts (amounts, dates, order numbers, statuses) into a persistent 'case facts' block included in every prompt, OUTSIDE the summarized history — so critical numbers survive even as older turns get compressed. Trim verbose tool outputs to only the relevant fields before they accumulate, and place key findings at the BEGINNING of aggregated inputs with explicit section headers to counteract the lost-in-the-middle effect."},
+        {"type": "callout", "variant": "exam-key", "value": "When downstream agents have a limited context budget, have UPSTREAM agents return structured data (key facts, citations, relevance scores) instead of verbose prose and full reasoning chains — push the summarization work to the source, not the consumer."}
       ]
     },
     {
       "id": "d5-l2",
       "domainId": "d5",
       "orderIndex": 2,
-      "title": "Prompt caching",
-      "estMinutes": 9,
+      "title": "Task 5.2 — Escalation and ambiguity resolution",
+      "estMinutes": 8,
       "body": [
-        {"type": "text", "value": "Prompt caching stores a prompt prefix so repeated requests that share it skip re-processing — cutting cost and latency. You mark a cacheable boundary with `cache_control: {type: \"ephemeral\"}` on a content block. Caching covers the whole prefix in order: `tools`, then `system`, then `messages`, up to and including the marked block."},
-        {"type": "text", "value": "Pricing (relative to base input tokens): a 5-minute cache WRITE costs 1.25×, a 1-hour write costs 2×, and every cache READ (hit) costs 0.1×. The default TTL is 5 minutes and refreshes for free on each use; a 1-hour TTL is available at higher write cost. Cache breakpoints themselves are free — you only pay for what is written and read."},
-        {"type": "text", "value": "You can define up to **4 cache breakpoints**, with a ~20-block lookback for cache hits and a per-platform minimum cacheable prompt length. Automatic caching (a single top-level `cache_control`) places the breakpoint on the last cacheable block and moves it forward as the conversation grows — but it consumes one of the 4 slots."},
-        {"type": "callout", "variant": "exam-key", "value": "Put the cache breakpoint AFTER your large, STABLE content (system prompt, tool defs, big documents) and BEFORE the parts that change each turn. Caching the changing tail wastes writes and never gets a hit — a favorite scenario trap."}
+        {"type": "text", "value": "Three legitimate escalation triggers: an explicit customer request for a human, a genuine policy gap or exception (not just 'this is complex'), and inability to make meaningful progress. Honor an explicit request for a human IMMEDIATELY, without first attempting investigation the customer didn't ask for."},
+        {"type": "text", "value": "When the issue is straightforward and within the agent's capability, acknowledge any frustration but OFFER resolution rather than escalating preemptively — only escalate if the customer reiterates their preference for a human after that offer."},
+        {"type": "text", "value": "When a tool returns multiple matching customers, ask for an additional identifier rather than guessing via heuristics — a wrong heuristic pick here is exactly the kind of error that erodes trust."},
+        {"type": "callout", "variant": "exam-key", "value": "Sentiment-based escalation and self-reported model confidence scores are both UNRELIABLE proxies for actual case complexity — an agent can be sentiment-neutral on a genuinely hard case, or confidently wrong on one. The fix for poor escalation calibration is explicit criteria with few-shot examples showing when to escalate vs. resolve — not a confidence threshold, not a separate ML classifier, not sentiment analysis."}
       ]
     },
     {
       "id": "d5-l3",
       "domainId": "d5",
       "orderIndex": 3,
-      "title": "Compaction, context editing, and memory",
-      "estMinutes": 9,
+      "title": "Task 5.3 — Error propagation across multi-agent systems",
+      "estMinutes": 7,
       "body": [
-        {"type": "text", "value": "**Server-side compaction** is the recommended way to manage long-running conversations. When input tokens hit a configured threshold, the API summarizes older turns into a `compaction` block and continues from the summary; on later requests it automatically drops content before that block. You keep your full history client-side and just append responses."},
-        {"type": "text", "value": "**Context editing** selectively clears content as context grows. `clear_tool_uses_20250919` removes the oldest tool results (optionally the tool inputs too) once you pass a threshold, replacing them with placeholder text — ideal for tool-heavy agents where old file contents are no longer needed. `clear_thinking_20251015` manages `thinking` blocks. Both run server-side; your client keeps the full, unmodified history."},
-        {"type": "text", "value": "The **memory tool** lets Claude persist information outside the context window — writing notes to a store it can read back later — so knowledge survives across turns and sessions without bloating the window. Memory endpoints use their own beta header."},
-        {"type": "callout", "variant": "exam-key", "value": "Compaction = summarize old context automatically (best default for long agents). Context editing = surgically clear tool results/thinking. Memory tool = persist facts OUTSIDE the window. Caching = reuse a stable prefix. Know which lever each scenario calls for — they solve different problems."}
+        {"type": "text", "value": "Structured error context — failure type, the query that was attempted, any partial results, potential alternatives — is what lets a coordinator make an intelligent recovery decision. A generic status like 'search unavailable' hides exactly the context the coordinator needs."},
+        {"type": "text", "value": "Two anti-patterns to recognize: silently suppressing an error by returning an empty result marked as success (hides the failure entirely, risks incomplete output presented as complete), and terminating the ENTIRE workflow on a single subagent failure (throws away everything that DID succeed when partial results plus an annotated gap would have been more useful)."},
+        {"type": "callout", "variant": "exam-key", "value": "Same access-failure-vs-valid-empty-result distinction from Task 2.2 reappears here at the multi-agent level: a timeout needs a retry decision; a successful query that legitimately found nothing does not. Structure synthesis output with explicit coverage annotations — which findings are well-supported vs. which topic areas have gaps due to a source that failed — rather than presenting a silently incomplete result as if it were comprehensive."}
       ]
     },
     {
       "id": "d5-l4",
       "domainId": "d5",
       "orderIndex": 4,
-      "title": "Cost and latency levers: batch and streaming",
-      "estMinutes": 6,
+      "title": "Task 5.4 — Managing context in large codebase exploration",
+      "estMinutes": 7,
       "body": [
-        {"type": "text", "value": "**Batch processing** (Message Batches API) handles large volumes asynchronously at **50% lower cost**. A batch holds up to 100,000 requests or 256 MB, whichever comes first; most finish within 1 hour, and results are available when done or after 24 hours (batches expire if not complete within 24 hours). Use it for non-urgent work: evaluations, bulk classification, content moderation."},
-        {"type": "text", "value": "**Streaming** (SSE) returns tokens as they are generated, improving perceived latency for interactive UIs and long outputs. It doesn't reduce total tokens or cost, but the user sees output sooner and you can render progressively."},
-        {"type": "callout", "variant": "exam-key", "value": "Batch = cheaper + asynchronous (throughput, not speed). Streaming = faster PERCEIVED latency (not cheaper). Pick batch when latency doesn't matter and volume is high; pick streaming for interactive experiences."}
+        {"type": "text", "value": "In extended sessions, models start giving inconsistent answers and referencing 'typical patterns' instead of the SPECIFIC classes/functions discovered earlier — a sign of context degradation, not a model getting 'dumber.' Scratchpad files persist key findings across context boundaries so later questions can reference concrete earlier discoveries instead of re-deriving them from a degraded working context."},
+        {"type": "text", "value": "Delegate verbose exploration (find all test files, trace a dependency chain) to a subagent so the main agent keeps coordinating at a high level instead of drowning in raw search output. Summarize key findings from one exploration phase and inject that summary into the next phase's initial context, rather than carrying the full raw exploration forward."},
+        {"type": "text", "value": "For crash recovery in long-running work, each agent exports its state to a known location; the coordinator loads a manifest on resume and re-injects it into agent prompts, rather than starting over."},
+        {"type": "callout", "variant": "exam-key", "value": "`/compact` is the direct tool for reducing context usage mid-session when it's filled with verbose discovery output — a small, specific fact worth remembering alongside the bigger architectural techniques above."}
+      ]
+    },
+    {
+      "id": "d5-l5",
+      "domainId": "d5",
+      "orderIndex": 5,
+      "title": "Task 5.5 — Human review workflows and confidence calibration",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "An aggregate accuracy number (e.g., '97% overall') can MASK poor performance on a specific document type or field — the average hides the segment that's actually failing. Validate accuracy broken out BY document type and field segment before you trust an aggregate enough to reduce human review based on it."},
+        {"type": "text", "value": "Stratified random sampling of even HIGH-confidence extractions is how you measure the true error rate and catch novel error patterns you wouldn't find by only auditing the low-confidence tail."},
+        {"type": "callout", "variant": "exam-key", "value": "Have the model output field-level confidence scores, then calibrate the review-routing THRESHOLD using a labeled validation set — don't just trust a raw confidence number at face value (echoing the same 'self-reported confidence is unreliable on its own' theme from Task 5.2). Route low-confidence or contradictory-source extractions to human review first, prioritizing scarce reviewer capacity where it has the most impact."}
+      ]
+    },
+    {
+      "id": "d5-l6",
+      "domainId": "d5",
+      "orderIndex": 6,
+      "title": "Task 5.6 — Provenance and uncertainty in multi-source synthesis",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "Source attribution gets lost during summarization when findings are compressed WITHOUT preserving which claim came from which source. Subagents should output structured claim-source mappings (source URL, document name, relevant excerpt) that downstream agents PRESERVE and merge, rather than flattening everything into unattributed prose."},
+        {"type": "text", "value": "When credible sources genuinely conflict on a statistic, ANNOTATE the conflict with source attribution for both values — don't arbitrarily pick one. Requiring publication/collection dates in structured outputs prevents a real temporal difference (the numbers changed over time) from being misread as a contradiction between sources."},
+        {"type": "callout", "variant": "exam-key", "value": "Structure reports to explicitly distinguish well-established findings from contested ones, preserving each source's original characterization and methodological context — and render different content types appropriately (financial data as tables, news as prose, technical findings as structured lists) rather than flattening everything into one uniform format."}
       ]
     }
   ]

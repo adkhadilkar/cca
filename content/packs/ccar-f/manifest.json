@@ -1,57 +1,43 @@
 {
   "packId": "ccar-f",
   "track": "CCAR-F",
-  "contentVersion": 2,
+  "contentVersion": 3,
   "minAppVersion": 1,
   "createdAt": "2026-07-17",
-  "sha256Note": "Combined sha256 of domains.json+guide.json+lessons.json+questions.json+glossary.json (sorted, concatenated): 85df5fcfc4e1b705ba03a36e295fbed767be8ca9ea317e982391b2838725fe95. Recompute at build/sign time (see docs/DEVELOPMENT_DESIGN.md §6) rather than trusting this note as authoritative once files change.",
+  "sha256Note": "Combined sha256 of domains.json+guide.json+lessons.json+questions.json+glossary.json (sorted, concatenated): 96dc2b3fecb0444451ac1088b9bcf42ba5d861e645cf9ba58524570ea17528d7. Recompute at build/sign time rather than trusting this note once files change.",
   "counts": {
     "domains": 5,
-    "lessons": 19,
-    "questions": 26,
-    "glossaryTerms": 49
+    "lessons": 30,
+    "questions": 34,
+    "glossaryTerms": 46
   },
   "changelog": [
     {
+      "version": 3,
+      "date": "2026-07-17",
+      "summary": "Full rebuild against the OFFICIAL Claude Certified Architect — Foundations Exam Guide, Certification Terms and Conditions, and Certification Exam Policy (all three user-supplied PDFs published by Anthropic, Exam Guide dated 'Version 0.2, Last Updated: June 30 2026'). This is the highest-authority source used in this project — it supersedes v1/v2's web-search-derived exam facts and the generic Anthropic-docs-derived domain content entirely. Changes: (1) Corrected domain order/names/weights — D1 Agentic (27%), D2 Tool Design & MCP Integration (18%, was previously labeled D4), D3 Claude Code Configuration & Workflows (20%, was previously D2), D4 Prompt Engineering & Structured Output (20%, was previously D3), D5 Context Management & Reliability (15%, renamed from 'Context Management'). (2) Corrected exam mechanics: response format is single-answer 4-choice multiple choice ONLY (no multi-select — removed all 'multi' type questions), 4-of-6 scenario-bank structure, $125 exam fee, scaled 100–1,000 score, 12-month certification validity, pass/fail-only result reporting. (3) Replaced all 30 lessons with content organized one-per-official-task-statement (1.1–1.7, 2.1–2.5, 3.1–3.6, 4.1–4.6, 5.1–5.6), reflecting Claude Agent SDK specifics (stop_reason, Task tool, AgentDefinition, fork_session) that the generic Claude Code/Managed Agents docs used in v1/v2 didn't cover. (4) Added 12 official sample questions from the Exam Guide, clearly attributed and kept distinct from originally-authored practice questions, plus 22 new originally-authored questions covering the remaining task statements — all single-answer. (5) Rebuilt the glossary around official terminology. (6) Retired v1/v2 content now explicitly marked out-of-scope by the official guide (prompt-caching internals, streaming API, token counting) or superseded by the more specific official task statements (the generic 'five workflow patterns' framing, the broad Claude Code CLI hooks-lifecycle survey). D1's core loop/orchestration concepts and D3's CLAUDE.md/hooks/skills corrections from v2 were largely reusable and folded into the new task-statement lessons where they matched."
+    },
+    {
       "version": 2,
       "date": "2026-07-17",
-      "summary": "Closed the D2 verification gap using a full crawl of code.claude.com/docs (168 pages, via llms.txt) supplied by the user. Corrected the memory-hierarchy model (files are concatenated, not overridden by specificity), added Auto memory and .claude/rules/ as first-class topics, corrected hook exit-code semantics (only exit 2 blocks, not any non-zero), corrected that custom slash commands have been merged into Skills (not a separate mechanism), and added a new lesson/question/glossary coverage for Routines. Re-affirmed D1 Lesson 2 (five workflow patterns) against a fresh fetch of the Anthropic engineering blog post — content was already accurate, no changes needed."
+      "summary": "Closed the D2 verification gap using a user-run crawl of code.claude.com/docs (168 pages). Corrected memory-hierarchy model, added Auto memory and Routines, corrected hook exit-code semantics, corrected commands-merged-into-Skills. Superseded by v3's official-source rebuild."
     },
     {
       "version": 1,
       "date": "2026-07-16",
-      "summary": "Initial authored knowledge base."
+      "summary": "Initial authored knowledge base, generic Anthropic-docs-derived."
     }
   ],
+  "primarySources": [
+    {"title": "Claude Certified Architect – Foundations: Exam Guide", "type": "PDF, user-supplied", "note": "Version 0.2, Last Updated: June 30 2026. The authoritative source for domain weights, task statements, exam mechanics, official sample questions, in-scope/out-of-scope topics, and preparation exercises. Highest-priority source in this project."},
+    {"title": "Anthropic Certification Exam Policy", "type": "PDF, user-supplied", "note": "Last updated June 25, 2026. Confidentiality of Exam Content, misconduct rules (no AI assistance during the exam), ID verification, 14-day appeal window."},
+    {"title": "Certification Terms and Conditions", "type": "PDF, user-supplied", "note": "Governs Program participation; 12-month certification validity/renewal; IP ownership of Exam content; used to inform the app's disclaimer language."}
+  ],
   "sources": [
-    {"title": "Claude Managed Agents overview", "url": "https://platform.claude.com/docs/en/managed-agents/overview", "retrieved": "2026-07-16"},
-    {"title": "Multiagent orchestration", "url": "https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration", "retrieved": "2026-07-16"},
-    {"title": "Define outcomes (Managed Agents)", "url": "https://platform.claude.com/docs/en/managed-agents/define-outcomes", "retrieved": "2026-07-16"},
-    {"title": "Agent Skills overview", "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview", "retrieved": "2026-07-16"},
-    {"title": "Agent Skills best practices", "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices", "retrieved": "2026-07-16"},
-    {"title": "Structured outputs", "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs", "retrieved": "2026-07-16"},
-    {"title": "Extended thinking", "url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking", "retrieved": "2026-07-16"},
-    {"title": "Tool use overview", "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview", "retrieved": "2026-07-16"},
-    {"title": "How tool use works", "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works", "retrieved": "2026-07-16"},
-    {"title": "Define tools", "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools", "retrieved": "2026-07-16"},
-    {"title": "Remote MCP servers", "url": "https://platform.claude.com/docs/en/agents-and-tools/remote-mcp-servers", "retrieved": "2026-07-16"},
-    {"title": "MCP connector", "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector", "retrieved": "2026-07-16"},
-    {"title": "Context windows", "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows", "retrieved": "2026-07-16"},
-    {"title": "Compaction", "url": "https://platform.claude.com/docs/en/build-with-claude/compaction", "retrieved": "2026-07-16"},
-    {"title": "Context editing", "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing", "retrieved": "2026-07-16"},
-    {"title": "Prompt caching", "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching", "retrieved": "2026-07-16"},
-    {"title": "Streaming", "url": "https://platform.claude.com/docs/en/build-with-claude/streaming", "retrieved": "2026-07-16"},
-    {"title": "Message Batches API", "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing", "retrieved": "2026-07-16"},
-    {"title": "Working with messages", "url": "https://platform.claude.com/docs/en/build-with-claude/working-with-messages", "retrieved": "2026-07-16"},
-    {"title": "Memory tool", "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool", "retrieved": "2026-07-16"},
-    {"title": "Building effective agents (Anthropic Engineering)", "url": "https://www.anthropic.com/engineering/building-effective-agents", "retrieved": "2026-07-17", "note": "Re-verified via a fresh fetch (user-run crawl, see content/SOURCES.md). D1 Lesson 2 content confirmed accurate as originally authored — no corrections needed."},
-    {"title": "How Claude remembers your project (memory)", "url": "https://code.claude.com/docs/en/memory", "retrieved": "2026-07-17", "note": "User-run crawl. Corrected D2 Lesson 1 significantly — see manifest changelog."},
-    {"title": "Hooks reference", "url": "https://code.claude.com/docs/en/hooks", "retrieved": "2026-07-17", "note": "User-run crawl. Corrected D2 Lesson 2 exit-code semantics."},
-    {"title": "Create custom subagents", "url": "https://code.claude.com/docs/en/sub-agents", "retrieved": "2026-07-17", "note": "User-run crawl. Confirmed and enriched D2 Lesson 3."},
-    {"title": "Extend Claude with skills", "url": "https://code.claude.com/docs/en/skills", "retrieved": "2026-07-17", "note": "User-run crawl. Revealed custom commands merged into Skills — corrected D2 Lesson 3."},
-    {"title": "CLI reference", "url": "https://code.claude.com/docs/en/cli-reference", "retrieved": "2026-07-17", "note": "User-run crawl. Confirmed D2 Lesson 4 (claude -p, --output-format) as originally authored."},
-    {"title": "Automate work with routines", "url": "https://code.claude.com/docs/en/routines", "retrieved": "2026-07-17", "note": "User-run crawl. New topic — added as D2 Lesson 5."},
-    {"title": "code.claude.com/docs/llms.txt (168-page index)", "url": "https://code.claude.com/docs/llms.txt", "retrieved": "2026-07-17", "note": "Used as the crawl seed by the user-run fetch_docs.py script; see content/SOURCES.md for the full page list."},
-    {"title": "Claude Certified Architect exam format (60 Q / 120 min / 720 pass, 5 domains)", "url": "https://www.pearsonvue.com/us/en/anthropic.html", "retrieved": "2026-07-16", "note": "Exam facts corroborated via web search summaries; confirm current blueprint on Anthropic's official certification pages before relying on exact weights/counts. Still unverified — see SOURCES.md."}
+    {"title": "Claude Managed Agents overview", "url": "https://platform.claude.com/docs/en/managed-agents/overview", "retrieved": "2026-07-16", "note": "Background reading; superseded as primary D1 source by the official Exam Guide's Agent SDK-specific task statements."},
+    {"title": "Multiagent orchestration", "url": "https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration", "retrieved": "2026-07-16", "note": "Background reading; official Exam Guide's coordinator-subagent task statements (1.2, 1.3) are the authoritative D1 source now."},
+    {"title": "Agent Skills overview / best practices", "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview", "retrieved": "2026-07-16", "note": "Background; D3 Task 3.2 (official Exam Guide) is now the authoritative source for skills/commands content."},
+    {"title": "code.claude.com/docs crawl (168 pages)", "url": "https://code.claude.com/docs/llms.txt", "retrieved": "2026-07-17", "note": "User-run crawl (fetch_docs.py). Used for v2's D2 corrections; several facts (CLAUDE.md hierarchy, hooks, skills/commands merge, plan mode) carried forward into v3's D3 lessons where they matched the official task statements."},
+    {"title": "Building effective agents (Anthropic Engineering)", "url": "https://www.anthropic.com/engineering/building-effective-agents", "retrieved": "2026-07-17", "note": "Background only in v3 — the official Exam Guide does not test the generic 'five workflow patterns' framing (routing, parallelization, evaluator-optimizer) as such; retired as a primary lesson, folded into background context on decomposition (D1 Task 1.6) only where it overlaps."}
   ]
 }

@@ -6,42 +6,42 @@ content pack per `docs/DEVELOPMENT_DESIGN.md` §6.
 ```
 content/
 ├── SOURCES.md              Provenance log: every source used, with gaps flagged
-├── packs/ccar-f/           The v2 content pack for the Foundations track
+├── packs/ccar-f/           The v3 content pack for the Foundations track
 │   ├── manifest.json       Pack metadata, counts, source list, changelog
-│   ├── domains.json        Track info + 5 domains with weights
-│   ├── guide.json          Exam guide screen content
-│   ├── lessons.json        19 lessons across the 5 domains
-│   ├── questions.json      26 practice questions with explanations
-│   └── glossary.json       49 glossary terms across 4 categories
+│   ├── domains.json        Track info + 5 domains, official order/weights
+│   ├── guide.json          Exam guide screen content + scenario bank + policy
+│   ├── lessons.json        30 lessons, one per official task statement
+│   ├── questions.json      34 practice questions — 12 official + 22 original, all single-answer
+│   └── glossary.json       46 glossary terms across 4 categories
 └── README.md                This file
 ```
 
 A human-readable rollup of the same content lives at
 `docs/KNOWLEDGE_BASE.md` for easy review without parsing JSON.
 
-## Status: v2 — D1 and D2 verified
+## Status: v3 — rebuilt against the official Exam Guide
 
-v1 shipped with D2 (and D1 Lesson 2) authored from trained knowledge because
-`code.claude.com` and `www.anthropic.com` were unreachable from the authoring
-session's network. v2 closes that gap: the user ran a crawler from their own
-machine against `code.claude.com/docs` (168 pages) and the engineering blog,
-and uploaded the result. D1 Lesson 2 was confirmed accurate as originally
-written; D2 needed real corrections (memory-scope concatenation vs.
-"most-specific-wins", missing auto memory, wrong hook exit-code semantics,
-commands-merged-into-Skills, and a new Routines topic) — see `SOURCES.md`
-and `manifest.json`'s changelog for the full list.
+v3 supersedes v1/v2 entirely. The user supplied three official Anthropic
+PDFs — the Exam Guide, the Certification Exam Policy, and the Certification
+Terms and Conditions — which turned out to correct real errors in the
+earlier, web-search-derived exam facts: the domain order/names were wrong
+(v1/v2 had D2="Claude Code", official D2="Tool Design & MCP Integration"),
+and the response format was wrong (v1/v2 included multi-select questions;
+the real exam is single-answer, 4-choice, only). Every lesson was rewritten
+one-per-official-task-statement, and 12 official sample questions were
+added with clear attribution alongside 22 originally-authored ones. See
+`SOURCES.md` and `manifest.json`'s changelog for the full diff.
 
-**Remaining known gap:** the exam format itself (60 questions / 120 min /
-720 pass score / domain weights) is still sourced from web-search summaries
-of Pearson VUE's page, not a direct fetch. See `SOURCES.md` "Remaining known
-gap" before treating `guide.json` as authoritative.
+**Remaining known gap:** the Exam Guide is versioned ("Version 0.2") and
+dated June 30 2026 — Anthropic may revise it. Check for a newer version
+before treating this pack as permanently current.
 
 ## Content model
 
 Matches the Room schema in `docs/DEVELOPMENT_DESIGN.md` §5.1:
 
 - **Domain** → **Lesson** (ordered body blocks: `text`, `code`, `callout`)
-- **Domain** → **Question** (single/multi choice, with `explanation` and `sourceRef`)
+- **Domain** → **Question** (single-answer, 4-choice, with `explanation` and `sourceRef`)
 - **GlossaryTerm** (categorized, searchable)
 
 IDs are stable strings (`d1-l1`, `q-d1-001`, `g-agent`, …) so future content

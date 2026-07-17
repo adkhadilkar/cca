@@ -6,7 +6,7 @@
     "timeLimitMin": 120,
     "passScore": 720,
     "scoreScale": 1000,
-    "contentVersion": 1
+    "contentVersion": 3
   },
   "domains": [
     {
@@ -15,39 +15,39 @@
       "title": "Agentic Architecture & Orchestration",
       "weightPct": 27,
       "orderIndex": 1,
-      "summary": "Defining agentic systems; agents vs. workflows vs. conversational systems; the augmented LLM; workflow patterns (prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer); coordinator/subagent multiagent orchestration; error handling and when NOT to use agents."
+      "summary": "Agentic loop lifecycle (stop_reason, tool results in context); coordinator-subagent orchestration via the Task tool; context passing and spawning; enforcement vs. prompt-based guidance for multi-step workflows; Agent SDK hooks for tool interception; task decomposition strategies; session state, resumption, and forking."
     },
     {
       "id": "d2",
       "code": "D2",
-      "title": "Claude Code Configuration & Workflows",
-      "weightPct": 20,
+      "title": "Tool Design & MCP Integration",
+      "weightPct": 18,
       "orderIndex": 2,
-      "summary": "CLAUDE.md and auto memory (two complementary, concatenated-not-overriding memory systems); .claude/rules/; hooks and lifecycle events with precise exit-code semantics; subagents; Skills (which now subsume custom slash commands); headless/print mode for CI; Routines for scheduled/event-driven automation."
+      "summary": "Writing effective tool interfaces and descriptions; structured MCP error responses (isError, retryability); distributing tools across agents and tool_choice configuration; integrating MCP servers into Claude Code and agent workflows; selecting built-in tools (Read, Write, Edit, Bash, Grep, Glob) effectively."
     },
     {
       "id": "d3",
       "code": "D3",
-      "title": "Prompt Engineering & Structured Output",
+      "title": "Claude Code Configuration & Workflows",
       "weightPct": 20,
       "orderIndex": 3,
-      "summary": "Clear-and-direct prompting; system prompts and roles; multishot (few-shot) examples; chain-of-thought and extended thinking; XML tags; prefilling; and guaranteeing machine-readable output with structured outputs and strict tool use."
+      "summary": "CLAUDE.md hierarchy, scoping, and @import; custom slash commands and skills (context: fork, allowed-tools, argument-hint); path-specific rules via .claude/rules/; plan mode vs. direct execution; iterative refinement techniques; integrating Claude Code into CI/CD pipelines."
     },
     {
       "id": "d4",
       "code": "D4",
-      "title": "Tool Design & MCP Integration",
-      "weightPct": 18,
+      "title": "Prompt Engineering & Structured Output",
+      "weightPct": 20,
       "orderIndex": 4,
-      "summary": "How tool use works (the tool_use / tool_result round trip); client vs. server tools; writing effective tool schemas and descriptions; tool_choice and parallel tool use; the Model Context Protocol (hosts/clients/servers, transports); and the MCP connector."
+      "summary": "Explicit criteria to reduce false positives; few-shot prompting for consistency; enforcing structured output with tool_use and JSON schemas; validation/retry/feedback loops for extraction quality; efficient batch processing strategy; multi-instance and multi-pass review architectures."
     },
     {
       "id": "d5",
       "code": "D5",
-      "title": "Context Management",
+      "title": "Context Management & Reliability",
       "weightPct": 15,
       "orderIndex": 5,
-      "summary": "Context windows and what counts toward them; prompt caching (breakpoints, TTLs, pricing); server-side compaction; context editing (tool-result and thinking clearing); the memory tool; and cost/latency levers like batch processing and streaming."
+      "summary": "Preserving critical information across long interactions; escalation and ambiguity resolution; error propagation across multi-agent systems; managing context in large codebase exploration; human review workflows and confidence calibration; provenance and uncertainty in multi-source synthesis."
     }
   ]
 }
