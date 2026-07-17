@@ -1,7 +1,8 @@
-package com.architectprep.app.ui.home
+package com.architectprep.app.ui.study
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,17 +30,18 @@ import com.architectprep.app.ui.theme.MonoFontFamily
 import com.architectprep.app.ui.theme.SerifFontFamily
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel) {
-    val state by viewModel.uiState.collectAsState()
+fun DomainListScreen(
+    viewModel: DomainListViewModel,
+    onDomainClick: (String) -> Unit,
+    onGuideClick: () -> Unit,
+    onGlossaryClick: () -> Unit
+) {
+    val domains by viewModel.domains.collectAsState()
     val colors = LocalAppColors.current
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-    ) {
-        val s = state
-        if (s == null) {
+    Box(modifier = Modifier.fillMaxSize().background(colors.background)) {
+        val rows = domains
+        if (rows == null) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             return@Box
         }
@@ -50,46 +52,46 @@ fun HomeScreen(viewModel: HomeViewModel) {
         ) {
             item {
                 Text(
-                    text = s.trackTitle,
+                    text = "Study",
                     color = colors.textPrimary,
                     fontFamily = SerifFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 28.sp
-                )
-                Text(
-                    text = "${s.questionCount} questions · ${s.timeLimitMin} min · pass ${s.passScore}/${s.scoreScale}",
-                    color = colors.textSecondary,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 4.dp)
+                    fontSize = 26.sp
                 )
             }
-            items(s.domains) { row -> DomainCard(row) }
+            items(rows) { row -> DomainProgressCard(row, onClick = { onDomainClick(row.id) }) }
+            item { NavCard(icon = "📋", title = "Exam guide", subtitle = "Format, scoring & what to expect on the day", onClick = onGuideClick) }
+            item { NavCard(icon = "🔎", title = "Glossary", subtitle = "Search key terms", onClick = onGlossaryClick) }
         }
     }
 }
 
 @Composable
-private fun DomainCard(row: DomainRow) {
+private fun DomainProgressCard(row: DomainProgressRow, onClick: () -> Unit) {
     val colors = LocalAppColors.current
+    val fraction = if (row.lessonsTotal == 0) 0f else row.lessonsDone.toFloat() / row.lessonsTotal
+    val barColor = if (fraction >= 1f) colors.success else colors.accent
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colors.surface, RoundedCornerShape(18.dp))
-            .border(1.dp, colors.border, RoundedCornerShape(18.dp))
-            .padding(16.dp)
+            .background(colors.surface, RoundedCornerShape(20.dp))
+            .border(1.dp, colors.border, RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(16.dp, 18.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = row.code,
+                text = "${row.code} · ${row.weightPct}% of exam",
                 color = colors.accent,
                 fontFamily = MonoFontFamily,
                 fontSize = 11.sp
             )
             Text(
-                text = "${row.weightPct}%",
+                text = "${row.lessonsDone}/${row.lessonsTotal}",
                 color = colors.textSecondary,
                 fontFamily = MonoFontFamily,
                 fontSize = 11.sp
@@ -98,30 +100,52 @@ private fun DomainCard(row: DomainRow) {
         Text(
             text = row.title,
             color = colors.textPrimary,
+            fontFamily = SerifFontFamily,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 15.sp,
+            fontSize = 18.sp,
             modifier = Modifier.padding(top = 4.dp)
         )
         Text(
-            text = "${row.lessonsDone}/${row.lessonsTotal} lessons",
-            color = colors.textTertiary,
-            fontSize = 11.5.sp,
-            modifier = Modifier.padding(top = 6.dp)
+            text = row.summary,
+            color = colors.textSecondary,
+            fontSize = 12.5.sp,
+            modifier = Modifier.padding(top = 3.dp)
         )
-        val fraction = if (row.lessonsTotal == 0) 0f else row.lessonsDone.toFloat() / row.lessonsTotal
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(6.dp)
-                .padding(top = 8.dp)
-                .background(colors.neutralLight, RoundedCornerShape(999.dp))
+                .height(5.dp)
+                .padding(top = 12.dp)
+                .background(colors.neutralLight, RoundedCornerShape(3.dp))
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(fraction.coerceIn(0f, 1f))
-                    .height(6.dp)
-                    .background(if (fraction >= 1f) colors.success else colors.accent, RoundedCornerShape(999.dp))
+                    .height(5.dp)
+                    .background(barColor, RoundedCornerShape(3.dp))
             )
         }
+    }
+}
+
+@Composable
+private fun NavCard(icon: String, title: String, subtitle: String, onClick: () -> Unit) {
+    val colors = LocalAppColors.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.neutralLight, RoundedCornerShape(20.dp))
+            .border(1.dp, colors.border, RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(14.dp, 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(text = icon, fontSize = 18.sp)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = title, color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Text(text = subtitle, color = colors.textSecondary, fontSize = 12.sp)
+        }
+        Text(text = "›", color = colors.accent, fontSize = 18.sp)
     }
 }

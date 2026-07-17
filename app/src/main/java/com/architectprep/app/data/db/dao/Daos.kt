@@ -31,6 +31,9 @@ interface DomainDao {
 
     @Query("SELECT * FROM domains WHERE trackCode = :trackCode ORDER BY orderIndex")
     fun observeByTrack(trackCode: String): Flow<List<DomainEntity>>
+
+    @Query("SELECT * FROM domains WHERE id = :id LIMIT 1")
+    fun observeById(id: String): Flow<DomainEntity?>
 }
 
 @Dao
@@ -85,4 +88,7 @@ interface LessonProgressDao {
             "WHERE l.domainId = :domainId AND p.status = 'done'"
     )
     fun observeDoneCountForDomain(domainId: String): Flow<Int>
+
+    @Query("SELECT lessonId FROM lesson_progress WHERE status = 'done'")
+    fun observeDoneLessonIds(): Flow<List<String>>
 }

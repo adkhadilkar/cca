@@ -50,11 +50,13 @@ class HomeViewModel(
         val trackCode = "CCAR-F"
         combine(
             db.trackDao().observe(trackCode),
-            db.domainDao().observeByTrack(trackCode)
-        ) { track, domains -> track to domains }
-            .collect { (track, domains) ->
+            db.domainDao().observeByTrack(trackCode),
+            db.lessonProgressDao().observeDoneLessonIds()
+        ) { track, domains, doneIds -> Triple(track, domains, doneIds) }
+            .collect { (track, domains, doneIds) ->
                 if (track == null) return@collect
-                val rows = domains.map { d -> toRow(d) }
+                val doneSet = doneIds.toSet()
+                val rows = domains.map { d -> toRow(d, doneSet) }
                 _uiState.value = HomeUiState(
                     trackTitle = track.title,
                     questionCount = track.questionCount,
@@ -66,11 +68,10 @@ class HomeViewModel(
             }
     }
 
-    private suspend fun toRow(d: DomainEntity): DomainRow {
-        // Snapshot count for M0; a reactive per-domain progress combine lands with
-        // the Study screen in M1 once LessonProgress is actually written to.
-        val total = db.lessonDao().observeByDomain(d.id).first().size
-        return DomainRow(d.code, d.title, d.weightPct, lessonsDone = 0, lessonsTotal = total)
+    private suspend fun toRow(d: DomainEntity, doneIds: Set<String>): DomainRow {
+        val lessons = db.lessonDao().observeByDomain(d.id).first()
+        val done = lessons.count { it.id in doneIds }
+        return DomainRow(d.code, d.title, d.weightPct, lessonsDone = done, lessonsTotal = lessons.size)
     }
 
     class Factory(private val app: com.architectprep.app.PrepApplication) : ViewModelProvider.Factory {

@@ -24,13 +24,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.architectprep.app.PrepApplication
 import com.architectprep.app.ui.home.HomeScreen
 import com.architectprep.app.ui.home.HomeViewModel
+import com.architectprep.app.ui.reference.ExamGuideScreen
+import com.architectprep.app.ui.reference.ExamGuideViewModel
+import com.architectprep.app.ui.reference.GlossaryScreen
+import com.architectprep.app.ui.reference.GlossaryViewModel
+import com.architectprep.app.ui.study.DomainListScreen
+import com.architectprep.app.ui.study.DomainListViewModel
+import com.architectprep.app.ui.study.LessonDetailScreen
+import com.architectprep.app.ui.study.LessonDetailViewModel
+import com.architectprep.app.ui.study.LessonListScreen
+import com.architectprep.app.ui.study.LessonListViewModel
 import com.architectprep.app.ui.theme.ArchitectPrepTheme
 import com.architectprep.app.ui.theme.LocalAppColors
 
@@ -62,14 +74,15 @@ private fun AppScaffold(app: PrepApplication) {
     Scaffold(
         bottomBar = {
             val backStackEntry by navController.currentBackStackEntryAsState()
-            // Flat, single-level graph (5 sibling tabs, no nested graphs), so a
-            // direct route match is sufficient — no need for hierarchy walking.
+            // Study now owns a small sub-graph (domain list -> lesson list -> lesson
+            // detail -> guide/glossary), all under the "study" route prefix, so the
+            // tab bar highlights by prefix rather than an exact route match.
             val currentRoute = backStackEntry?.destination?.route
 
             NavigationBar(containerColor = colors.surface) {
                 Tab.entries.forEach { tab ->
                     NavigationBarItem(
-                        selected = currentRoute == tab.route,
+                        selected = currentRoute != null && (currentRoute == tab.route || currentRoute.startsWith("${tab.route}/")),
                         onClick = {
                             navController.navigate(tab.route) {
                                 popUpTo(Tab.Home.route) { saveState = true }
@@ -93,7 +106,55 @@ private fun AppScaffold(app: PrepApplication) {
                 val vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory(app))
                 HomeScreen(vm)
             }
-            composable(Tab.Study.route) { PlaceholderScreen("Study — lessons by domain (M1)") }
+            composable(Tab.Study.route) {
+                val vm: DomainListViewModel = viewModel(factory = DomainListViewModel.Factory(app))
+                DomainListScreen(
+                    viewModel = vm,
+                    onDomainClick = { domainId -> navController.navigate("study/domain/$domainId") },
+                    onGuideClick = { navController.navigate("study/guide") },
+                    onGlossaryClick = { navController.navigate("study/glossary") }
+                )
+            }
+            composable(
+                route = "study/domain/{domainId}",
+                arguments = listOf(navArgument("domainId") { type = NavType.StringType })
+            ) { backStack ->
+                val domainId = backStack.arguments?.getString("domainId") ?: return@composable
+                val vm: LessonListViewModel = viewModel(
+                    key = "lessons-$domainId",
+                    factory = LessonListViewModel.Factory(app, domainId)
+                )
+                LessonListScreen(
+                    viewModel = vm,
+                    onBack = { navController.popBackStack() },
+                    onLessonClick = { lessonId -> navController.navigate("study/lesson/$lessonId") }
+                )
+            }
+            composable(
+                route = "study/lesson/{lessonId}",
+                arguments = listOf(navArgument("lessonId") { type = NavType.StringType })
+            ) { backStack ->
+                val lessonId = backStack.arguments?.getString("lessonId") ?: return@composable
+                val vm: LessonDetailViewModel = viewModel(
+                    key = "lesson-$lessonId",
+                    factory = LessonDetailViewModel.Factory(app, lessonId)
+                )
+                LessonDetailScreen(
+                    viewModel = vm,
+                    onBack = { navController.popBackStack() },
+                    onNavigateToLesson = { nextId ->
+                        navController.navigate("study/lesson/$nextId") { launchSingleTop = true }
+                    }
+                )
+            }
+            composable("study/guide") {
+                val vm: ExamGuideViewModel = viewModel(factory = ExamGuideViewModel.Factory(app))
+                ExamGuideScreen(vm, onBack = { navController.popBackStack() })
+            }
+            composable("study/glossary") {
+                val vm: GlossaryViewModel = viewModel(factory = GlossaryViewModel.Factory(app))
+                GlossaryScreen(vm, onBack = { navController.popBackStack() })
+            }
             composable(Tab.Practice.route) { PlaceholderScreen("Practice — question bank (M2)") }
             composable(Tab.Exam.route) { PlaceholderScreen("Mock exam — timed, 60Q (M3)") }
             composable(Tab.Progress.route) { PlaceholderScreen("Progress — score history, streak (M4)") }
