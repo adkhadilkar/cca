@@ -8,6 +8,8 @@ import com.architectprep.app.data.content.ChoiceDto
 import com.architectprep.app.data.db.AppDatabase
 import com.architectprep.app.data.db.entity.QuestionAttemptEntity
 import com.architectprep.app.data.db.entity.QuestionEntity
+import com.architectprep.app.data.prefs.UserPrefsRepository
+import com.architectprep.app.domain.StreakTracker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,6 +43,7 @@ data class PracticeSessionUiState(
 
 class PracticeSessionViewModel(
     private val db: AppDatabase,
+    private val prefs: UserPrefsRepository,
     private val domainId: String
 ) : ViewModel() {
 
@@ -104,6 +107,7 @@ class PracticeSessionViewModel(
                     ts = System.currentTimeMillis()
                 )
             )
+            StreakTracker.recordActivity(db, prefs.prefs.first().dailyGoalMinutes)
         }
         val s = _uiState.value ?: return
         _uiState.value = s.copy(selectedChoiceId = selectedChoiceId, revealed = true, sessionCorrect = sessionCorrect)
@@ -122,7 +126,7 @@ class PracticeSessionViewModel(
     class Factory(private val app: PrepApplication, private val domainId: String) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return PracticeSessionViewModel(app.database, domainId) as T
+            return PracticeSessionViewModel(app.database, app.userPrefsRepository, domainId) as T
         }
     }
 }

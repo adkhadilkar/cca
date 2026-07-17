@@ -98,6 +98,12 @@ interface LessonProgressDao {
 
     @Query("SELECT lessonId FROM lesson_progress WHERE status = 'done'")
     fun observeDoneLessonIds(): Flow<List<String>>
+
+    @Query("SELECT * FROM lesson_progress")
+    suspend fun getAll(): List<LessonProgressEntity>
+
+    @Query("DELETE FROM lesson_progress")
+    suspend fun clearAll()
 }
 
 @Dao
@@ -110,6 +116,18 @@ interface QuestionAttemptDao {
 
     @Query("SELECT COUNT(*) FROM question_attempts WHERE domainId = :domainId")
     fun observeAttemptCountForDomain(domainId: String): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM question_attempts")
+    fun observeTotalCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM question_attempts WHERE correct = 1")
+    fun observeTotalCorrect(): Flow<Int>
+
+    @Query("SELECT * FROM question_attempts")
+    suspend fun getAll(): List<QuestionAttemptEntity>
+
+    @Query("DELETE FROM question_attempts")
+    suspend fun clearAll()
 }
 
 @Dao
@@ -128,6 +146,12 @@ interface FlashcardStateDao {
 
     @Query("SELECT id FROM questions WHERE id NOT IN (SELECT cardId FROM flashcard_state) LIMIT :limit")
     suspend fun newCardIds(limit: Int): List<String>
+
+    @Query("SELECT * FROM flashcard_state")
+    suspend fun getAll(): List<FlashcardStateEntity>
+
+    @Query("DELETE FROM flashcard_state")
+    suspend fun clearAll()
 }
 
 @Dao
@@ -146,6 +170,12 @@ interface MockAttemptDao {
 
     @Query("SELECT * FROM mock_attempts WHERE trackCode = :trackCode AND status = 'submitted' ORDER BY submittedAt DESC")
     fun observeSubmitted(trackCode: String): Flow<List<MockAttemptEntity>>
+
+    @Query("SELECT * FROM mock_attempts")
+    suspend fun getAll(): List<MockAttemptEntity>
+
+    @Query("DELETE FROM mock_attempts")
+    suspend fun clearAll()
 }
 
 @Dao
@@ -158,4 +188,10 @@ interface StreakDayDao {
 
     @Query("SELECT * FROM streak_days ORDER BY date DESC LIMIT :days")
     fun observeRecent(days: Int): Flow<List<StreakDayEntity>>
+
+    @Query("SELECT * FROM streak_days")
+    suspend fun getAll(): List<StreakDayEntity>
+
+    @Query("DELETE FROM streak_days")
+    suspend fun clearAll()
 }

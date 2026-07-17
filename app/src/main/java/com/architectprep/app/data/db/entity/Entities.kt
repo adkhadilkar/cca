@@ -2,6 +2,7 @@ package com.architectprep.app.data.db.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 @Entity(tableName = "tracks")
 data class TrackEntity(
@@ -59,6 +60,7 @@ data class GlossaryTermEntity(
 )
 
 /** User progress — never touched by a content-pack re-import. */
+@Serializable
 @Entity(tableName = "lesson_progress")
 data class LessonProgressEntity(
     @PrimaryKey val lessonId: String,
@@ -67,6 +69,7 @@ data class LessonProgressEntity(
 )
 
 /** One practice-question attempt. User data — never touched by a content-pack re-import. */
+@Serializable
 @Entity(tableName = "question_attempts")
 data class QuestionAttemptEntity(
     @PrimaryKey val id: String,
@@ -85,6 +88,7 @@ data class QuestionAttemptEntity(
  * underlying question's id. User data — never touched by a content-pack
  * re-import.
  */
+@Serializable
 @Entity(tableName = "flashcard_state")
 data class FlashcardStateEntity(
     @PrimaryKey val cardId: String,
@@ -102,6 +106,7 @@ data class FlashcardStateEntity(
  * death (docs/DEVELOPMENT_DESIGN.md §9.2). User data — never touched by a
  * content-pack re-import.
  */
+@Serializable
 @Entity(tableName = "mock_attempts")
 data class MockAttemptEntity(
     @PrimaryKey val id: String,
@@ -116,6 +121,7 @@ data class MockAttemptEntity(
 )
 
 /** One calendar day's study activity, for the streak calendar (docs §9.5). */
+@Serializable
 @Entity(tableName = "streak_days")
 data class StreakDayEntity(
     @PrimaryKey val date: String, // ISO yyyy-MM-dd

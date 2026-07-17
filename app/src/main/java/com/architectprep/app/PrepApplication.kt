@@ -8,6 +8,7 @@ import coil.decode.SvgDecoder
 import com.architectprep.app.data.content.ContentImporter
 import com.architectprep.app.data.content.GuideRepository
 import com.architectprep.app.data.db.AppDatabase
+import com.architectprep.app.data.prefs.UserPrefsRepository
 
 /**
  * Minimal manual service locator. No DI framework yet — swap for Hilt if/when
@@ -29,6 +30,10 @@ class PrepApplication : Application(), ImageLoaderFactory {
 
     val guideRepository: GuideRepository by lazy {
         GuideRepository(this)
+    }
+
+    val userPrefsRepository: UserPrefsRepository by lazy {
+        UserPrefsRepository(this)
     }
 
     // Lesson bodies reference bundled SVG diagrams (assets/content/images/) — Coil

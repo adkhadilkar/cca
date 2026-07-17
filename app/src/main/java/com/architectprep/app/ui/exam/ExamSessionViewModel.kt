@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.architectprep.app.PrepApplication
 import com.architectprep.app.data.content.ChoiceDto
 import com.architectprep.app.data.db.AppDatabase
+import com.architectprep.app.data.prefs.UserPrefsRepository
 import com.architectprep.app.domain.MockExamScoring
 import com.architectprep.app.domain.PerDomainScore
+import com.architectprep.app.domain.StreakTracker
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +42,7 @@ data class ExamSessionUiState(
 
 class ExamSessionViewModel(
     private val db: AppDatabase,
+    private val prefs: UserPrefsRepository,
     private val attemptId: String
 ) : ViewModel() {
 
@@ -178,6 +181,7 @@ class ExamSessionViewModel(
                     status = "submitted"
                 )
             )
+            StreakTracker.recordActivity(db, prefs.prefs.first().dailyGoalMinutes)
             emit(submitted = true)
         }
     }
@@ -185,7 +189,7 @@ class ExamSessionViewModel(
     class Factory(private val app: PrepApplication, private val attemptId: String) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ExamSessionViewModel(app.database, attemptId) as T
+            return ExamSessionViewModel(app.database, app.userPrefsRepository, attemptId) as T
         }
     }
 }

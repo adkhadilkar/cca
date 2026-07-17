@@ -7,10 +7,13 @@ import com.architectprep.app.PrepApplication
 import com.architectprep.app.data.content.LessonBlockDto
 import com.architectprep.app.data.db.AppDatabase
 import com.architectprep.app.data.db.entity.LessonProgressEntity
+import com.architectprep.app.data.prefs.UserPrefsRepository
+import com.architectprep.app.domain.StreakTracker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -31,6 +34,7 @@ data class LessonDetailUiState(
 
 class LessonDetailViewModel(
     private val db: AppDatabase,
+    private val prefs: UserPrefsRepository,
     private val lessonId: String
 ) : ViewModel() {
 
@@ -77,13 +81,16 @@ class LessonDetailViewModel(
                     lastViewedAt = System.currentTimeMillis()
                 )
             )
+            if (newStatus == "done") {
+                StreakTracker.recordActivity(db, prefs.prefs.first().dailyGoalMinutes)
+            }
         }
     }
 
     class Factory(private val app: PrepApplication, private val lessonId: String) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return LessonDetailViewModel(app.database, lessonId) as T
+            return LessonDetailViewModel(app.database, app.userPrefsRepository, lessonId) as T
         }
     }
 }

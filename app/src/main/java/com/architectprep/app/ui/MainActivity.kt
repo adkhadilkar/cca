@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,16 +15,19 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,6 +36,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.architectprep.app.PrepApplication
+import com.architectprep.app.data.prefs.ThemePref
 import com.architectprep.app.ui.exam.ExamHomeScreen
 import com.architectprep.app.ui.exam.ExamHomeViewModel
 import com.architectprep.app.ui.exam.ExamSessionScreen
@@ -41,14 +47,20 @@ import com.architectprep.app.ui.flashcards.FlashcardsScreen
 import com.architectprep.app.ui.flashcards.FlashcardsViewModel
 import com.architectprep.app.ui.home.HomeScreen
 import com.architectprep.app.ui.home.HomeViewModel
+import com.architectprep.app.ui.onboarding.OnboardingScreen
+import com.architectprep.app.ui.onboarding.OnboardingViewModel
 import com.architectprep.app.ui.practice.PracticeHomeScreen
 import com.architectprep.app.ui.practice.PracticeHomeViewModel
 import com.architectprep.app.ui.practice.PracticeSessionScreen
 import com.architectprep.app.ui.practice.PracticeSessionViewModel
+import com.architectprep.app.ui.progress.ProgressScreen
+import com.architectprep.app.ui.progress.ProgressViewModel
 import com.architectprep.app.ui.reference.ExamGuideScreen
 import com.architectprep.app.ui.reference.ExamGuideViewModel
 import com.architectprep.app.ui.reference.GlossaryScreen
 import com.architectprep.app.ui.reference.GlossaryViewModel
+import com.architectprep.app.ui.settings.SettingsScreen
+import com.architectprep.app.ui.settings.SettingsViewModel
 import com.architectprep.app.ui.study.DomainListScreen
 import com.architectprep.app.ui.study.DomainListViewModel
 import com.architectprep.app.ui.study.LessonDetailScreen
@@ -71,8 +83,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val app = application as PrepApplication
         setContent {
-            ArchitectPrepTheme {
-                AppScaffold(app)
+            val prefs by app.userPrefsRepository.prefs.collectAsState(initial = null)
+            val systemDark = isSystemInDarkTheme()
+            val darkTheme = when (prefs?.theme) {
+                ThemePref.LIGHT -> false
+                ThemePref.DARK -> true
+                else -> systemDark
+            }
+            ArchitectPrepTheme(darkTheme = darkTheme) {
+                val p = prefs
+                if (p == null) {
+                    Box(modifier = Modifier.fillMaxSize().background(LocalAppColors.current.background)) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                } else if (!p.onboarded) {
+                    val vm: OnboardingViewModel = viewModel(factory = OnboardingViewModel.Factory(app))
+                    OnboardingScreen(vm, onDone = {})
+                } else {
+                    AppScaffold(app)
+                }
             }
         }
     }
@@ -228,7 +257,28 @@ private fun AppScaffold(app: PrepApplication) {
                 )
                 ResultsScreen(viewModel = vm, onDone = { navController.popBackStack(Tab.Exam.route, inclusive = false) })
             }
-            composable(Tab.Progress.route) { PlaceholderScreen("Progress — score history, streak (M4)") }
+            composable(Tab.Progress.route) {
+                val vm: ProgressViewModel = viewModel(factory = ProgressViewModel.Factory(app))
+                Box(modifier = Modifier.fillMaxSize()) {
+                    ProgressScreen(vm)
+                    Text(
+                        text = "⚙",
+                        fontSize = 20.sp,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(20.dp, 22.dp)
+                            .clickable { navController.navigate("settings") }
+                    )
+                }
+            }
+            composable("settings") {
+                val vm: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory(app))
+                SettingsScreen(
+                    viewModel = vm,
+                    onBack = { navController.popBackStack() },
+                    onRedoOnboarding = { vm.redoOnboarding() }
+                )
+            }
         }
     }
 }
@@ -239,18 +289,4 @@ private fun iconFor(tab: Tab) = when (tab) {
     Tab.Practice -> Icons.Filled.CheckCircle
     Tab.Exam -> Icons.Filled.DateRange
     Tab.Progress -> Icons.Filled.Star
-}
-
-@Composable
-private fun PlaceholderScreen(label: String) {
-    val colors = LocalAppColors.current
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = label, color = colors.textSecondary)
-    }
 }

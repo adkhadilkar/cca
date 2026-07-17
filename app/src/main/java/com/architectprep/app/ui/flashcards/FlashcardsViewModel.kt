@@ -8,12 +8,15 @@ import com.architectprep.app.data.content.ChoiceDto
 import com.architectprep.app.data.db.AppDatabase
 import com.architectprep.app.data.db.entity.FlashcardStateEntity
 import com.architectprep.app.data.db.entity.QuestionEntity
+import com.architectprep.app.data.prefs.UserPrefsRepository
 import com.architectprep.app.domain.Grade
 import com.architectprep.app.domain.SchedulerState
 import com.architectprep.app.domain.SpacedRepetitionScheduler
+import com.architectprep.app.domain.StreakTracker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -35,7 +38,7 @@ data class FlashcardsUiState(
     val dueCount: Int
 )
 
-class FlashcardsViewModel(private val db: AppDatabase) : ViewModel() {
+class FlashcardsViewModel(private val db: AppDatabase, private val prefs: UserPrefsRepository) : ViewModel() {
 
     private val json = Json { ignoreUnknownKeys = true }
     private var deck: List<FlashcardUi> = emptyList()
@@ -111,6 +114,7 @@ class FlashcardsViewModel(private val db: AppDatabase) : ViewModel() {
                     lastGrade = grade.name.lowercase()
                 )
             )
+            StreakTracker.recordActivity(db, prefs.prefs.first().dailyGoalMinutes)
         }
         index++
         flipped = false
@@ -120,7 +124,7 @@ class FlashcardsViewModel(private val db: AppDatabase) : ViewModel() {
     class Factory(private val app: PrepApplication) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return FlashcardsViewModel(app.database) as T
+            return FlashcardsViewModel(app.database, app.userPrefsRepository) as T
         }
     }
 }
