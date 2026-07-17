@@ -31,8 +31,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.architectprep.app.PrepApplication
+import com.architectprep.app.ui.flashcards.FlashcardsScreen
+import com.architectprep.app.ui.flashcards.FlashcardsViewModel
 import com.architectprep.app.ui.home.HomeScreen
 import com.architectprep.app.ui.home.HomeViewModel
+import com.architectprep.app.ui.practice.PracticeHomeScreen
+import com.architectprep.app.ui.practice.PracticeHomeViewModel
+import com.architectprep.app.ui.practice.PracticeSessionScreen
+import com.architectprep.app.ui.practice.PracticeSessionViewModel
 import com.architectprep.app.ui.reference.ExamGuideScreen
 import com.architectprep.app.ui.reference.ExamGuideViewModel
 import com.architectprep.app.ui.reference.GlossaryScreen
@@ -155,7 +161,29 @@ private fun AppScaffold(app: PrepApplication) {
                 val vm: GlossaryViewModel = viewModel(factory = GlossaryViewModel.Factory(app))
                 GlossaryScreen(vm, onBack = { navController.popBackStack() })
             }
-            composable(Tab.Practice.route) { PlaceholderScreen("Practice — question bank (M2)") }
+            composable(Tab.Practice.route) {
+                val vm: PracticeHomeViewModel = viewModel(factory = PracticeHomeViewModel.Factory(app))
+                PracticeHomeScreen(
+                    viewModel = vm,
+                    onDomainClick = { domainId -> navController.navigate("practice/domain/$domainId") },
+                    onFlashcardsClick = { navController.navigate("practice/flashcards") }
+                )
+            }
+            composable(
+                route = "practice/domain/{domainId}",
+                arguments = listOf(navArgument("domainId") { type = NavType.StringType })
+            ) { backStack ->
+                val domainId = backStack.arguments?.getString("domainId") ?: return@composable
+                val vm: PracticeSessionViewModel = viewModel(
+                    key = "practice-$domainId",
+                    factory = PracticeSessionViewModel.Factory(app, domainId)
+                )
+                PracticeSessionScreen(viewModel = vm, onExit = { navController.popBackStack() })
+            }
+            composable("practice/flashcards") {
+                val vm: FlashcardsViewModel = viewModel(factory = FlashcardsViewModel.Factory(app))
+                FlashcardsScreen(viewModel = vm, onExit = { navController.popBackStack() })
+            }
             composable(Tab.Exam.route) { PlaceholderScreen("Mock exam — timed, 60Q (M3)") }
             composable(Tab.Progress.route) { PlaceholderScreen("Progress — score history, streak (M4)") }
         }

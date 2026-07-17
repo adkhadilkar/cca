@@ -16,7 +16,11 @@ import com.architectprep.app.data.db.AppDatabase
  */
 class PrepApplication : Application(), ImageLoaderFactory {
     val database: AppDatabase by lazy {
-        Room.databaseBuilder(this, AppDatabase::class.java, AppDatabase.DB_NAME).build()
+        Room.databaseBuilder(this, AppDatabase::class.java, AppDatabase.DB_NAME)
+            // Pre-release schema (no shipped installs to preserve yet) — replace with
+            // real Migration objects before the first release.
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     val contentImporter: ContentImporter by lazy {

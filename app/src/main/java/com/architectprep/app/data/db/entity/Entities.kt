@@ -65,3 +65,60 @@ data class LessonProgressEntity(
     val status: String, // unseen | in_progress | done
     val lastViewedAt: Long?
 )
+
+/** One practice-question attempt. User data — never touched by a content-pack re-import. */
+@Entity(tableName = "question_attempts")
+data class QuestionAttemptEntity(
+    @PrimaryKey val id: String,
+    val questionId: String,
+    val domainId: String,
+    val chosenChoiceId: String,
+    val correct: Boolean,
+    val timeMs: Long,
+    val ts: Long
+)
+
+/**
+ * SM-2-variant spaced-repetition state, one row per flashcard. The flashcard
+ * deck is generated from the question bank (stem = front, correct choice +
+ * explanation = back) — see docs/DEVELOPMENT_DESIGN.md §9.1. [cardId] is the
+ * underlying question's id. User data — never touched by a content-pack
+ * re-import.
+ */
+@Entity(tableName = "flashcard_state")
+data class FlashcardStateEntity(
+    @PrimaryKey val cardId: String,
+    val ease: Double,
+    val intervalDays: Double,
+    val dueAt: Long,
+    val reps: Int,
+    val lapses: Int,
+    val lastGrade: String? // again | hard | good | easy
+)
+
+/**
+ * One mock-exam attempt. [answersJson]/[flaggedJson]/[perDomainJson] are raw
+ * JSON — persisted on every answer so an in-progress attempt survives process
+ * death (docs/DEVELOPMENT_DESIGN.md §9.2). User data — never touched by a
+ * content-pack re-import.
+ */
+@Entity(tableName = "mock_attempts")
+data class MockAttemptEntity(
+    @PrimaryKey val id: String,
+    val trackCode: String,
+    val startedAt: Long,
+    val submittedAt: Long?,
+    val score: Int?,
+    val perDomainJson: String?,
+    val answersJson: String,
+    val flaggedJson: String,
+    val status: String // in_progress | submitted
+)
+
+/** One calendar day's study activity, for the streak calendar (docs §9.5). */
+@Entity(tableName = "streak_days")
+data class StreakDayEntity(
+    @PrimaryKey val date: String, // ISO yyyy-MM-dd
+    val studiedSeconds: Int,
+    val goalMet: Boolean
+)
