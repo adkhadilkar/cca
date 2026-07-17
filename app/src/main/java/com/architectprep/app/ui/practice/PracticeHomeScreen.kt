@@ -59,7 +59,7 @@ fun PracticeHomeScreen(
             }
             item {
                 NavCard(
-                    icon = "🗂",
+                    icon = "◫",
                     title = "Flashcards",
                     subtitle = if (s.flashcardsDue > 0) "${s.flashcardsDue} due for review" else "All caught up",
                     onClick = onFlashcardsClick
@@ -131,7 +131,7 @@ private fun NavCard(icon: String, title: String, subtitle: String, onClick: () -
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(text = icon, fontSize = 18.sp)
+        Text(text = icon, fontSize = 20.sp, color = colors.accent)
         Column(modifier = Modifier.weight(1f)) {
             Text(text = title, color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             Text(text = subtitle, color = colors.textSecondary, fontSize = 12.sp)

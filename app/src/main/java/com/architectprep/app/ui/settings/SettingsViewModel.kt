@@ -15,6 +15,7 @@ import com.architectprep.app.data.prefs.UserPrefs
 import com.architectprep.app.data.prefs.UserPrefsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -41,10 +42,14 @@ class SettingsViewModel(
     val userPrefs: StateFlow<UserPrefs?> = prefs.prefs
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    val contentVersion: StateFlow<Int?> = flow { emit(db.trackDao().get("CCAR-F")?.contentVersion) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     fun setTheme(theme: ThemePref) = viewModelScope.launch { prefs.setTheme(theme) }
     fun setExamDate(millis: Long?) = viewModelScope.launch { prefs.setExamDate(millis) }
     fun setDailyGoalMinutes(minutes: Int) = viewModelScope.launch { prefs.setDailyGoalMinutes(minutes) }
     fun setDailyCardLimit(limit: Int) = viewModelScope.launch { prefs.setDailyCardLimit(limit) }
+    fun setDailyReminder(enabled: Boolean) = viewModelScope.launch { prefs.setDailyReminder(enabled) }
     fun redoOnboarding() = viewModelScope.launch { prefs.resetOnboarding() }
 
     suspend fun exportProgressJson(): String {

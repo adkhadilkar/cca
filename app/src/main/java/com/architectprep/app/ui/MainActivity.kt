@@ -132,11 +132,11 @@ private fun AppScaffold(app: PrepApplication) {
                                     restoreState = true
                                 }
                             },
-                            icon = { Text(text = tab.glyph, fontSize = 18.sp, color = tint) },
+                            icon = { Text(text = tab.glyph, fontSize = 24.sp, color = tint) },
                             label = {
                                 Text(
                                     text = tab.label,
-                                    fontSize = 10.5.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                                     color = tint
                                 )
@@ -235,7 +235,11 @@ private fun AppScaffold(app: PrepApplication) {
                     key = "practice-$domainId",
                     factory = PracticeSessionViewModel.Factory(app, domainId)
                 )
-                PracticeSessionScreen(viewModel = vm, onExit = { navController.popBackStack() })
+                PracticeSessionScreen(
+                    viewModel = vm,
+                    onExit = { navController.popBackStack() },
+                    onReviewDomain = { reviewDomainId -> navController.navigate("study/domain/$reviewDomainId") }
+                )
             }
             composable("practice/flashcards") {
                 val vm: FlashcardsViewModel = viewModel(factory = FlashcardsViewModel.Factory(app))
@@ -281,21 +285,7 @@ private fun AppScaffold(app: PrepApplication) {
             }
             composable(Tab.Progress.route) {
                 val vm: ProgressViewModel = viewModel(factory = ProgressViewModel.Factory(app))
-                Box(modifier = Modifier.fillMaxSize()) {
-                    ProgressScreen(vm)
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(16.dp, 18.dp)
-                            .size(44.dp)
-                            .background(colors.surface, androidx.compose.foundation.shape.CircleShape)
-                            .border(1.dp, colors.border, androidx.compose.foundation.shape.CircleShape)
-                            .clickable { navController.navigate("settings") },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "⚙", fontSize = 22.sp, color = colors.textPrimary)
-                    }
-                }
+                ProgressScreen(vm, onOpenSettings = { navController.navigate("settings") })
             }
             composable("settings") {
                 val vm: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory(app))

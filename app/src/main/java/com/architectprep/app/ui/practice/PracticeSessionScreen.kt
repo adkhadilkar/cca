@@ -30,7 +30,11 @@ import com.architectprep.app.ui.theme.MonoFontFamily
 import com.architectprep.app.ui.theme.SerifFontFamily
 
 @Composable
-fun PracticeSessionScreen(viewModel: PracticeSessionViewModel, onExit: () -> Unit) {
+fun PracticeSessionScreen(
+    viewModel: PracticeSessionViewModel,
+    onExit: () -> Unit,
+    onReviewDomain: (String) -> Unit
+) {
     val state by viewModel.uiState.collectAsState()
     val colors = LocalAppColors.current
 
@@ -114,12 +118,39 @@ fun PracticeSessionScreen(viewModel: PracticeSessionViewModel, onExit: () -> Uni
                             fontSize = 11.sp,
                             modifier = Modifier.padding(top = 10.dp)
                         )
+                        Text(
+                            text = "→ Review: ${s.domainCode} · ${s.domainTitle}",
+                            color = colors.accent,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 12.sp,
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                                .clickable { onReviewDomain(s.domainId) }
+                        )
                     }
 
-                    Row(modifier = Modifier.fillMaxWidth().padding(top = 18.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .background(colors.surface, RoundedCornerShape(14.dp))
+                                .border(1.dp, colors.border, RoundedCornerShape(14.dp))
+                                .clickable(enabled = !s.flashcardAdded) { viewModel.addToFlashcards() }
+                                .padding(horizontal = 16.dp, vertical = 13.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = if (s.flashcardAdded) "✓ Added" else "+ Flashcard",
+                                color = if (s.flashcardAdded) colors.success else colors.textSecondary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 13.sp
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
                                 .background(colors.textPrimary, RoundedCornerShape(14.dp))
                                 .clickable { viewModel.nextQuestion() }
                                 .padding(vertical = 13.dp),

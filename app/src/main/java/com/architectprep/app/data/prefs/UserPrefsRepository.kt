@@ -19,7 +19,8 @@ data class UserPrefs(
     val theme: ThemePref,
     val examDateMillis: Long?,
     val dailyGoalMinutes: Int,
-    val dailyCardLimit: Int
+    val dailyCardLimit: Int,
+    val dailyReminder: Boolean
 )
 
 /** Settings & onboarding state — DataStore, not Room (docs/DEVELOPMENT_DESIGN.md §3.1, §5.2). */
@@ -30,6 +31,7 @@ class UserPrefsRepository(private val context: Context) {
         val EXAM_DATE = longPreferencesKey("exam_date")
         val DAILY_GOAL_MIN = intPreferencesKey("daily_goal_min")
         val DAILY_CARD_LIMIT = intPreferencesKey("daily_card_limit")
+        val DAILY_REMINDER = booleanPreferencesKey("daily_reminder")
     }
 
     val prefs: Flow<UserPrefs> = context.dataStore.data.map { p ->
@@ -38,7 +40,8 @@ class UserPrefsRepository(private val context: Context) {
             theme = p[Keys.THEME]?.let { runCatching { ThemePref.valueOf(it) }.getOrNull() } ?: ThemePref.SYSTEM,
             examDateMillis = p[Keys.EXAM_DATE],
             dailyGoalMinutes = p[Keys.DAILY_GOAL_MIN] ?: 20,
-            dailyCardLimit = p[Keys.DAILY_CARD_LIMIT] ?: 20
+            dailyCardLimit = p[Keys.DAILY_CARD_LIMIT] ?: 20,
+            dailyReminder = p[Keys.DAILY_REMINDER] ?: false
         )
     }
 
@@ -64,6 +67,10 @@ class UserPrefsRepository(private val context: Context) {
 
     suspend fun setDailyCardLimit(limit: Int) {
         context.dataStore.edit { it[Keys.DAILY_CARD_LIMIT] = limit }
+    }
+
+    suspend fun setDailyReminder(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.DAILY_REMINDER] = enabled }
     }
 
     suspend fun resetOnboarding() {

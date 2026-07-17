@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.architectprep.app.ui.theme.HeroText
@@ -181,8 +182,8 @@ private fun ExamHeroCard(s: HomeUiState, modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(6.dp)
                 .padding(top = 16.dp)
+                .height(6.dp)
                 .background(colors.heroTrack, RoundedCornerShape(3.dp))
         ) {
             Box(
@@ -255,9 +256,23 @@ private fun TrackCard(s: HomeUiState, onClick: () -> Unit) {
                 )
             }
         }
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            s.domainSegments.forEach { seg ->
-                Text(text = "${seg.shortLabel} ${seg.weightPct}%", color = colors.textTertiary, fontFamily = MonoFontFamily, fontSize = 10.sp)
+        // Same weights as the segment bar above so each label sits under its segment.
+        Row(modifier = Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            s.domainSegments.forEachIndexed { i, seg ->
+                Text(
+                    text = "${seg.shortLabel} ${seg.weightPct}%",
+                    color = colors.textTertiary,
+                    fontFamily = MonoFontFamily,
+                    fontSize = 9.5.sp,
+                    maxLines = 1,
+                    softWrap = false,
+                    textAlign = when (i) {
+                        0 -> TextAlign.Start
+                        s.domainSegments.lastIndex -> TextAlign.End
+                        else -> TextAlign.Center
+                    },
+                    modifier = Modifier.weight(seg.weightPct.toFloat().coerceAtLeast(1f))
+                )
             }
         }
     }

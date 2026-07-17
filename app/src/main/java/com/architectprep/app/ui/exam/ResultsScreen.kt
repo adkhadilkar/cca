@@ -142,7 +142,7 @@ private fun DomainScoreRow(d: PerDomainScore) {
             Text(text = "${d.domainCode} ${d.domainTitle}", color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
             Text(text = "${d.correct}/${d.total}", color = colors.textSecondary, fontFamily = MonoFontFamily, fontSize = 12.sp)
         }
-        Box(modifier = Modifier.fillMaxWidth().height(4.dp).padding(top = 7.dp).background(colors.neutralLight, RoundedCornerShape(2.dp))) {
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 7.dp).height(4.dp).background(colors.neutralLight, RoundedCornerShape(2.dp))) {
             Box(modifier = Modifier.fillMaxWidth(fraction.coerceIn(0f, 1f)).height(4.dp).background(barColor, RoundedCornerShape(2.dp)))
         }
     }

@@ -13,12 +13,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -86,7 +89,8 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit, onRedoOnboa
                         ExamDate.toLocalDate(it).format(DateTimeFormatter.ofPattern("MMM d, yyyy"))
                     } ?: "Not set", onClick = { showDatePicker = true })
                     SettingsRow("Daily goal", "${p.dailyGoalMinutes} min", onClick = { viewModel.setDailyGoalMinutes(cycleGoal(p.dailyGoalMinutes)) })
-                    SettingsRow("New cards per day", "${p.dailyCardLimit}", onClick = { viewModel.setDailyCardLimit(cycleCardLimit(p.dailyCardLimit)) }, last = true)
+                    SettingsRow("New cards per day", "${p.dailyCardLimit}", onClick = { viewModel.setDailyCardLimit(cycleCardLimit(p.dailyCardLimit)) })
+                    SettingsToggleRow("Daily reminder", p.dailyReminder, last = true) { viewModel.setDailyReminder(it) }
                 }
 
                 SectionLabel("Data")
@@ -116,18 +120,22 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit, onRedoOnboa
                         .padding(top = 18.dp)
                         .background(colors.neutralLight, RoundedCornerShape(16.dp))
                         .padding(14.dp, 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+                    Box(modifier = Modifier.size(8.dp).background(colors.success, androidx.compose.foundation.shape.CircleShape))
                     Text(
                         text = "All content and progress are stored on this device. The app never connects to the internet.",
                         color = colors.textSecondary,
                         fontSize = 12.sp,
-                        lineHeight = 17.sp
+                        lineHeight = 17.sp,
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
+                val contentVersion by viewModel.contentVersion.collectAsState()
                 Text(
-                    text = "Architect Prep v0.1.0",
+                    text = "Architect Prep v0.1.0" + (contentVersion?.let { " · content pack v$it" } ?: ""),
                     color = colors.textTertiary,
                     fontFamily = MonoFontFamily,
                     fontSize = 11.sp,
@@ -213,6 +221,37 @@ private fun ThemeOption(label: String, value: ThemePref, current: ThemePref, mod
         contentAlignment = Alignment.Center
     ) {
         Text(text = label, color = if (selected) colors.textPrimary else colors.textTertiary, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal, fontSize = 12.5.sp)
+    }
+}
+
+@Composable
+private fun SettingsToggleRow(label: String, checked: Boolean, last: Boolean = false, onToggle: (Boolean) -> Unit) {
+    val colors = LocalAppColors.current
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onToggle(!checked) }
+                .padding(18.dp, 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = label, color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Switch(
+                checked = checked,
+                onCheckedChange = onToggle,
+                colors = SwitchDefaults.colors(
+                    checkedTrackColor = colors.accent,
+                    checkedThumbColor = colors.surface,
+                    uncheckedTrackColor = colors.neutralLight,
+                    uncheckedThumbColor = colors.textTertiary,
+                    uncheckedBorderColor = colors.border
+                )
+            )
+        }
+        if (!last) Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp)) {
+            Box(modifier = Modifier.fillMaxWidth().background(colors.neutralLight).padding(top = 0.5.dp))
+        }
     }
 }
 
