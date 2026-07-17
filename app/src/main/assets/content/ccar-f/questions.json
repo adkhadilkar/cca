@@ -110,7 +110,7 @@
         {"id": "d", "text": "A more detailed system prompt"}
       ],
       "correct": ["b"],
-      "explanation": "Hooks are deterministic shell commands that always fire at a lifecycle event — unlike CLAUDE.md instructions, which the model may or may not follow. A PostToolUse hook guarantees the test command runs after every matching edit.",
+      "explanation": "Hooks are enforced regardless of what Claude decides — unlike CLAUDE.md/auto memory instructions, which the model may or may not follow. A PostToolUse hook guarantees the test command runs after every matching edit.",
       "sourceRef": "D2 Lesson 2 — Hooks and lifecycle events"
     },
     {
@@ -118,16 +118,16 @@
       "domainId": "d2",
       "type": "single",
       "difficulty": "medium",
-      "stem": "A project's CLAUDE.md and a developer's personal ~/.claude/CLAUDE.md both define a coding convention, and they conflict. Which wins?",
+      "stem": "A project's CLAUDE.md and a developer's personal ~/.claude/CLAUDE.md both define a coding convention, and they conflict. What actually happens?",
       "choices": [
         {"id": "a", "text": "User memory always overrides project memory"},
-        {"id": "b", "text": "The most specific (narrowest-scope) memory file wins"},
-        {"id": "c", "text": "They are merged alphabetically"},
+        {"id": "b", "text": "The most specific (narrowest-scope) memory file automatically wins"},
+        {"id": "c", "text": "Both files are concatenated into context (broadest to most specific); on a genuine conflict Claude may pick one arbitrarily, with no built-in override rule"},
         {"id": "d", "text": "Enterprise policy always wins regardless of scope"}
       ],
-      "correct": ["b"],
-      "explanation": "Claude Code's memory hierarchy combines all applicable layers, with the most specific scope taking precedence on conflicts. Project memory is more specific than user (cross-project) memory, so it wins for that project.",
-      "sourceRef": "D2 Lesson 1 — CLAUDE.md and the memory hierarchy"
+      "correct": ["c"],
+      "explanation": "Claude Code does NOT override narrower scopes over broader ones. All applicable CLAUDE.md files are concatenated into context, ordered from broadest (managed policy) to most specific (project/local) so specific instructions are read last — but a genuine conflict has no automatic resolution; Claude may pick one arbitrarily. This is a common misconception worth memorizing precisely.",
+      "sourceRef": "D2 Lesson 1 — CLAUDE.md and auto memory"
     },
     {
       "id": "q-d2-003",
@@ -137,13 +137,13 @@
       "stem": "Which of the following correctly describe Claude Code's extension mechanisms? (Select all that apply)",
       "choices": [
         {"id": "a", "text": "A subagent runs with its own separate context window"},
-        {"id": "b", "text": "A slash command is a reusable prompt template invoked with /name"},
-        {"id": "c", "text": "An Agent Skill is defined by a SKILL.md file and loads on demand"},
+        {"id": "b", "text": "Slash commands and Agent Skills are now the same underlying mechanism — a commands/ file and a skills/ SKILL.md both create the same /name invocation"},
+        {"id": "c", "text": "An Agent Skill loads on demand rather than staying in context permanently"},
         {"id": "d", "text": "Hooks and CLAUDE.md instructions provide the exact same guarantee of execution"}
       ],
       "correct": ["a", "b", "c"],
-      "explanation": "Subagents isolate context, slash commands are invocable prompt templates, and Skills package instructions/resources behind a SKILL.md loaded on demand. Hooks and CLAUDE.md are NOT equivalent — hooks are deterministic; CLAUDE.md is advisory.",
-      "sourceRef": "D2 Lesson 3 — Subagents, slash commands, and Skills"
+      "explanation": "Subagents isolate context. Custom commands have been merged into Skills — a legacy .claude/commands/deploy.md and a .claude/skills/deploy/SKILL.md both produce /deploy and behave the same way. Skills use progressive disclosure, loading only when invoked or judged relevant. Hooks and CLAUDE.md are NOT equivalent — hooks are enforced; CLAUDE.md/auto memory are advisory context.",
+      "sourceRef": "D2 Lesson 3 — Subagents and Skills (commands are now part of Skills)"
     },
     {
       "id": "q-d2-004",
@@ -166,16 +166,32 @@
       "domainId": "d2",
       "type": "single",
       "difficulty": "hard",
-      "stem": "A PreToolUse hook exits with a non-zero 'blocking' exit code. What happens?",
+      "stem": "A PreToolUse hook script exits with code 1. What happens to the tool call?",
       "choices": [
-        {"id": "a", "text": "The tool call proceeds anyway; hooks can't block tools"},
-        {"id": "b", "text": "The tool call is stopped and the reason is fed back to Claude"},
+        {"id": "a", "text": "It's blocked, because any non-zero exit code blocks a PreToolUse hook"},
+        {"id": "b", "text": "It proceeds — exit 1 is a non-blocking error; only exit code 2 specifically blocks the tool call"},
         {"id": "c", "text": "Claude Code crashes and the session ends"},
         {"id": "d", "text": "The hook is retried automatically up to 3 times"}
       ],
       "correct": ["b"],
-      "explanation": "A PreToolUse hook's exit code controls flow: a blocking non-zero exit stops the tool call and surfaces the reason back to Claude, which is how hooks enforce policy (e.g. blocking edits to protected paths).",
+      "explanation": "Only exit code 2 is treated as a blocking error in Claude Code hooks. Exit code 1 — despite being the conventional Unix failure code — is a NON-blocking error: the tool call proceeds, with the failure surfaced in the transcript. A hook meant to enforce policy must explicitly exit 2.",
       "sourceRef": "D2 Lesson 2 — Hooks and lifecycle events"
+    },
+    {
+      "id": "q-d2-006",
+      "domainId": "d2",
+      "type": "single",
+      "difficulty": "medium",
+      "stem": "A team wants a PR-review process that runs automatically whenever a new pull request opens, with no CI pipeline of their own to hook into, and that keeps working even when nobody's laptop is on. What fits best?",
+      "choices": [
+        {"id": "a", "text": "A Claude Code Routine with a GitHub trigger"},
+        {"id": "b", "text": "A PreToolUse hook"},
+        {"id": "c", "text": "Headless mode invoked manually by a developer"},
+        {"id": "d", "text": "A subagent with isolation: worktree"}
+      ],
+      "correct": ["a"],
+      "explanation": "A Routine is a saved Claude Code configuration that runs on Anthropic-managed cloud infrastructure and can be triggered by GitHub events (like pull_request.opened), scheduled cadence, or an API call — exactly suited to unattended automation with no existing pipeline and no dependency on a specific machine being on.",
+      "sourceRef": "D2 Lesson 5 — Automating with Routines"
     },
 
     {

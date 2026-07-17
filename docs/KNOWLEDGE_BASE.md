@@ -2,7 +2,7 @@
 
 Generated from `content/packs/ccar-f/*.json` — the single source of truth. Regenerate this file after editing the JSON rather than hand-editing it directly.
 
-**Read `content/SOURCES.md` first** for provenance and known gaps (D2 and D1's workflow-pattern lesson are based on trained knowledge, not a fresh fetch this session, because `code.claude.com` and the Anthropic engineering blog were unreachable).
+**Read `content/SOURCES.md` first** for provenance. As of v2, D1 and D2 have both been verified against a fresh crawl of official docs (168 pages of code.claude.com plus the Anthropic engineering blog); D3/D4/D5 were verified in v1. The one remaining unverified fact is the exam format itself (question count/time/pass score) — see SOURCES.md's "Remaining known gap" section.
 
 ## Exam overview
 
@@ -88,30 +88,27 @@ Add checkpoints for consequential actions. Human-in-the-loop approval before irr
 
 ### D2 — Claude Code Configuration & Workflows (20%)
 
-_CLAUDE.md memory hierarchy and imports; settings and permissions; hooks and lifecycle events; subagents; slash commands; Agent Skills; MCP in Claude Code; headless/print mode for CI and automation._
+_CLAUDE.md and auto memory (two complementary, concatenated-not-overriding memory systems); .claude/rules/; hooks and lifecycle events with precise exit-code semantics; subagents; Skills (which now subsume custom slash commands); headless/print mode for CI; Routines for scheduled/event-driven automation._
 
-#### D2.1 CLAUDE.md and the memory hierarchy (8 min)
+#### D2.1 CLAUDE.md and auto memory (9 min)
 
-`CLAUDE.md` is a special file Claude Code pulls into context automatically at the start of a session. Use it for durable project knowledge: build/test commands, architecture notes, conventions, and 'gotchas' you'd tell a new teammate.
+Claude Code has TWO complementary memory systems, both loaded at the start of every session. **CLAUDE.md files** are instructions YOU write (coding standards, architecture, workflows). **Auto memory** is notes CLAUDE writes itself — build commands, debugging insights, and preferences it discovers from your corrections — with zero authoring effort from you.
 
-Memory is layered, most-specific wins on conflicts, and all applicable layers are combined:
+CLAUDE.md files can live at several scopes, listed here from broadest to most specific: **managed policy** (org-wide, IT-deployed), **user** (`~/.claude/CLAUDE.md`, all your projects), **project** (`./CLAUDE.md` or `./.claude/CLAUDE.md`, shared via git), and **local** (`./CLAUDE.local.md`, personal and gitignored — NOT deprecated, still fully supported).
 
-```text
-Enterprise policy   (system-wide managed file)      broadest
-Project memory      ./CLAUDE.md (checked into git, shared)
-User memory         ~/.claude/CLAUDE.md (all your projects)
-Project-local       CLAUDE.local.md (deprecated; use imports)   narrowest
-```
+> **Exam key point:** Common misconception: memory scopes do NOT override each other. All discovered files are CONCATENATED into context, ordered broadest-to-most-specific so project-level instructions are read last (closest to the conversation). If two files genuinely conflict, Claude may pick one arbitrarily — there's no 'most specific wins' resolution rule.
 
-Files can pull in others with `@path/to/file` imports, letting you keep CLAUDE.md short and reference deeper docs on demand. Project memory is committed so the whole team shares it; user memory is personal and applies across every project you open.
+Files can pull in others with `@path/to/file` imports (max depth 4 hops). For large projects, `.claude/rules/` lets you split instructions into topic files, optionally scoped to specific paths via YAML frontmatter (`paths: ["src/api/**/*.ts"]`) so a rule only loads into context when Claude touches matching files — this saves context compared to one giant CLAUDE.md.
 
-> **Exam key point:** CLAUDE.md is guidance the model SHOULD follow but MAY not, because it is instruction text. When you need something to happen deterministically — every time, no exceptions — use a hook instead (next lesson). This 'guidance vs. determinism' contrast is a frequent exam point.
+**Auto memory** lives at `~/.claude/projects/<project>/memory/`, machine-local and shared across worktrees of the same repo. `MEMORY.md` is the index — only its first 200 lines / 25KB load at session start; deeper topic files load on demand when Claude reads them. Auto memory is on by default; toggle it in `/memory` or via `autoMemoryEnabled` in settings.
+
+Both systems are delivered as context (a user message after the system prompt), not enforced configuration — Claude tries to follow them but compliance isn't guaranteed. When something MUST happen every time regardless of what the model decides, use a hook instead (next lesson).
 
 #### D2.2 Hooks and lifecycle events (9 min)
 
-Hooks are user-defined shell commands that run at fixed points in Claude Code's lifecycle. Unlike CLAUDE.md instructions, hooks are **deterministic**: they always execute. Configure them in settings (e.g. `.claude/settings.json`).
+Hooks are user-defined commands that run at fixed points in Claude Code's lifecycle. Unlike CLAUDE.md/auto memory, hooks are enforced regardless of what Claude decides — configure them in settings files (e.g. `.claude/settings.json`).
 
-Key lifecycle events include: **PreToolUse** (before a tool runs — can block it), **PostToolUse** (after a tool succeeds — e.g. auto-format edited files), **UserPromptSubmit** (when you submit a prompt — can inject context or validate), **Notification**, **Stop** and **SubagentStop** (when the agent/subagent finishes), **SessionStart** and **SessionEnd**, and **PreCompact** (before context is compacted).
+There are far more hook events than the handful people usually name: session events (**SessionStart**, **Setup**, **SessionEnd**), prompt events (**UserPromptSubmit**, **UserPromptExpansion**), tool events (**PreToolUse**, **PermissionRequest**, **PostToolUse**, **PostToolUseFailure**, **PostToolBatch**, **PermissionDenied**), agent-loop events (**Stop**, **StopFailure**, **SubagentStart**, **SubagentStop**, **TaskCreated**, **TaskCompleted**), and context events (**PreCompact**, **PostCompact**). Each event's data determines whether it CAN block an action at all — e.g. `PostToolUse` fires after the tool already ran, so it can only show Claude an error, not prevent the call.
 
 ```json
 {
@@ -124,25 +121,25 @@ Key lifecycle events include: **PreToolUse** (before a tool runs — can block i
 }
 ```
 
-A PreToolUse hook's exit code controls flow: exit 0 allows the tool, a non-zero blocking exit stops it and feeds the reason back to Claude. This is how you enforce policy — for example, blocking edits to protected paths or refusing to run destructive commands.
+> **Exam key point:** Exit-code semantics are precise and a favorite exam trap: exit 0 = success (stdout may carry JSON). Exit 2 SPECIFICALLY = blocking error (stderr is fed back as the reason; for PreToolUse this blocks the tool call). Any OTHER non-zero exit — including exit 1 — is a NON-blocking error: it's surfaced in the transcript but execution continues. 'Use exit 1 to block' is a wrong-answer distractor.
 
-> **Exam key point:** Reach for a hook when you need a guarantee: run tests after every change, format on save, block secrets from being committed. Reach for CLAUDE.md when you want to guide judgment. Deterministic → hook; advisory → memory.
+Which events can even block varies: PreToolUse, PermissionRequest, UserPromptSubmit, Stop, SubagentStop, and PreCompact can all block via exit 2. Events like Notification, SessionStart, and PostToolUse cannot block anything — they only inform (Claude, or just the user).
 
-#### D2.3 Subagents, slash commands, and Skills (8 min)
+#### D2.3 Subagents and Skills (commands are now part of Skills) (9 min)
 
-**Subagents** are specialized assistants Claude Code can delegate to, each defined by a markdown file (in `.claude/agents/`) with frontmatter declaring its name, description, allowed tools, and system prompt. A subagent runs with its OWN context window, which keeps the main thread's context clean — delegate large searches or reviews to a subagent so their file dumps don't crowd the main conversation.
+**Subagents** are specialized assistants with their own context window, system prompt, tools, and permissions, defined as a markdown file with YAML frontmatter in `.claude/agents/` (project) or `~/.claude/agents/` (user). Only `name` and `description` are required; optional fields include `tools`, `model`, `permissionMode`, `mcpServers`, `maxTurns`, and `memory` (gives a subagent its OWN persistent auto memory scope). Delegate to a subagent when a side task would flood your main conversation with logs or file contents you won't reference again.
 
-**Slash commands** are reusable prompt templates stored as markdown in `.claude/commands/` (project) or `~/.claude/commands/` (personal). Typing `/name` expands the template; `$ARGUMENTS` injects parameters. Use them to standardize repeated workflows like `/review` or `/write-tests`.
+**Skills** package instructions (and optional scripts/resources) behind a `SKILL.md` file, loaded on demand rather than kept in context permanently — the mechanism is called progressive disclosure. Create a skill when you keep pasting the same multi-step procedure into chat, or when a CLAUDE.md entry has grown from a fact into a whole procedure.
 
-**Agent Skills** package instructions, metadata, and optional scripts/resources into a folder with a `SKILL.md` file. They are filesystem-based and load on demand, giving Claude domain expertise without repeating guidance every conversation. Skills work across Claude Code, the API, and claude.ai.
+> **Exam key point:** Important correction to a common assumption: slash commands and Skills are now the SAME mechanism, not two separate ones. A file at `.claude/commands/deploy.md` and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and behave the same way — Claude Code merged custom commands into Skills. Old `commands/` files still work; Skills just add optional frontmatter (who can invoke it, supporting files, subagent execution).
 
-> **Exam key point:** Subagent = isolated context + delegation; Slash command = reusable prompt you invoke; Skill = packaged, auto-loaded capability. Match the tool to the need: context isolation, prompt reuse, or reusable expertise.
+Skills follow the open Agent Skills standard, so they aren't Claude Code-specific — the same skill format works across tools that adopt it. Claude invokes a skill automatically when it judges it relevant, or a user invokes one explicitly with `/skill-name`.
 
 #### D2.4 Headless mode, permissions, and CI (7 min)
 
-Headless (print) mode runs Claude Code non-interactively for scripts and CI: `claude -p "<prompt>"`. Add `--output-format json` (or `stream-json`) to get machine-readable results you can parse in a pipeline.
+Headless (print) mode runs Claude Code non-interactively for scripts and CI: `claude -p "<prompt>"`. Add `--output-format json` (or `stream-json`) to get machine-readable results you can parse in a pipeline. This confirmed detail hasn't changed: it's the standard way to invoke Claude Code from a script.
 
-Permissions govern what Claude may do without asking. Modes range from prompting on every action to accepting edits automatically; you can allow/deny specific tools and command patterns in settings. In CI you typically pre-authorize a narrow allowlist so runs don't hang waiting for confirmation.
+Permissions govern what Claude may do without asking, via permission modes (`default`, `acceptEdits`, `plan`, `bypassPermissions`, and more) plus explicit allow/deny rules on specific tools and command patterns. In CI you typically pre-authorize a narrow allowlist (e.g. `--allowedTools "Read,Edit,Bash"`) so runs don't hang waiting for confirmation.
 
 ```bash
 # Non-interactive review in CI, JSON output
@@ -151,6 +148,14 @@ claude -p "Review the diff on this branch and list correctness bugs" \
 ```
 
 > **Exam key point:** Headless mode + a tight permission allowlist + hooks is the standard recipe for automation (PR review bots, scheduled agents). Never grant broad auto-approval in an environment that can reach production.
+
+#### D2.5 Automating with Routines (6 min)
+
+A Routine is a saved Claude Code configuration — a prompt, one or more repositories, and a set of connectors — packaged once and run automatically on Anthropic-managed cloud infrastructure, so it keeps working even when your machine is off.
+
+A Routine can combine multiple trigger types: **Scheduled** (cron-like recurring cadence, or a one-time future run), **API** (an HTTP POST to a per-routine endpoint with a bearer token), and **GitHub** (reacting to repo events like a new pull request). A single routine isn't limited to one trigger — a PR-review routine could run nightly AND react to every new PR.
+
+> **Exam key point:** Routines vs. headless CI (previous lesson): headless mode (`claude -p`) is YOU invoking Claude Code from your own script/pipeline. A Routine is Claude Code invoking ITSELF on a schedule or event, on Anthropic's infrastructure, with no pipeline of yours required. Reach for a Routine when there's no existing CI/cron system to hook into, or when you want it to survive your laptop being off.
 
 
 ### D3 — Prompt Engineering & Structured Output (20%)
@@ -349,25 +354,25 @@ The **memory tool** lets Claude persist information outside the context window �
 - — **C.** A slash command the user has to remember to invoke
 - — **D.** A more detailed system prompt
 
-*Explanation:* Hooks are deterministic shell commands that always fire at a lifecycle event — unlike CLAUDE.md instructions, which the model may or may not follow. A PostToolUse hook guarantees the test command runs after every matching edit. _(Source: D2 Lesson 2 — Hooks and lifecycle events)_
+*Explanation:* Hooks are enforced regardless of what Claude decides — unlike CLAUDE.md/auto memory instructions, which the model may or may not follow. A PostToolUse hook guarantees the test command runs after every matching edit. _(Source: D2 Lesson 2 — Hooks and lifecycle events)_
 
-**Q2. (medium, single-answer)** A project's CLAUDE.md and a developer's personal ~/.claude/CLAUDE.md both define a coding convention, and they conflict. Which wins?
+**Q2. (medium, single-answer)** A project's CLAUDE.md and a developer's personal ~/.claude/CLAUDE.md both define a coding convention, and they conflict. What actually happens?
 
 - — **A.** User memory always overrides project memory
-- ✅ **B.** The most specific (narrowest-scope) memory file wins
-- — **C.** They are merged alphabetically
+- — **B.** The most specific (narrowest-scope) memory file automatically wins
+- ✅ **C.** Both files are concatenated into context (broadest to most specific); on a genuine conflict Claude may pick one arbitrarily, with no built-in override rule
 - — **D.** Enterprise policy always wins regardless of scope
 
-*Explanation:* Claude Code's memory hierarchy combines all applicable layers, with the most specific scope taking precedence on conflicts. Project memory is more specific than user (cross-project) memory, so it wins for that project. _(Source: D2 Lesson 1 — CLAUDE.md and the memory hierarchy)_
+*Explanation:* Claude Code does NOT override narrower scopes over broader ones. All applicable CLAUDE.md files are concatenated into context, ordered from broadest (managed policy) to most specific (project/local) so specific instructions are read last — but a genuine conflict has no automatic resolution; Claude may pick one arbitrarily. This is a common misconception worth memorizing precisely. _(Source: D2 Lesson 1 — CLAUDE.md and auto memory)_
 
 **Q3. (medium, multi-answer)** Which of the following correctly describe Claude Code's extension mechanisms? (Select all that apply)
 
 - ✅ **A.** A subagent runs with its own separate context window
-- ✅ **B.** A slash command is a reusable prompt template invoked with /name
-- ✅ **C.** An Agent Skill is defined by a SKILL.md file and loads on demand
+- ✅ **B.** Slash commands and Agent Skills are now the same underlying mechanism — a commands/ file and a skills/ SKILL.md both create the same /name invocation
+- ✅ **C.** An Agent Skill loads on demand rather than staying in context permanently
 - — **D.** Hooks and CLAUDE.md instructions provide the exact same guarantee of execution
 
-*Explanation:* Subagents isolate context, slash commands are invocable prompt templates, and Skills package instructions/resources behind a SKILL.md loaded on demand. Hooks and CLAUDE.md are NOT equivalent — hooks are deterministic; CLAUDE.md is advisory. _(Source: D2 Lesson 3 — Subagents, slash commands, and Skills)_
+*Explanation:* Subagents isolate context. Custom commands have been merged into Skills — a legacy .claude/commands/deploy.md and a .claude/skills/deploy/SKILL.md both produce /deploy and behave the same way. Skills use progressive disclosure, loading only when invoked or judged relevant. Hooks and CLAUDE.md are NOT equivalent — hooks are enforced; CLAUDE.md/auto memory are advisory context. _(Source: D2 Lesson 3 — Subagents and Skills (commands are now part of Skills))_
 
 **Q4. (medium, single-answer)** You want to run Claude Code as part of a CI pipeline and parse its result programmatically. What is the correct approach?
 
@@ -378,14 +383,23 @@ The **memory tool** lets Claude persist information outside the context window �
 
 *Explanation:* Headless/print mode (claude -p "...") runs Claude Code non-interactively for scripts and CI, and --output-format json (or stream-json) gives machine-readable output suitable for pipeline parsing. _(Source: D2 Lesson 4 — Headless mode, permissions, and CI)_
 
-**Q5. (hard, single-answer)** A PreToolUse hook exits with a non-zero 'blocking' exit code. What happens?
+**Q5. (hard, single-answer)** A PreToolUse hook script exits with code 1. What happens to the tool call?
 
-- — **A.** The tool call proceeds anyway; hooks can't block tools
-- ✅ **B.** The tool call is stopped and the reason is fed back to Claude
+- — **A.** It's blocked, because any non-zero exit code blocks a PreToolUse hook
+- ✅ **B.** It proceeds — exit 1 is a non-blocking error; only exit code 2 specifically blocks the tool call
 - — **C.** Claude Code crashes and the session ends
 - — **D.** The hook is retried automatically up to 3 times
 
-*Explanation:* A PreToolUse hook's exit code controls flow: a blocking non-zero exit stops the tool call and surfaces the reason back to Claude, which is how hooks enforce policy (e.g. blocking edits to protected paths). _(Source: D2 Lesson 2 — Hooks and lifecycle events)_
+*Explanation:* Only exit code 2 is treated as a blocking error in Claude Code hooks. Exit code 1 — despite being the conventional Unix failure code — is a NON-blocking error: the tool call proceeds, with the failure surfaced in the transcript. A hook meant to enforce policy must explicitly exit 2. _(Source: D2 Lesson 2 — Hooks and lifecycle events)_
+
+**Q6. (medium, single-answer)** A team wants a PR-review process that runs automatically whenever a new pull request opens, with no CI pipeline of their own to hook into, and that keeps working even when nobody's laptop is on. What fits best?
+
+- ✅ **A.** A Claude Code Routine with a GitHub trigger
+- — **B.** A PreToolUse hook
+- — **C.** Headless mode invoked manually by a developer
+- — **D.** A subagent with isolation: worktree
+
+*Explanation:* A Routine is a saved Claude Code configuration that runs on Anthropic-managed cloud infrastructure and can be triggered by GitHub events (like pull_request.opened), scheduled cadence, or an API call — exactly suited to unattended automation with no existing pipeline and no dependency on a specific machine being on. _(Source: D2 Lesson 5 — Automating with Routines)_
 
 
 ### D3 — Prompt Engineering & Structured Output
@@ -560,15 +574,18 @@ The **memory tool** lets Claude persist information outside the context window �
 
 ### Claude Code
 
-- **Agent Skill** — A modular, filesystem-based capability packaged with a SKILL.md file plus optional scripts and resources, loaded on demand ('progressive disclosure') rather than kept in context at all times.
-- **CLAUDE.md** — A special file Claude Code automatically loads into context at the start of a session, used for durable project knowledge such as build commands, architecture notes, and conventions. Instructions in it are advisory, not guaranteed.
+- **.claude/rules/** — A directory for splitting CLAUDE.md content into topic files, optionally scoped to specific file paths via YAML frontmatter so a rule only loads into context when Claude touches matching files.
+- **Agent Skill** — A modular, filesystem-based capability packaged with a SKILL.md file plus optional scripts and resources, loaded on demand rather than kept in context at all times. Custom slash commands are now part of this same system.
+- **Auto memory** — Notes Claude writes itself as it works (build commands, debugging insights, discovered preferences), stored at ~/.claude/projects/<project>/memory/ and loaded automatically — no authoring effort required, unlike CLAUDE.md.
+- **CLAUDE.md** — A markdown file YOU write giving Claude persistent instructions (coding standards, architecture, workflows), loaded at the start of every session. Advisory context, not enforced — for guaranteed behavior use a hook.
 - **Headless (print) mode** — Non-interactive Claude Code execution via `claude -p "<prompt>"`, typically with --output-format json, used for scripting and CI pipelines.
-- **Hook** — A user-defined shell command that runs deterministically at a fixed point in Claude Code's lifecycle (e.g. PreToolUse, PostToolUse), unlike CLAUDE.md instructions which the model may or may not follow.
-- **Memory hierarchy** — The layered precedence of Claude Code memory files — enterprise policy, project (CLAUDE.md), and user (~/.claude/CLAUDE.md) — where more specific scopes take precedence on conflicts.
+- **Hook** — A user-defined command that runs at a fixed point in Claude Code's lifecycle and is enforced regardless of what Claude decides, unlike CLAUDE.md/auto memory which the model may or may not follow.
+- **Memory scopes** — CLAUDE.md's four scopes — managed policy, user, project, local — ordered broadest to most specific. All applicable files are CONCATENATED into context, not overridden; there is no automatic 'most specific wins' conflict resolution.
 - **Permissions** — Claude Code settings that govern which tools and commands may run without asking the user for confirmation, configurable via allow/deny lists — especially important to scope narrowly in CI.
-- **PostToolUse** — A hook event that fires after a tool call completes successfully — commonly used to auto-format or lint edited files.
-- **PreToolUse** — A hook event that fires before a tool call executes. A blocking non-zero exit code stops the tool call and returns the reason to Claude.
-- **Slash command** — A reusable prompt template stored as markdown and invoked by typing /name, optionally with arguments injected via $ARGUMENTS.
+- **PostToolUse** — A hook event that fires after a tool call completes successfully. It cannot block the call (which already happened) — commonly used to auto-format or lint edited files.
+- **PreToolUse** — A hook event that fires before a tool call executes. Exit code 2 specifically blocks the call and returns the reason to Claude; other non-zero exits are non-blocking.
+- **Routine** — A saved Claude Code configuration (prompt + repos + connectors) that runs automatically on Anthropic-managed cloud infrastructure, triggered on a schedule, an API call, or GitHub events — distinct from headless mode, which you invoke yourself from your own pipeline.
+- **Slash command / Skill** — Custom commands and Agent Skills are now the same mechanism: a .claude/commands/name.md file and a .claude/skills/name/SKILL.md both create /name and behave the same way. Skills add optional frontmatter and load on demand ('progressive disclosure').
 
 ### MCP
 

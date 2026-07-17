@@ -33,12 +33,12 @@ repetition, mock exam timer/scoring, settings, content-pack updater).
 
 ## Known gaps carried over from the content pack
 
-`content/SOURCES.md` documents ~27% of the CCAR-F knowledge base (all of
-D2, plus D1's workflow-patterns lesson) as unverified against official docs
-that were unreachable from this session (`code.claude.com`, the Anthropic
-engineering blog). Re-verify before treating lesson/question content as
-exam-accurate — this doesn't block building or running the app, only the
-correctness of what it teaches.
+As of content pack v2, D1 and D2 are both verified against official docs
+(see `content/SOURCES.md`). The one remaining gap is the exam format itself
+(question count/time limit/pass score/domain weights in `guide.json` and
+`domains.json`) — still sourced from web-search summaries, not a direct
+fetch of Anthropic's certification pages. This doesn't block building or
+running the app, only the correctness of what it teaches.
 
 ## Building locally
 

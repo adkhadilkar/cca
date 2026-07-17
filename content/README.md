@@ -6,33 +6,35 @@ content pack per `docs/DEVELOPMENT_DESIGN.md` §6.
 ```
 content/
 ├── SOURCES.md              Provenance log: every source used, with gaps flagged
-├── packs/ccar-f/           The v1 content pack for the Foundations track
-│   ├── manifest.json       Pack metadata, counts, source list
+├── packs/ccar-f/           The v2 content pack for the Foundations track
+│   ├── manifest.json       Pack metadata, counts, source list, changelog
 │   ├── domains.json        Track info + 5 domains with weights
 │   ├── guide.json          Exam guide screen content
-│   ├── lessons.json        18 lessons across the 5 domains
-│   ├── questions.json      25 practice questions with explanations
-│   └── glossary.json       46 glossary terms across 4 categories
+│   ├── lessons.json        19 lessons across the 5 domains
+│   ├── questions.json      26 practice questions with explanations
+│   └── glossary.json       49 glossary terms across 4 categories
 └── README.md                This file
 ```
 
 A human-readable rollup of the same content lives at
 `docs/KNOWLEDGE_BASE.md` for easy review without parsing JSON.
 
-## Status: v1 draft — needs re-verification
+## Status: v2 — D1 and D2 verified
 
-This pack was authored from official Anthropic docs that were reachable from
-the authoring session's network (`platform.claude.com`). Two categories of
-source were **not** reachable and so are based on trained knowledge rather
-than a fresh fetch — **read `SOURCES.md` "Known gaps" before treating this as
-exam-ready**:
+v1 shipped with D2 (and D1 Lesson 2) authored from trained knowledge because
+`code.claude.com` and `www.anthropic.com` were unreachable from the authoring
+session's network. v2 closes that gap: the user ran a crawler from their own
+machine against `code.claude.com/docs` (168 pages) and the engineering blog,
+and uploaded the result. D1 Lesson 2 was confirmed accurate as originally
+written; D2 needed real corrections (memory-scope concatenation vs.
+"most-specific-wins", missing auto memory, wrong hook exit-code semantics,
+commands-merged-into-Skills, and a new Routines topic) — see `SOURCES.md`
+and `manifest.json`'s changelog for the full list.
 
-1. `code.claude.com` (Claude Code's own docs) — affects all of **D2**.
-2. The "Building effective agents" engineering blog post — affects **D1
-   Lesson 2** (the five workflow patterns).
-
-Everything else (D3, D4, D5, and D1's multiagent/reliability lessons) is
-grounded in documentation fetched directly in this session.
+**Remaining known gap:** the exam format itself (60 questions / 120 min /
+720 pass score / domain weights) is still sourced from web-search summaries
+of Pearson VUE's page, not a direct fetch. See `SOURCES.md` "Remaining known
+gap" before treating `guide.json` as authoritative.
 
 ## Content model
 

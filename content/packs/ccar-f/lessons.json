@@ -62,14 +62,15 @@
       "id": "d2-l1",
       "domainId": "d2",
       "orderIndex": 1,
-      "title": "CLAUDE.md and the memory hierarchy",
-      "estMinutes": 8,
+      "title": "CLAUDE.md and auto memory",
+      "estMinutes": 9,
       "body": [
-        {"type": "text", "value": "`CLAUDE.md` is a special file Claude Code pulls into context automatically at the start of a session. Use it for durable project knowledge: build/test commands, architecture notes, conventions, and 'gotchas' you'd tell a new teammate."},
-        {"type": "text", "value": "Memory is layered, most-specific wins on conflicts, and all applicable layers are combined:"},
-        {"type": "code", "language": "text", "value": "Enterprise policy   (system-wide managed file)      broadest\nProject memory      ./CLAUDE.md (checked into git, shared)\nUser memory         ~/.claude/CLAUDE.md (all your projects)\nProject-local       CLAUDE.local.md (deprecated; use imports)   narrowest"},
-        {"type": "text", "value": "Files can pull in others with `@path/to/file` imports, letting you keep CLAUDE.md short and reference deeper docs on demand. Project memory is committed so the whole team shares it; user memory is personal and applies across every project you open."},
-        {"type": "callout", "variant": "exam-key", "value": "CLAUDE.md is guidance the model SHOULD follow but MAY not, because it is instruction text. When you need something to happen deterministically — every time, no exceptions — use a hook instead (next lesson). This 'guidance vs. determinism' contrast is a frequent exam point."}
+        {"type": "text", "value": "Claude Code has TWO complementary memory systems, both loaded at the start of every session. **CLAUDE.md files** are instructions YOU write (coding standards, architecture, workflows). **Auto memory** is notes CLAUDE writes itself — build commands, debugging insights, and preferences it discovers from your corrections — with zero authoring effort from you."},
+        {"type": "text", "value": "CLAUDE.md files can live at several scopes, listed here from broadest to most specific: **managed policy** (org-wide, IT-deployed), **user** (`~/.claude/CLAUDE.md`, all your projects), **project** (`./CLAUDE.md` or `./.claude/CLAUDE.md`, shared via git), and **local** (`./CLAUDE.local.md`, personal and gitignored — NOT deprecated, still fully supported)."},
+        {"type": "callout", "variant": "exam-key", "value": "Common misconception: memory scopes do NOT override each other. All discovered files are CONCATENATED into context, ordered broadest-to-most-specific so project-level instructions are read last (closest to the conversation). If two files genuinely conflict, Claude may pick one arbitrarily — there's no 'most specific wins' resolution rule."},
+        {"type": "text", "value": "Files can pull in others with `@path/to/file` imports (max depth 4 hops). For large projects, `.claude/rules/` lets you split instructions into topic files, optionally scoped to specific paths via YAML frontmatter (`paths: [\"src/api/**/*.ts\"]`) so a rule only loads into context when Claude touches matching files — this saves context compared to one giant CLAUDE.md."},
+        {"type": "text", "value": "**Auto memory** lives at `~/.claude/projects/<project>/memory/`, machine-local and shared across worktrees of the same repo. `MEMORY.md` is the index — only its first 200 lines / 25KB load at session start; deeper topic files load on demand when Claude reads them. Auto memory is on by default; toggle it in `/memory` or via `autoMemoryEnabled` in settings."},
+        {"type": "text", "value": "Both systems are delivered as context (a user message after the system prompt), not enforced configuration — Claude tries to follow them but compliance isn't guaranteed. When something MUST happen every time regardless of what the model decides, use a hook instead (next lesson)."}
       ]
     },
     {
@@ -79,24 +80,24 @@
       "title": "Hooks and lifecycle events",
       "estMinutes": 9,
       "body": [
-        {"type": "text", "value": "Hooks are user-defined shell commands that run at fixed points in Claude Code's lifecycle. Unlike CLAUDE.md instructions, hooks are **deterministic**: they always execute. Configure them in settings (e.g. `.claude/settings.json`)."},
-        {"type": "text", "value": "Key lifecycle events include: **PreToolUse** (before a tool runs — can block it), **PostToolUse** (after a tool succeeds — e.g. auto-format edited files), **UserPromptSubmit** (when you submit a prompt — can inject context or validate), **Notification**, **Stop** and **SubagentStop** (when the agent/subagent finishes), **SessionStart** and **SessionEnd**, and **PreCompact** (before context is compacted)."},
+        {"type": "text", "value": "Hooks are user-defined commands that run at fixed points in Claude Code's lifecycle. Unlike CLAUDE.md/auto memory, hooks are enforced regardless of what Claude decides — configure them in settings files (e.g. `.claude/settings.json`)."},
+        {"type": "text", "value": "There are far more hook events than the handful people usually name: session events (**SessionStart**, **Setup**, **SessionEnd**), prompt events (**UserPromptSubmit**, **UserPromptExpansion**), tool events (**PreToolUse**, **PermissionRequest**, **PostToolUse**, **PostToolUseFailure**, **PostToolBatch**, **PermissionDenied**), agent-loop events (**Stop**, **StopFailure**, **SubagentStart**, **SubagentStop**, **TaskCreated**, **TaskCompleted**), and context events (**PreCompact**, **PostCompact**). Each event's data determines whether it CAN block an action at all — e.g. `PostToolUse` fires after the tool already ran, so it can only show Claude an error, not prevent the call."},
         {"type": "code", "language": "json", "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [{\n      \"matcher\": \"Edit|Write\",\n      \"hooks\": [{\"type\": \"command\", \"command\": \"prettier --write $CLAUDE_FILE_PATHS\"}]\n    }]\n  }\n}"},
-        {"type": "text", "value": "A PreToolUse hook's exit code controls flow: exit 0 allows the tool, a non-zero blocking exit stops it and feeds the reason back to Claude. This is how you enforce policy — for example, blocking edits to protected paths or refusing to run destructive commands."},
-        {"type": "callout", "variant": "exam-key", "value": "Reach for a hook when you need a guarantee: run tests after every change, format on save, block secrets from being committed. Reach for CLAUDE.md when you want to guide judgment. Deterministic → hook; advisory → memory."}
+        {"type": "callout", "variant": "exam-key", "value": "Exit-code semantics are precise and a favorite exam trap: exit 0 = success (stdout may carry JSON). Exit 2 SPECIFICALLY = blocking error (stderr is fed back as the reason; for PreToolUse this blocks the tool call). Any OTHER non-zero exit — including exit 1 — is a NON-blocking error: it's surfaced in the transcript but execution continues. 'Use exit 1 to block' is a wrong-answer distractor."},
+        {"type": "text", "value": "Which events can even block varies: PreToolUse, PermissionRequest, UserPromptSubmit, Stop, SubagentStop, and PreCompact can all block via exit 2. Events like Notification, SessionStart, and PostToolUse cannot block anything — they only inform (Claude, or just the user)."}
       ]
     },
     {
       "id": "d2-l3",
       "domainId": "d2",
       "orderIndex": 3,
-      "title": "Subagents, slash commands, and Skills",
-      "estMinutes": 8,
+      "title": "Subagents and Skills (commands are now part of Skills)",
+      "estMinutes": 9,
       "body": [
-        {"type": "text", "value": "**Subagents** are specialized assistants Claude Code can delegate to, each defined by a markdown file (in `.claude/agents/`) with frontmatter declaring its name, description, allowed tools, and system prompt. A subagent runs with its OWN context window, which keeps the main thread's context clean — delegate large searches or reviews to a subagent so their file dumps don't crowd the main conversation."},
-        {"type": "text", "value": "**Slash commands** are reusable prompt templates stored as markdown in `.claude/commands/` (project) or `~/.claude/commands/` (personal). Typing `/name` expands the template; `$ARGUMENTS` injects parameters. Use them to standardize repeated workflows like `/review` or `/write-tests`."},
-        {"type": "text", "value": "**Agent Skills** package instructions, metadata, and optional scripts/resources into a folder with a `SKILL.md` file. They are filesystem-based and load on demand, giving Claude domain expertise without repeating guidance every conversation. Skills work across Claude Code, the API, and claude.ai."},
-        {"type": "callout", "variant": "exam-key", "value": "Subagent = isolated context + delegation; Slash command = reusable prompt you invoke; Skill = packaged, auto-loaded capability. Match the tool to the need: context isolation, prompt reuse, or reusable expertise."}
+        {"type": "text", "value": "**Subagents** are specialized assistants with their own context window, system prompt, tools, and permissions, defined as a markdown file with YAML frontmatter in `.claude/agents/` (project) or `~/.claude/agents/` (user). Only `name` and `description` are required; optional fields include `tools`, `model`, `permissionMode`, `mcpServers`, `maxTurns`, and `memory` (gives a subagent its OWN persistent auto memory scope). Delegate to a subagent when a side task would flood your main conversation with logs or file contents you won't reference again."},
+        {"type": "text", "value": "**Skills** package instructions (and optional scripts/resources) behind a `SKILL.md` file, loaded on demand rather than kept in context permanently — the mechanism is called progressive disclosure. Create a skill when you keep pasting the same multi-step procedure into chat, or when a CLAUDE.md entry has grown from a fact into a whole procedure."},
+        {"type": "callout", "variant": "exam-key", "value": "Important correction to a common assumption: slash commands and Skills are now the SAME mechanism, not two separate ones. A file at `.claude/commands/deploy.md` and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and behave the same way — Claude Code merged custom commands into Skills. Old `commands/` files still work; Skills just add optional frontmatter (who can invoke it, supporting files, subagent execution)."},
+        {"type": "text", "value": "Skills follow the open Agent Skills standard, so they aren't Claude Code-specific — the same skill format works across tools that adopt it. Claude invokes a skill automatically when it judges it relevant, or a user invokes one explicitly with `/skill-name`."}
       ]
     },
     {
@@ -106,10 +107,22 @@
       "title": "Headless mode, permissions, and CI",
       "estMinutes": 7,
       "body": [
-        {"type": "text", "value": "Headless (print) mode runs Claude Code non-interactively for scripts and CI: `claude -p \"<prompt>\"`. Add `--output-format json` (or `stream-json`) to get machine-readable results you can parse in a pipeline."},
-        {"type": "text", "value": "Permissions govern what Claude may do without asking. Modes range from prompting on every action to accepting edits automatically; you can allow/deny specific tools and command patterns in settings. In CI you typically pre-authorize a narrow allowlist so runs don't hang waiting for confirmation."},
+        {"type": "text", "value": "Headless (print) mode runs Claude Code non-interactively for scripts and CI: `claude -p \"<prompt>\"`. Add `--output-format json` (or `stream-json`) to get machine-readable results you can parse in a pipeline. This confirmed detail hasn't changed: it's the standard way to invoke Claude Code from a script."},
+        {"type": "text", "value": "Permissions govern what Claude may do without asking, via permission modes (`default`, `acceptEdits`, `plan`, `bypassPermissions`, and more) plus explicit allow/deny rules on specific tools and command patterns. In CI you typically pre-authorize a narrow allowlist (e.g. `--allowedTools \"Read,Edit,Bash\"`) so runs don't hang waiting for confirmation."},
         {"type": "code", "language": "bash", "value": "# Non-interactive review in CI, JSON output\nclaude -p \"Review the diff on this branch and list correctness bugs\" \\\n  --output-format json > review.json"},
         {"type": "callout", "variant": "exam-key", "value": "Headless mode + a tight permission allowlist + hooks is the standard recipe for automation (PR review bots, scheduled agents). Never grant broad auto-approval in an environment that can reach production."}
+      ]
+    },
+    {
+      "id": "d2-l5",
+      "domainId": "d2",
+      "orderIndex": 5,
+      "title": "Automating with Routines",
+      "estMinutes": 6,
+      "body": [
+        {"type": "text", "value": "A Routine is a saved Claude Code configuration — a prompt, one or more repositories, and a set of connectors — packaged once and run automatically on Anthropic-managed cloud infrastructure, so it keeps working even when your machine is off."},
+        {"type": "text", "value": "A Routine can combine multiple trigger types: **Scheduled** (cron-like recurring cadence, or a one-time future run), **API** (an HTTP POST to a per-routine endpoint with a bearer token), and **GitHub** (reacting to repo events like a new pull request). A single routine isn't limited to one trigger — a PR-review routine could run nightly AND react to every new PR."},
+        {"type": "callout", "variant": "exam-key", "value": "Routines vs. headless CI (previous lesson): headless mode (`claude -p`) is YOU invoking Claude Code from your own script/pipeline. A Routine is Claude Code invoking ITSELF on a schedule or event, on Anthropic's infrastructure, with no pipeline of yours required. Reach for a Routine when there's no existing CI/cron system to hook into, or when you want it to survive your laptop being off."}
       ]
     },
 

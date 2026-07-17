@@ -23,7 +23,7 @@
       "title": "Claude Code Configuration & Workflows",
       "weightPct": 20,
       "orderIndex": 2,
-      "summary": "CLAUDE.md memory hierarchy and imports; settings and permissions; hooks and lifecycle events; subagents; slash commands; Agent Skills; MCP in Claude Code; headless/print mode for CI and automation."
+      "summary": "CLAUDE.md and auto memory (two complementary, concatenated-not-overriding memory systems); .claude/rules/; hooks and lifecycle events with precise exit-code semantics; subagents; Skills (which now subsume custom slash commands); headless/print mode for CI; Routines for scheduled/event-driven automation."
     },
     {
       "id": "d3",
