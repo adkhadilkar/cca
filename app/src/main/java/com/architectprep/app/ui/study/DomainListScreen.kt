@@ -51,12 +51,33 @@ fun DomainListScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Study",
+                        color = colors.textPrimary,
+                        fontFamily = SerifFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 26.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .background(colors.neutralLight, RoundedCornerShape(999.dp))
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(text = "CCAR-F ▾", color = colors.textPrimary, fontFamily = MonoFontFamily, fontSize = 11.sp)
+                    }
+                }
+                val totalDone = rows.sumOf { it.lessonsDone }
+                val totalLessons = rows.sumOf { it.lessonsTotal }
                 Text(
-                    text = "Study",
-                    color = colors.textPrimary,
-                    fontFamily = SerifFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 26.sp
+                    text = "$totalDone of $totalLessons lessons complete",
+                    color = colors.textSecondary,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
             items(rows) { row -> DomainProgressCard(row, onClick = { onDomainClick(row.id) }) }

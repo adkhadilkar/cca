@@ -20,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +28,10 @@ import com.architectprep.app.domain.Grade
 import com.architectprep.app.ui.theme.LocalAppColors
 import com.architectprep.app.ui.theme.MonoFontFamily
 import com.architectprep.app.ui.theme.SerifFontFamily
+
+// Grade-button semantic colors, fixed across both themes (design/App Screens.dc.html #05).
+private val GradeHard = Color(0xFFA0742C)
+private val GradeEasy = Color(0xFF3E6B8A)
 
 @Composable
 fun FlashcardsScreen(viewModel: FlashcardsViewModel, onExit: () -> Unit) {
@@ -122,9 +127,9 @@ fun FlashcardsScreen(viewModel: FlashcardsViewModel, onExit: () -> Unit) {
         if (s.flipped) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 GradeButton("Again", "1 min", colors.accentMuted, Modifier.weight(1f)) { viewModel.grade(Grade.AGAIN) }
-                GradeButton("Hard", "2 d", colors.accent, Modifier.weight(1f)) { viewModel.grade(Grade.HARD) }
+                GradeButton("Hard", "2 d", GradeHard, Modifier.weight(1f)) { viewModel.grade(Grade.HARD) }
                 GradeButton("Good", "4 d", colors.success, Modifier.weight(1f)) { viewModel.grade(Grade.GOOD) }
-                GradeButton("Easy", "8 d", colors.textSecondary, Modifier.weight(1f)) { viewModel.grade(Grade.EASY) }
+                GradeButton("Easy", "8 d", GradeEasy, Modifier.weight(1f)) { viewModel.grade(Grade.EASY) }
             }
         } else {
             Box(modifier = Modifier.fillMaxWidth().height(58.dp))

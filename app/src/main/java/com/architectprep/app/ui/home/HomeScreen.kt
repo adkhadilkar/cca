@@ -23,16 +23,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.architectprep.app.ui.theme.HeroText
+import com.architectprep.app.ui.theme.HeroTextMuted
 import com.architectprep.app.ui.theme.LocalAppColors
 import com.architectprep.app.ui.theme.MonoFontFamily
 import com.architectprep.app.ui.theme.SerifFontFamily
-
-private val HeroText = Color(0xFFF5F1E8)
-private val HeroTextMuted = Color(0xFFA8A190)
 
 @Composable
 fun HomeScreen(
