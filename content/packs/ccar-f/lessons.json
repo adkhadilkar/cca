@@ -1,0 +1,251 @@
+{
+  "lessons": [
+    {
+      "id": "d1-l1",
+      "domainId": "d1",
+      "orderIndex": 1,
+      "title": "Workflows vs. agents vs. the augmented LLM",
+      "estMinutes": 8,
+      "body": [
+        {"type": "text", "value": "The foundation of agentic design is a single distinction. **Workflows** are systems where LLMs and tools are orchestrated through predefined code paths — you decide the steps in advance. **Agents** are systems where the LLM dynamically directs its own process and tool usage, deciding at runtime what to do next and when it is done."},
+        {"type": "text", "value": "Both are built on the **augmented LLM**: a model enhanced with retrieval (fetching relevant information), tools (calling functions), and memory (persisting state). The augmented LLM is the primitive; workflows and agents are ways of composing it."},
+        {"type": "callout", "variant": "exam-key", "value": "The exam rewards choosing the SIMPLEST thing that works. Reach for a single well-prompted LLM call first, then a workflow, and only then an autonomous agent. Agents trade higher cost, latency, and unpredictability for flexibility — use them only when the task genuinely requires dynamic decision-making over an unknown number of steps."},
+        {"type": "text", "value": "Use a **workflow** when the task decomposes into fixed, predictable steps (e.g. classify → route → respond). Use an **agent** when the path can't be hardcoded — the number and order of steps depends on inputs discovered along the way, such as an autonomous coding task that explores a repo before editing."},
+        {"type": "text", "value": "A **conversational system** simply exchanges turns with a user and may call tools, but does not pursue a goal autonomously across many steps. Knowing which of the three a scenario describes is often the whole question."}
+      ]
+    },
+    {
+      "id": "d1-l2",
+      "domainId": "d1",
+      "orderIndex": 2,
+      "title": "The five workflow patterns",
+      "estMinutes": 10,
+      "body": [
+        {"type": "text", "value": "Anthropic's 'Building effective agents' guidance names five composable workflow patterns. Recognize each by its shape."},
+        {"type": "text", "value": "**1. Prompt chaining** — decompose a task into a fixed sequence of steps, each LLM call processing the previous output. Add programmatic 'gate' checks between steps. Use when a task cleanly splits into ordered subtasks (e.g. write an outline, then write the doc). Trades latency for accuracy."},
+        {"type": "text", "value": "**2. Routing** — classify an input, then direct it to a specialized follow-up prompt or model. Use when inputs fall into distinct categories better handled separately (e.g. refund vs. technical-support tickets), or to send easy queries to a cheaper model and hard ones to a stronger one."},
+        {"type": "text", "value": "**3. Parallelization** — run subtasks simultaneously. Two variants: **sectioning** splits a task into independent parts run in parallel (e.g. one call answers, another screens for policy violations); **voting** runs the same task several times to get diverse outputs and aggregates them (e.g. multiple code-review passes)."},
+        {"type": "text", "value": "**4. Orchestrator-workers** — a central LLM dynamically breaks a task into subtasks, delegates them to worker LLMs, and synthesizes the results. Unlike parallelization, the subtasks are NOT known up front — the orchestrator decides them at runtime. Good for coding changes that touch an unpredictable set of files."},
+        {"type": "text", "value": "**5. Evaluator-optimizer** — one LLM generates a response while another evaluates it and gives feedback in a loop, iterating until the evaluator is satisfied. Use when you have clear evaluation criteria and iterative refinement measurably helps (e.g. literary translation, complex search)."},
+        {"type": "callout", "variant": "exam-key", "value": "Orchestrator-workers vs. parallelization is a classic distinction: parallelization runs a FIXED, predefined set of subtasks; the orchestrator DECIDES the subtasks dynamically. If the scenario says 'the number of subtasks isn't known in advance,' it's orchestrator-workers."}
+      ]
+    },
+    {
+      "id": "d1-l3",
+      "domainId": "d1",
+      "orderIndex": 3,
+      "title": "Multiagent orchestration: coordinators and subagents",
+      "estMinutes": 9,
+      "body": [
+        {"type": "text", "value": "A **coordinator** (orchestrator) agent delegates work to a roster of **subagents**, each with its own model, system prompt, tools, and context. Delegating to context-isolated subagents improves output quality (each stays focused) and can cut wall-clock time by running work in parallel."},
+        {"type": "text", "value": "Three delegation patterns work well: **parallelization** (fan out independent subtasks and synthesize), **specialization** (route to a domain-focused agent — a security agent, a docs agent — instead of one agent loaded with every capability), and **escalation** (consult a more capable model for the hard subset of subtasks)."},
+        {"type": "code", "language": "text", "value": "Coordinator (Opus)\n ├── Researcher (Haiku)  ← own tools + MCP servers, isolated context\n ├── Reviewer  (Opus)\n └── Test-writer(Sonnet)\nEach subagent runs in its own context-isolated thread; the coordinator synthesizes results."},
+        {"type": "text", "value": "In Anthropic's Managed Agents, each agent runs in its own **session thread** (isolated event stream and history). Tools, MCP servers, and context are NOT shared between agents; the shared sandbox filesystem and session-level vault credentials are. A coordinator can delegate only ONE level deep, list at most 20 unique agents in its roster, and a session supports at most 25 concurrent threads."},
+        {"type": "callout", "variant": "exam-key", "value": "Don't reach for multiagent by default. It multiplies token cost and coordination overhead. Use it when work spans multiple surfaces or when several well-scoped subtasks each benefit from isolated context and specialized configuration."}
+      ]
+    },
+    {
+      "id": "d1-l4",
+      "domainId": "d1",
+      "orderIndex": 4,
+      "title": "Reliability: error handling, guardrails, and human oversight",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "Autonomous agents accrue error over many steps, so reliability is a design concern, not an afterthought. Give the agent a way to recover: return tool errors as structured `tool_result` blocks with `is_error: true` and a useful message so the model can retry or adapt, rather than throwing and killing the loop."},
+        {"type": "text", "value": "Bound the loop. Set a maximum number of iterations or a token/time budget so a confused agent can't run forever. Define a clear stopping condition — the agent should know what 'done' looks like."},
+        {"type": "text", "value": "Add checkpoints for consequential actions. Human-in-the-loop approval before irreversible or costly operations (sending email, deleting data, spending money) is a standard guardrail. In agent harnesses this shows up as tool-permission confirmations."},
+        {"type": "callout", "variant": "exam-key", "value": "Keep the agent's action space small and its tools well-documented and tested in a sandbox before granting real-world access. Most agent failures trace back to poorly described tools or an over-broad action space, not to the model 'being wrong.'"}
+      ]
+    },
+
+    {
+      "id": "d2-l1",
+      "domainId": "d2",
+      "orderIndex": 1,
+      "title": "CLAUDE.md and the memory hierarchy",
+      "estMinutes": 8,
+      "body": [
+        {"type": "text", "value": "`CLAUDE.md` is a special file Claude Code pulls into context automatically at the start of a session. Use it for durable project knowledge: build/test commands, architecture notes, conventions, and 'gotchas' you'd tell a new teammate."},
+        {"type": "text", "value": "Memory is layered, most-specific wins on conflicts, and all applicable layers are combined:"},
+        {"type": "code", "language": "text", "value": "Enterprise policy   (system-wide managed file)      broadest\nProject memory      ./CLAUDE.md (checked into git, shared)\nUser memory         ~/.claude/CLAUDE.md (all your projects)\nProject-local       CLAUDE.local.md (deprecated; use imports)   narrowest"},
+        {"type": "text", "value": "Files can pull in others with `@path/to/file` imports, letting you keep CLAUDE.md short and reference deeper docs on demand. Project memory is committed so the whole team shares it; user memory is personal and applies across every project you open."},
+        {"type": "callout", "variant": "exam-key", "value": "CLAUDE.md is guidance the model SHOULD follow but MAY not, because it is instruction text. When you need something to happen deterministically — every time, no exceptions — use a hook instead (next lesson). This 'guidance vs. determinism' contrast is a frequent exam point."}
+      ]
+    },
+    {
+      "id": "d2-l2",
+      "domainId": "d2",
+      "orderIndex": 2,
+      "title": "Hooks and lifecycle events",
+      "estMinutes": 9,
+      "body": [
+        {"type": "text", "value": "Hooks are user-defined shell commands that run at fixed points in Claude Code's lifecycle. Unlike CLAUDE.md instructions, hooks are **deterministic**: they always execute. Configure them in settings (e.g. `.claude/settings.json`)."},
+        {"type": "text", "value": "Key lifecycle events include: **PreToolUse** (before a tool runs — can block it), **PostToolUse** (after a tool succeeds — e.g. auto-format edited files), **UserPromptSubmit** (when you submit a prompt — can inject context or validate), **Notification**, **Stop** and **SubagentStop** (when the agent/subagent finishes), **SessionStart** and **SessionEnd**, and **PreCompact** (before context is compacted)."},
+        {"type": "code", "language": "json", "value": "{\n  \"hooks\": {\n    \"PostToolUse\": [{\n      \"matcher\": \"Edit|Write\",\n      \"hooks\": [{\"type\": \"command\", \"command\": \"prettier --write $CLAUDE_FILE_PATHS\"}]\n    }]\n  }\n}"},
+        {"type": "text", "value": "A PreToolUse hook's exit code controls flow: exit 0 allows the tool, a non-zero blocking exit stops it and feeds the reason back to Claude. This is how you enforce policy — for example, blocking edits to protected paths or refusing to run destructive commands."},
+        {"type": "callout", "variant": "exam-key", "value": "Reach for a hook when you need a guarantee: run tests after every change, format on save, block secrets from being committed. Reach for CLAUDE.md when you want to guide judgment. Deterministic → hook; advisory → memory."}
+      ]
+    },
+    {
+      "id": "d2-l3",
+      "domainId": "d2",
+      "orderIndex": 3,
+      "title": "Subagents, slash commands, and Skills",
+      "estMinutes": 8,
+      "body": [
+        {"type": "text", "value": "**Subagents** are specialized assistants Claude Code can delegate to, each defined by a markdown file (in `.claude/agents/`) with frontmatter declaring its name, description, allowed tools, and system prompt. A subagent runs with its OWN context window, which keeps the main thread's context clean — delegate large searches or reviews to a subagent so their file dumps don't crowd the main conversation."},
+        {"type": "text", "value": "**Slash commands** are reusable prompt templates stored as markdown in `.claude/commands/` (project) or `~/.claude/commands/` (personal). Typing `/name` expands the template; `$ARGUMENTS` injects parameters. Use them to standardize repeated workflows like `/review` or `/write-tests`."},
+        {"type": "text", "value": "**Agent Skills** package instructions, metadata, and optional scripts/resources into a folder with a `SKILL.md` file. They are filesystem-based and load on demand, giving Claude domain expertise without repeating guidance every conversation. Skills work across Claude Code, the API, and claude.ai."},
+        {"type": "callout", "variant": "exam-key", "value": "Subagent = isolated context + delegation; Slash command = reusable prompt you invoke; Skill = packaged, auto-loaded capability. Match the tool to the need: context isolation, prompt reuse, or reusable expertise."}
+      ]
+    },
+    {
+      "id": "d2-l4",
+      "domainId": "d2",
+      "orderIndex": 4,
+      "title": "Headless mode, permissions, and CI",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "Headless (print) mode runs Claude Code non-interactively for scripts and CI: `claude -p \"<prompt>\"`. Add `--output-format json` (or `stream-json`) to get machine-readable results you can parse in a pipeline."},
+        {"type": "text", "value": "Permissions govern what Claude may do without asking. Modes range from prompting on every action to accepting edits automatically; you can allow/deny specific tools and command patterns in settings. In CI you typically pre-authorize a narrow allowlist so runs don't hang waiting for confirmation."},
+        {"type": "code", "language": "bash", "value": "# Non-interactive review in CI, JSON output\nclaude -p \"Review the diff on this branch and list correctness bugs\" \\\n  --output-format json > review.json"},
+        {"type": "callout", "variant": "exam-key", "value": "Headless mode + a tight permission allowlist + hooks is the standard recipe for automation (PR review bots, scheduled agents). Never grant broad auto-approval in an environment that can reach production."}
+      ]
+    },
+
+    {
+      "id": "d3-l1",
+      "domainId": "d3",
+      "orderIndex": 1,
+      "title": "Clear-and-direct prompting, roles, and examples",
+      "estMinutes": 8,
+      "body": [
+        {"type": "text", "value": "The highest-leverage prompting technique is being explicit. Tell Claude exactly what you want, the audience, the format, and what to avoid. Ambiguity is the main cause of disappointing output — if a smart colleague would need to ask a clarifying question, the prompt is underspecified."},
+        {"type": "text", "value": "Use the **system prompt** to set role and durable behavior ('You are a senior tax accountant…'); use the `messages` for the task itself. A well-chosen role sharpens tone and domain accuracy."},
+        {"type": "text", "value": "**Multishot (few-shot)** prompting — including 3–5 well-chosen examples of input→desired output — is one of the most reliable ways to shape format and edge-case handling. Examples often beat lengthy prose instructions for consistency."},
+        {"type": "callout", "variant": "exam-key", "value": "Order of impact for most tasks: be clear and direct → give examples → let Claude think (chain-of-thought) → use XML structure → assign a role → prefill. Know this rough hierarchy; questions often ask for the FIRST/most effective technique to try."}
+      ]
+    },
+    {
+      "id": "d3-l2",
+      "domainId": "d3",
+      "orderIndex": 2,
+      "title": "Chain-of-thought, XML tags, and prefilling",
+      "estMinutes": 8,
+      "body": [
+        {"type": "text", "value": "**Chain-of-thought**: asking Claude to reason step by step before answering improves accuracy on math, logic, and multi-constraint tasks. You can prompt it explicitly ('think step by step') or give a structure to think inside (e.g. a `<thinking>` section). The trade-off is more output tokens and latency."},
+        {"type": "text", "value": "**Extended thinking** is a model capability where Claude produces internal reasoning (thinking) tokens before its answer, with a configurable budget that is a subset of `max_tokens` and billed as output. Use it for genuinely hard reasoning; it is distinct from simply prompting for step-by-step text."},
+        {"type": "text", "value": "**XML tags** delimit parts of a prompt so Claude can tell instructions from data from examples — e.g. wrap a document in `<document>…</document>` and the question in `<question>…</question>`. This reduces the chance Claude confuses reference material for commands and makes outputs easier to parse."},
+        {"type": "text", "value": "**Prefilling** puts the first tokens of the assistant turn into Claude's mouth. Prefill `{` to push toward JSON, or a bracket/heading to enforce a format. Prefilling steers structure cheaply but is a weaker guarantee than structured outputs."},
+        {"type": "callout", "variant": "exam-key", "value": "Chain-of-thought and extended thinking are not the same: CoT is a prompting technique (visible reasoning text you request); extended thinking is a model feature with a token budget. Don't conflate them."}
+      ]
+    },
+    {
+      "id": "d3-l3",
+      "domainId": "d3",
+      "orderIndex": 3,
+      "title": "Guaranteeing machine-readable output",
+      "estMinutes": 8,
+      "body": [
+        {"type": "text", "value": "When downstream code parses Claude's output, prompting for JSON is not enough — the model can still emit malformed or extra text. **Structured outputs** solve this with constrained decoding, guaranteeing the response conforms to a schema."},
+        {"type": "text", "value": "Two complementary features: **strict tool use** (`strict: true`) guarantees tool names and inputs validate against your `input_schema`; and an output format (`output_config.format`) constrains Claude's final text response to a JSON Schema you supply. Both remove a class of parsing bugs."},
+        {"type": "code", "language": "text", "value": "Weakest → strongest guarantee of structure:\n  prompt for JSON  <  prefill '{'  <  strict tool use / output schema (constrained decoding)"},
+        {"type": "callout", "variant": "exam-key", "value": "If a scenario requires OUTPUT THAT NEVER BREAKS THE PARSER, the answer is structured outputs / strict tool use, not 'ask nicely for JSON' or prefilling. Prefilling improves the odds; constrained decoding guarantees the shape."}
+      ]
+    },
+
+    {
+      "id": "d4-l1",
+      "domainId": "d4",
+      "orderIndex": 1,
+      "title": "How tool use works",
+      "estMinutes": 8,
+      "body": [
+        {"type": "text", "value": "Tool use lets Claude call functions you define. The round trip: you send `messages` plus a list of tools (each with a `name`, `description`, and `input_schema`). If Claude decides to use one, it stops with `stop_reason: \"tool_use\"` and returns one or more `tool_use` blocks naming the tool and its arguments."},
+        {"type": "text", "value": "Your application executes the tool, then sends a follow-up request appending a `tool_result` block (referencing the `tool_use_id`) with the output. Claude reads the result and produces its final answer — or calls another tool. Tool errors are returned as a `tool_result` with `is_error: true` so Claude can recover."},
+        {"type": "code", "language": "text", "value": "1. Request: messages + tools\n2. Response: stop_reason=tool_use, tool_use{ id, name, input }\n3. You run the function\n4. Request: append tool_result{ tool_use_id, content }\n5. Response: final answer (or another tool_use)"},
+        {"type": "text", "value": "**Client tools** run in YOUR application (user-defined tools, plus Anthropic-schema tools like `bash` and `text_editor`). **Server tools** (like `web_search`, `web_fetch`, `code_execution`) run on Anthropic's infrastructure — you get results directly without executing anything."},
+        {"type": "callout", "variant": "exam-key", "value": "Client tool → Claude asks, YOU execute, YOU return a tool_result. Server tool → Anthropic executes, results come back inline. Mixing them: if a server tool is called in the same parallel group as a client tool, handling changes — watch the stop reason."}
+      ]
+    },
+    {
+      "id": "d4-l2",
+      "domainId": "d4",
+      "orderIndex": 2,
+      "title": "Designing effective tools",
+      "estMinutes": 9,
+      "body": [
+        {"type": "text", "value": "A tool is defined by three things: a `name` matching `^[a-zA-Z0-9_-]{1,64}$`, a plaintext `description`, and a JSON Schema `input_schema` for its parameters. Optionally, `input_examples` provide schema-validated example inputs for complex tools."},
+        {"type": "text", "value": "The single biggest driver of tool performance is the **description**. Explain what the tool does, when to use it, what it returns, and any caveats or limits. Aim for at least 3–4 sentences — more for complex tools. Poor tool use is far more often a description problem than a model problem."},
+        {"type": "text", "value": "Design the schema for clarity: descriptive parameter names, enums for constrained values, required vs. optional marked correctly, and per-field descriptions. Use meaningful namespacing in tool names when tools span services (`github_list_prs`, `slack_send_message`) so selection stays unambiguous as the library grows."},
+        {"type": "text", "value": "Control invocation with `tool_choice`: `auto` (Claude decides), `any` (must use some tool), `tool` (force a specific one), or `none`. Set `disable_parallel_tool_use: true` to force one tool call at a time when order matters or your executor isn't safe for concurrency."},
+        {"type": "callout", "variant": "exam-key", "value": "When tool use misbehaves, improve the DESCRIPTION and schema before blaming the prompt or model. 'Give extremely detailed descriptions' is the official #1 recommendation."}
+      ]
+    },
+    {
+      "id": "d4-l3",
+      "domainId": "d4",
+      "orderIndex": 3,
+      "title": "The Model Context Protocol (MCP)",
+      "estMinutes": 9,
+      "body": [
+        {"type": "text", "value": "MCP is an open standard for connecting AI applications to external tools, data, and prompts — 'a USB-C port for AI.' It standardizes how a model discovers and calls capabilities so the same server works across many hosts."},
+        {"type": "text", "value": "Architecture: an **MCP host** (the AI app, e.g. Claude Code or the Claude API) runs one or more **MCP clients**, each maintaining a 1:1 connection to an **MCP server**. Servers expose three primitives: **tools** (functions the model can call), **resources** (data/context the app can read), and **prompts** (reusable templates)."},
+        {"type": "text", "value": "Transports: **stdio** for local servers (the host launches the server as a subprocess) and **Streamable HTTP** (with SSE) for remote servers. Remote servers must be publicly reachable over HTTP; local stdio servers can't be connected to directly by the API connector."},
+        {"type": "text", "value": "The **MCP connector** lets the Messages API talk to remote MCP servers without you running a separate MCP client. You pass an `mcp_servers` array (URL + auth), it supports OAuth bearer tokens, and you can allowlist/denylist individual tools via `tool_configuration`. It currently requires a beta header."},
+        {"type": "callout", "variant": "exam-key", "value": "Memorize the primitives (tools, resources, prompts) and the host→client→server relationship (one client per server, 1:1). 'Local = stdio, remote = Streamable HTTP/SSE' is a common distractor to get right."}
+      ]
+    },
+
+    {
+      "id": "d5-l1",
+      "domainId": "d5",
+      "orderIndex": 1,
+      "title": "The context window and what counts",
+      "estMinutes": 7,
+      "body": [
+        {"type": "text", "value": "The context window is the total tokens a model can consider at once. EVERYTHING counts toward it: the system prompt, every message (including tool results, images, and documents), your tool definitions, and the output Claude generates — including extended-thinking tokens."},
+        {"type": "text", "value": "Sizes vary by model. Current large models (e.g. Claude Opus 4.8/4.7/4.6, Sonnet 5, Fable 5, Mythos 5) offer a 1M-token context window; older models such as Sonnet 4.5 have 200K. Each response's `usage` field reports exactly what the request consumed; use the token-counting API to estimate before sending."},
+        {"type": "callout", "variant": "exam-key", "value": "Longer context is not free quality. As conversations grow, response quality can degrade and cost/latency rise — which is why compaction and context editing exist. 'Just use the 1M window' is usually the wrong answer for a long-running agent; curate context instead."}
+      ]
+    },
+    {
+      "id": "d5-l2",
+      "domainId": "d5",
+      "orderIndex": 2,
+      "title": "Prompt caching",
+      "estMinutes": 9,
+      "body": [
+        {"type": "text", "value": "Prompt caching stores a prompt prefix so repeated requests that share it skip re-processing — cutting cost and latency. You mark a cacheable boundary with `cache_control: {type: \"ephemeral\"}` on a content block. Caching covers the whole prefix in order: `tools`, then `system`, then `messages`, up to and including the marked block."},
+        {"type": "text", "value": "Pricing (relative to base input tokens): a 5-minute cache WRITE costs 1.25×, a 1-hour write costs 2×, and every cache READ (hit) costs 0.1×. The default TTL is 5 minutes and refreshes for free on each use; a 1-hour TTL is available at higher write cost. Cache breakpoints themselves are free — you only pay for what is written and read."},
+        {"type": "text", "value": "You can define up to **4 cache breakpoints**, with a ~20-block lookback for cache hits and a per-platform minimum cacheable prompt length. Automatic caching (a single top-level `cache_control`) places the breakpoint on the last cacheable block and moves it forward as the conversation grows — but it consumes one of the 4 slots."},
+        {"type": "callout", "variant": "exam-key", "value": "Put the cache breakpoint AFTER your large, STABLE content (system prompt, tool defs, big documents) and BEFORE the parts that change each turn. Caching the changing tail wastes writes and never gets a hit — a favorite scenario trap."}
+      ]
+    },
+    {
+      "id": "d5-l3",
+      "domainId": "d5",
+      "orderIndex": 3,
+      "title": "Compaction, context editing, and memory",
+      "estMinutes": 9,
+      "body": [
+        {"type": "text", "value": "**Server-side compaction** is the recommended way to manage long-running conversations. When input tokens hit a configured threshold, the API summarizes older turns into a `compaction` block and continues from the summary; on later requests it automatically drops content before that block. You keep your full history client-side and just append responses."},
+        {"type": "text", "value": "**Context editing** selectively clears content as context grows. `clear_tool_uses_20250919` removes the oldest tool results (optionally the tool inputs too) once you pass a threshold, replacing them with placeholder text — ideal for tool-heavy agents where old file contents are no longer needed. `clear_thinking_20251015` manages `thinking` blocks. Both run server-side; your client keeps the full, unmodified history."},
+        {"type": "text", "value": "The **memory tool** lets Claude persist information outside the context window — writing notes to a store it can read back later — so knowledge survives across turns and sessions without bloating the window. Memory endpoints use their own beta header."},
+        {"type": "callout", "variant": "exam-key", "value": "Compaction = summarize old context automatically (best default for long agents). Context editing = surgically clear tool results/thinking. Memory tool = persist facts OUTSIDE the window. Caching = reuse a stable prefix. Know which lever each scenario calls for — they solve different problems."}
+      ]
+    },
+    {
+      "id": "d5-l4",
+      "domainId": "d5",
+      "orderIndex": 4,
+      "title": "Cost and latency levers: batch and streaming",
+      "estMinutes": 6,
+      "body": [
+        {"type": "text", "value": "**Batch processing** (Message Batches API) handles large volumes asynchronously at **50% lower cost**. A batch holds up to 100,000 requests or 256 MB, whichever comes first; most finish within 1 hour, and results are available when done or after 24 hours (batches expire if not complete within 24 hours). Use it for non-urgent work: evaluations, bulk classification, content moderation."},
+        {"type": "text", "value": "**Streaming** (SSE) returns tokens as they are generated, improving perceived latency for interactive UIs and long outputs. It doesn't reduce total tokens or cost, but the user sees output sooner and you can render progressively."},
+        {"type": "callout", "variant": "exam-key", "value": "Batch = cheaper + asynchronous (throughput, not speed). Streaming = faster PERCEIVED latency (not cheaper). Pick batch when latency doesn't matter and volume is high; pick streaming for interactive experiences."}
+      ]
+    }
+  ]
+}

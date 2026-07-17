@@ -1,0 +1,53 @@
+{
+  "track": {
+    "code": "CCAR-F",
+    "title": "Claude Certified Architect — Foundations",
+    "questionCount": 60,
+    "timeLimitMin": 120,
+    "passScore": 720,
+    "scoreScale": 1000,
+    "contentVersion": 1
+  },
+  "domains": [
+    {
+      "id": "d1",
+      "code": "D1",
+      "title": "Agentic Architecture & Orchestration",
+      "weightPct": 27,
+      "orderIndex": 1,
+      "summary": "Defining agentic systems; agents vs. workflows vs. conversational systems; the augmented LLM; workflow patterns (prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer); coordinator/subagent multiagent orchestration; error handling and when NOT to use agents."
+    },
+    {
+      "id": "d2",
+      "code": "D2",
+      "title": "Claude Code Configuration & Workflows",
+      "weightPct": 20,
+      "orderIndex": 2,
+      "summary": "CLAUDE.md memory hierarchy and imports; settings and permissions; hooks and lifecycle events; subagents; slash commands; Agent Skills; MCP in Claude Code; headless/print mode for CI and automation."
+    },
+    {
+      "id": "d3",
+      "code": "D3",
+      "title": "Prompt Engineering & Structured Output",
+      "weightPct": 20,
+      "orderIndex": 3,
+      "summary": "Clear-and-direct prompting; system prompts and roles; multishot (few-shot) examples; chain-of-thought and extended thinking; XML tags; prefilling; and guaranteeing machine-readable output with structured outputs and strict tool use."
+    },
+    {
+      "id": "d4",
+      "code": "D4",
+      "title": "Tool Design & MCP Integration",
+      "weightPct": 18,
+      "orderIndex": 4,
+      "summary": "How tool use works (the tool_use / tool_result round trip); client vs. server tools; writing effective tool schemas and descriptions; tool_choice and parallel tool use; the Model Context Protocol (hosts/clients/servers, transports); and the MCP connector."
+    },
+    {
+      "id": "d5",
+      "code": "D5",
+      "title": "Context Management",
+      "weightPct": 15,
+      "orderIndex": 5,
+      "summary": "Context windows and what counts toward them; prompt caching (breakpoints, TTLs, pricing); server-side compaction; context editing (tool-result and thinking clearing); the memory tool; and cost/latency levers like batch processing and streaming."
+    }
+  ]
+}

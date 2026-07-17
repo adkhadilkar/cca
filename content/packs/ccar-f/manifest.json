@@ -1,0 +1,38 @@
+{
+  "packId": "ccar-f",
+  "track": "CCAR-F",
+  "contentVersion": 1,
+  "minAppVersion": 1,
+  "createdAt": "2026-07-16",
+  "sha256Note": "Combined sha256 of domains.json+guide.json+lessons.json+questions.json+glossary.json (sorted, concatenated): 29d363a74f3b7d99b8a6ad091598d0f50da1f296fe36104eff18a985eb2daf84. Recompute at build/sign time (see docs/DEVELOPMENT_DESIGN.md §6) rather than trusting this note as authoritative once files change.",
+  "counts": {
+    "domains": 5,
+    "lessons": 18,
+    "questions": 25,
+    "glossaryTerms": 46
+  },
+  "sources": [
+    {"title": "Claude Managed Agents overview", "url": "https://platform.claude.com/docs/en/managed-agents/overview", "retrieved": "2026-07-16"},
+    {"title": "Multiagent orchestration", "url": "https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration", "retrieved": "2026-07-16"},
+    {"title": "Define outcomes (Managed Agents)", "url": "https://platform.claude.com/docs/en/managed-agents/define-outcomes", "retrieved": "2026-07-16"},
+    {"title": "Agent Skills overview", "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview", "retrieved": "2026-07-16"},
+    {"title": "Agent Skills best practices", "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices", "retrieved": "2026-07-16"},
+    {"title": "Structured outputs", "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs", "retrieved": "2026-07-16"},
+    {"title": "Extended thinking", "url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking", "retrieved": "2026-07-16"},
+    {"title": "Tool use overview", "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview", "retrieved": "2026-07-16"},
+    {"title": "How tool use works", "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works", "retrieved": "2026-07-16"},
+    {"title": "Define tools", "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools", "retrieved": "2026-07-16"},
+    {"title": "Remote MCP servers", "url": "https://platform.claude.com/docs/en/agents-and-tools/remote-mcp-servers", "retrieved": "2026-07-16"},
+    {"title": "MCP connector", "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector", "retrieved": "2026-07-16"},
+    {"title": "Context windows", "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows", "retrieved": "2026-07-16"},
+    {"title": "Compaction", "url": "https://platform.claude.com/docs/en/build-with-claude/compaction", "retrieved": "2026-07-16"},
+    {"title": "Context editing", "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing", "retrieved": "2026-07-16"},
+    {"title": "Prompt caching", "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching", "retrieved": "2026-07-16"},
+    {"title": "Streaming", "url": "https://platform.claude.com/docs/en/build-with-claude/streaming", "retrieved": "2026-07-16"},
+    {"title": "Message Batches API", "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing", "retrieved": "2026-07-16"},
+    {"title": "Working with messages", "url": "https://platform.claude.com/docs/en/build-with-claude/working-with-messages", "retrieved": "2026-07-16"},
+    {"title": "Memory tool", "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool", "retrieved": "2026-07-16"},
+    {"title": "Building effective agents (Anthropic Engineering)", "url": "https://www.anthropic.com/engineering/building-effective-agents", "retrieved": "2026-07-16", "note": "Referenced from training knowledge; direct fetch was blocked (403) by network policy during this session — verify against the live page before relying on exact wording."},
+    {"title": "Claude Certified Architect exam format (60 Q / 120 min / 720 pass, 5 domains)", "url": "https://www.pearsonvue.com/us/en/anthropic.html", "retrieved": "2026-07-16", "note": "Exam facts corroborated via web search summaries; confirm current blueprint on Anthropic's official certification pages before relying on exact weights/counts."}
+  ]
+}
