@@ -47,7 +47,9 @@ data class LessonBlockDto(
     val type: String,
     val value: String,
     val language: String? = null,
-    val variant: String? = null
+    val variant: String? = null,
+    /** Relative path under assets/content/images/, only set when type == "image". value is used as the caption/alt text. */
+    val path: String? = null
 )
 
 @Serializable

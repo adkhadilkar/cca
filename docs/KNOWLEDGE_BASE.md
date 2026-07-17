@@ -2,7 +2,7 @@
 
 Generated from `content/packs/ccar-f/*.json` — the single source of truth. Regenerate this file after editing the JSON rather than hand-editing it directly.
 
-**v3: rebuilt against the official Exam Guide, Certification Exam Policy, and Certification Terms and Conditions** (Anthropic PDFs, user-supplied). See `content/SOURCES.md` for full provenance, including how the 12 official sample questions are attributed separately from originally-authored ones.
+**v3/v4: rebuilt against the official Exam Guide, Certification Exam Policy, and Certification Terms and Conditions** (Anthropic PDFs, user-supplied), with 4 official diagrams wired into D1 lessons in v4. See `content/SOURCES.md` for full provenance.
 
 ## Exam overview
 
@@ -66,6 +66,8 @@ _Agentic loop lifecycle (stop_reason, tool results in context); coordinator-suba
 
 An agentic loop is: send a request to Claude, inspect `stop_reason`, act accordingly, repeat. `stop_reason: "tool_use"` means Claude wants to call a tool — execute it and return the result for the next iteration. `stop_reason: "end_turn"` means Claude is done — present the response and stop the loop.
 
+📷 *Diagram (images/agentic-loop.svg):* The agentic loop: request → stop_reason check → tool execution → result appended to context → repeat until end_turn.
+
 Tool results get appended to conversation history so the model can reason about what to do next with full context of what happened. This is what makes the loop 'agentic': Claude decides which tool to call next based on accumulated context, not a hardcoded sequence.
 
 ```text
@@ -84,6 +86,8 @@ loop:
 #### Task 1.2 — Coordinator-subagent orchestration patterns (8 min)
 
 The tested pattern is hub-and-spoke: a coordinator agent manages ALL inter-subagent communication, error handling, and information routing. Subagents don't talk to each other directly — everything flows through the coordinator, which gives you observability, consistent error handling, and controlled information flow.
+
+📷 *Diagram (images/subagents-vs-agent-teams-light.png):* Hub-and-spoke: a coordinator delegates to subagents, each running with its own isolated context, and aggregates their results.
 
 Subagents run with ISOLATED context — they do not automatically inherit the coordinator's conversation history. The coordinator decides which subagents to invoke based on query complexity, decomposes the task, delegates, and aggregates results.
 
@@ -115,6 +119,8 @@ For mid-process human escalation, use a structured handoff protocol: customer de
 
 Two applied hook patterns are tested. **PostToolUse** hooks intercept a tool's RESULT and transform it before the model processes it — e.g., normalizing heterogeneous data formats (Unix timestamps, ISO 8601, numeric status codes) coming back from different MCP tools into one consistent shape.
 
+📷 *Diagram (images/hooks-lifecycle.svg):* Where hooks fire in the Claude Code / Agent SDK lifecycle — PostToolUse fires after a tool result returns, before the model processes it.
+
 Tool call interception hooks intercept an OUTGOING tool call before it executes, to enforce a compliance rule — e.g., blocking a refund tool call above a $500 threshold and redirecting to human escalation instead of letting the model decide case by case.
 
 > **Exam key point:** Same principle as Task 1.4: choose hooks over prompt-based enforcement whenever a business rule needs a GUARANTEE, not a probabilistic best effort. A hook that blocks a call is deterministic; a system-prompt instruction saying 'never approve refunds over $500' is not.
@@ -132,6 +138,8 @@ For open-ended tasks (e.g., 'add comprehensive tests to a legacy codebase'), fir
 #### Task 1.7 — Session state, resumption, and forking (7 min)
 
 `--resume <session-name>` continues a specific named prior conversation. `fork_session` creates an INDEPENDENT branch from a shared analysis baseline so you can explore divergent approaches (e.g., comparing two refactoring strategies from the same starting codebase analysis) without the branches interfering with each other.
+
+📷 *Diagram (images/session-continuity.svg):* Resuming vs. forking a session: --resume continues one named conversation; fork_session branches into independent, parallel explorations from a shared baseline.
 
 When resuming a session after code has changed since the last run, explicitly tell the agent what files changed — don't assume it will re-discover this, and don't require full re-exploration when a targeted note would do.
 

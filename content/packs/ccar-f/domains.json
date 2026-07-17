@@ -6,7 +6,7 @@
     "timeLimitMin": 120,
     "passScore": 720,
     "scoreScale": 1000,
-    "contentVersion": 3
+    "contentVersion": 4
   },
   "domains": [
     {

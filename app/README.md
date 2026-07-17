@@ -31,6 +31,16 @@ Everything else is a `PlaceholderScreen`. See the root-level task list for
 the exact remaining work (screens 02–13, user progress writes, spaced
 repetition, mock exam timer/scoring, settings, content-pack updater).
 
+**Image lesson blocks are content-ready but not yet rendered.** 4 official
+diagrams (from a crawl of `code.claude.com`, see `content/SOURCES.md`) are
+bundled at `assets/content/images/` and referenced from D1 lessons as
+`{"type": "image", "path": "...", "value": "<caption>"}` blocks — the schema
+and DTOs (`ContentDtos.kt`) support this, but the composable that will
+actually render a lesson body (part of the Study screen, M1) doesn't exist
+yet. When M1 lands, its lesson-body renderer needs a case for `type ==
+"image"` that loads the bitmap/SVG from assets and shows the caption below
+it, alongside the existing `text`/`code`/`callout` cases.
+
 ## Known gaps carried over from the content pack
 
 As of content pack v3, the entire pack — domains, exam mechanics, all 30

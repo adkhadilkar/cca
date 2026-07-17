@@ -1,10 +1,10 @@
 {
   "packId": "ccar-f",
   "track": "CCAR-F",
-  "contentVersion": 3,
+  "contentVersion": 4,
   "minAppVersion": 1,
   "createdAt": "2026-07-17",
-  "sha256Note": "Combined sha256 of domains.json+guide.json+lessons.json+questions.json+glossary.json (sorted, concatenated): 96dc2b3fecb0444451ac1088b9bcf42ba5d861e645cf9ba58524570ea17528d7. Recompute at build/sign time rather than trusting this note once files change.",
+  "sha256Note": "Combined sha256 of domains.json+guide.json+lessons.json+questions.json+glossary.json (sorted, concatenated): 054ce9c05d948e1aa3631d04930b90b6d6cacf70b4f5c8dcf026a4c413d9911f. Recompute at build/sign time rather than trusting this note once files change.",
   "counts": {
     "domains": 5,
     "lessons": 30,
@@ -12,6 +12,11 @@
     "glossaryTerms": 46
   },
   "changelog": [
+    {
+      "version": 4,
+      "date": "2026-07-17",
+      "summary": "Wired 4 official diagrams (agentic-loop.svg, subagents-vs-agent-teams-light.png, hooks-lifecycle.svg, session-continuity.svg) from the user's earlier code.claude.com crawl into the matching D1 lessons (1.1 agentic loops, 1.2 coordinator-subagent, 1.5 hooks, 1.7 session state) as new 'image' body blocks. Added the 'image' block type (path + caption) to the lesson schema and app DTOs. Assets copied to app/src/main/assets/content/images/. Content text unchanged from v3 aside from these additions."
+    },
     {
       "version": 3,
       "date": "2026-07-17",

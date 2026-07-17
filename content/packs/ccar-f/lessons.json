@@ -8,6 +8,7 @@
       "estMinutes": 8,
       "body": [
         {"type": "text", "value": "An agentic loop is: send a request to Claude, inspect `stop_reason`, act accordingly, repeat. `stop_reason: \"tool_use\"` means Claude wants to call a tool — execute it and return the result for the next iteration. `stop_reason: \"end_turn\"` means Claude is done — present the response and stop the loop."},
+        {"type": "image", "path": "images/agentic-loop.svg", "value": "The agentic loop: request → stop_reason check → tool execution → result appended to context → repeat until end_turn."},
         {"type": "text", "value": "Tool results get appended to conversation history so the model can reason about what to do next with full context of what happened. This is what makes the loop 'agentic': Claude decides which tool to call next based on accumulated context, not a hardcoded sequence."},
         {"type": "code", "language": "text", "value": "loop:\n  response = send(messages)\n  if response.stop_reason == \"tool_use\":\n      result = execute(response.tool_use)\n      messages.append(tool_result: result)\n      continue\n  elif response.stop_reason == \"end_turn\":\n      return response  # done"},
         {"type": "callout", "variant": "exam-key", "value": "Known anti-patterns to recognize and avoid: parsing the assistant's natural-language TEXT to decide whether to keep looping (fragile — use stop_reason instead); using an arbitrary iteration cap as the PRIMARY stopping mechanism (a safety backstop is fine, but it isn't how the loop is supposed to terminate); and checking for the presence of assistant text as a 'done' signal (Claude can produce text alongside a tool_use block)."}
@@ -21,6 +22,7 @@
       "estMinutes": 8,
       "body": [
         {"type": "text", "value": "The tested pattern is hub-and-spoke: a coordinator agent manages ALL inter-subagent communication, error handling, and information routing. Subagents don't talk to each other directly — everything flows through the coordinator, which gives you observability, consistent error handling, and controlled information flow."},
+        {"type": "image", "path": "images/subagents-vs-agent-teams-light.png", "value": "Hub-and-spoke: a coordinator delegates to subagents, each running with its own isolated context, and aggregates their results."},
         {"type": "text", "value": "Subagents run with ISOLATED context — they do not automatically inherit the coordinator's conversation history. The coordinator decides which subagents to invoke based on query complexity, decomposes the task, delegates, and aggregates results."},
         {"type": "text", "value": "A named failure mode: overly NARROW task decomposition by the coordinator, leading to incomplete coverage of a broad topic (e.g., decomposing 'creative industries' into only visual-arts subtasks and silently missing music, writing, and film — the subagents did their assigned jobs correctly; the problem was what they were assigned)."},
         {"type": "callout", "variant": "exam-key", "value": "Good coordinator design: dynamically select which subagents to invoke rather than always routing through the full pipeline; partition scope across subagents to minimize duplication; run iterative refinement loops where the coordinator evaluates synthesis output for gaps and re-delegates with targeted follow-up queries until coverage is sufficient."}
@@ -60,6 +62,7 @@
       "estMinutes": 7,
       "body": [
         {"type": "text", "value": "Two applied hook patterns are tested. **PostToolUse** hooks intercept a tool's RESULT and transform it before the model processes it — e.g., normalizing heterogeneous data formats (Unix timestamps, ISO 8601, numeric status codes) coming back from different MCP tools into one consistent shape."},
+        {"type": "image", "path": "images/hooks-lifecycle.svg", "value": "Where hooks fire in the Claude Code / Agent SDK lifecycle — PostToolUse fires after a tool result returns, before the model processes it."},
         {"type": "text", "value": "Tool call interception hooks intercept an OUTGOING tool call before it executes, to enforce a compliance rule — e.g., blocking a refund tool call above a $500 threshold and redirecting to human escalation instead of letting the model decide case by case."},
         {"type": "callout", "variant": "exam-key", "value": "Same principle as Task 1.4: choose hooks over prompt-based enforcement whenever a business rule needs a GUARANTEE, not a probabilistic best effort. A hook that blocks a call is deterministic; a system-prompt instruction saying 'never approve refunds over $500' is not."}
       ]
@@ -85,6 +88,7 @@
       "estMinutes": 7,
       "body": [
         {"type": "text", "value": "`--resume <session-name>` continues a specific named prior conversation. `fork_session` creates an INDEPENDENT branch from a shared analysis baseline so you can explore divergent approaches (e.g., comparing two refactoring strategies from the same starting codebase analysis) without the branches interfering with each other."},
+        {"type": "image", "path": "images/session-continuity.svg", "value": "Resuming vs. forking a session: --resume continues one named conversation; fork_session branches into independent, parallel explorations from a shared baseline."},
         {"type": "text", "value": "When resuming a session after code has changed since the last run, explicitly tell the agent what files changed — don't assume it will re-discover this, and don't require full re-exploration when a targeted note would do."},
         {"type": "callout", "variant": "exam-key", "value": "Starting a NEW session with a structured summary is often more reliable than resuming a stale one — if prior tool results are stale (files have since changed), a fresh session with an injected summary avoids the model reasoning from outdated information. Resume when prior context is still mostly valid; start fresh with a summary when it isn't."}
       ]
