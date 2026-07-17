@@ -36,6 +36,8 @@ class SettingsViewModel(
     private val prefs: UserPrefsRepository
 ) : ViewModel() {
 
+    private val exportJson = Json { prettyPrint = true }
+
     val userPrefs: StateFlow<UserPrefs?> = prefs.prefs
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
@@ -54,7 +56,7 @@ class SettingsViewModel(
             mockAttempts = db.mockAttemptDao().getAll(),
             streakDays = db.streakDayDao().getAll()
         )
-        return Json { prettyPrint = true }.encodeToString(bundle)
+        return exportJson.encodeToString(bundle)
     }
 
     fun resetProgress(onDone: () -> Unit) {
